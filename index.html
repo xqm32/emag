@@ -578,7 +578,32 @@ function buildInstances(){
   // 1. Glows
   for(const c of alive){
     const r=c.radius*(1+Math.sin(c.pulse)*.02);
-    push(c.x,c.y,r, c.rgb[0],c.rgb[1],c.rgb[2], c.isPlayer?.9:.7, 1);
+    let rr,gg,bb;
+    if(c.isPlayer){
+      // Player keeps its original color
+      rr=c.rgb[0]; gg=c.rgb[1]; bb=c.rgb[2];
+    }else if(player&&player.alive){
+      // Enemy cells: color based on whether player can eat them
+      const massRatio = c.mass / player.mass;
+      if(c.mass<player.mass*.95){
+        // Eatable - green with intensity based on size difference
+        const intensity = Math.max(0.15, Math.min(1, 1 - massRatio * 0.95));
+        rr=0; gg=intensity; bb=0;
+      }
+      else if(c.mass>player.mass*1.05){
+        // Dangerous - red with intensity based on size difference
+        const intensity = Math.max(0.2, Math.min(1, (massRatio - 1) * 0.65));
+        rr=intensity; gg=0; bb=0;
+      }
+      else{
+        // Similar size - yellow
+        rr=1; gg=1; bb=.4;
+      }
+    }else{
+      // No player or player dead, use original color
+      rr=c.rgb[0]; gg=c.rgb[1]; bb=c.rgb[2];
+    }
+    push(c.x,c.y,r, rr,gg,bb, c.isPlayer?.9:.7, 1);
   }
 
   // 2. Ring indicators
@@ -590,14 +615,20 @@ function buildInstances(){
       const massRatio = c.mass / player.mass;
       if(c.mass<player.mass*.95){
         // Eatable - green color with intensity based on size difference
-        // Smaller mass ratio = easier to eat = deeper green
-        const intensity = Math.max(0.3, 1 - massRatio); // Range: 0.3 to ~0.7
+        // Smaller the enemy = easier to eat = deeper green
+        // massRatio: 0.1 (very small) -> intensity: ~0.905 -> 0.905 (deep green)
+        // massRatio: 0.5 (medium) -> intensity: ~0.525 -> 0.525 (medium green)
+        // massRatio: 0.9 (almost same) -> intensity: ~0.145 -> 0.15 (light green, clamped)
+        const intensity = Math.max(0.15, Math.min(1, 1 - massRatio * 0.95));
         rr=0; gg=intensity; bb=0;
       }
       else if(c.mass>player.mass*1.05){
         // Dangerous - red color with intensity based on size difference
-        // Larger mass ratio = more dangerous = deeper red
-        const intensity = Math.min(1, massRatio * 0.5); // Scales with danger level
+        // Larger the enemy = more dangerous = deeper red
+        // massRatio: 1.2 (slightly larger) -> intensity: ~0.13 -> 0.2 (light red, clamped)
+        // massRatio: 2.0 (double size) -> intensity: 0.65 (medium red)
+        // massRatio: 2.54+ (2.5x+ size) -> intensity: 1.0 (deep red, clamped at max)
+        const intensity = Math.max(0.2, Math.min(1, (massRatio - 1) * 0.65));
         rr=intensity; gg=0; bb=0;
       }
       else{rr=1;gg=1;bb=.4;}
@@ -615,7 +646,32 @@ function buildInstances(){
   // 4. Bodies (on top)
   for(const c of alive){
     const r=c.radius*(1+Math.sin(c.pulse)*.02);
-    push(c.x,c.y,r, c.rgb[0],c.rgb[1],c.rgb[2], c.isPlayer?.92:.82, 0);
+    let rr,gg,bb;
+    if(c.isPlayer){
+      // Player keeps its original color
+      rr=c.rgb[0]; gg=c.rgb[1]; bb=c.rgb[2];
+    }else if(player&&player.alive){
+      // Enemy cells: color based on whether player can eat them
+      const massRatio = c.mass / player.mass;
+      if(c.mass<player.mass*.95){
+        // Eatable - green with intensity based on size difference
+        const intensity = Math.max(0.15, Math.min(1, 1 - massRatio * 0.95));
+        rr=0; gg=intensity; bb=0;
+      }
+      else if(c.mass>player.mass*1.05){
+        // Dangerous - red with intensity based on size difference
+        const intensity = Math.max(0.2, Math.min(1, (massRatio - 1) * 0.65));
+        rr=intensity; gg=0; bb=0;
+      }
+      else{
+        // Similar size - yellow
+        rr=1; gg=1; bb=.4;
+      }
+    }else{
+      // No player or player dead, use original color
+      rr=c.rgb[0]; gg=c.rgb[1]; bb=c.rgb[2];
+    }
+    push(c.x,c.y,r, rr,gg,bb, c.isPlayer?.92:.82, 0);
   }
 
   return cnt;
