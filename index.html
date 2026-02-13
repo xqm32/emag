@@ -590,14 +590,20 @@ function buildInstances(){
       const massRatio = c.mass / player.mass;
       if(c.mass<player.mass*.95){
         // Eatable - green color with intensity based on size difference
-        // Smaller mass ratio = easier to eat = deeper green
-        const intensity = Math.max(0.3, 1 - massRatio); // Range: 0.3 to ~0.7
+        // Smaller the enemy = easier to eat = deeper green
+        // massRatio: 0.1 (very small) -> intensity: 0.9 (deep green)
+        // massRatio: 0.5 (medium) -> intensity: 0.5 (medium green)
+        // massRatio: 0.9 (almost same) -> intensity: 0.15 (light green)
+        const intensity = Math.max(0.15, Math.min(1, 1 - massRatio * 0.95));
         rr=0; gg=intensity; bb=0;
       }
       else if(c.mass>player.mass*1.05){
         // Dangerous - red color with intensity based on size difference
-        // Larger mass ratio = more dangerous = deeper red
-        const intensity = Math.min(1, massRatio * 0.5); // Scales with danger level
+        // Larger the enemy = more dangerous = deeper red
+        // massRatio: 1.2 (slightly larger) -> intensity: 0.2 (light red)
+        // massRatio: 2.0 (double size) -> intensity: 0.65 (medium red)
+        // massRatio: 5.0 (5x size) -> intensity: 1.0 (deep red)
+        const intensity = Math.max(0.2, Math.min(1, (massRatio - 1) * 0.65));
         rr=intensity; gg=0; bb=0;
       }
       else{rr=1;gg=1;bb=.4;}
