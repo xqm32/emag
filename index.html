@@ -2,12 +2,13 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Osmos</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0a1a; }
-canvas { display: block; cursor: none; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0a1a; touch-action: none; }
+canvas { display: block; }
+@media (pointer: fine) { canvas { cursor: none; } }
 #ui {
   position: fixed; top: 0; left: 0; width: 100%; pointer-events: none;
   display: flex; justify-content: space-between; padding: 18px 28px;
@@ -41,6 +42,20 @@ canvas { display: block; cursor: none; }
 }
 #timeControl button:hover { background: rgba(255,255,255,0.15); }
 #timeControl button.active { border-color: rgba(100,180,255,0.6); color: #fff; }
+#zoomControl {
+  position: fixed; right: 20px; top: 50%; transform: translateY(-50%);
+  display: flex; flex-direction: column; gap: 8px; z-index: 10;
+}
+#zoomControl button {
+  width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(0,0,0,0.4); color: rgba(255,255,255,0.7); font-size: 20px;
+  cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+}
+#zoomControl button:hover { background: rgba(255,255,255,0.15); color: #fff; }
+#zoomLabel {
+  color: rgba(255,255,255,0.4); font-size: 11px; text-align: center;
+  font-family: 'Helvetica Neue', sans-serif;
+}
 #speedLabel {
   position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%);
   color: rgba(255,255,255,0.4); font-size: 12px; font-family: 'Helvetica Neue', sans-serif;
@@ -51,6 +66,7 @@ canvas { display: block; cursor: none; }
 <body>
 <div id="ui">
   <div id="massDisplay">质量: 0</div>
+  <div id="levelDisplay">阶段 1/5</div>
   <div id="rankDisplay">排名: 0/0</div>
 </div>
 
@@ -62,20 +78,34 @@ canvas { display: block; cursor: none; }
 </div>
 <div id="speedLabel">1.0x</div>
 
+<div id="zoomControl">
+  <button id="btnZoomIn" title="放大">+</button>
+  <div id="zoomLabel">100%</div>
+  <button id="btnZoomOut" title="缩小">−</button>
+</div>
+
 <div id="overlay">
   <h1>OSMOS</h1>
-  <p>点击鼠标向反方向喷射质量来移动</p>
+  <p>点击/触屏向反方向喷射质量来移动</p>
   <p>吞噬比你小的细胞，躲避比你大的</p>
-  <p>成为最大的细胞即可获胜</p>
-  <p class="sub">滚轮缩放 · 底部按钮调速 · R 重开</p>
+  <p>通过全部 5 个阶段即可获胜</p>
+  <p class="sub">滚轮/双指缩放 · 底部按钮调速 · R 重开</p>
   <button id="startBtn">开 始</button>
 </div>
 
+<canvas id="overlay2d" style="position:fixed;top:0;left:0;z-index:5;"></canvas>
 <canvas id="c"></canvas>
 
 <script>
+// ═══════════════════════════════════════════════════
+//  WebGL2 Osmos
+// ═══════════════════════════════════════════════════
 const canvas = document.getElementById('c');
-const ctx = canvas.getContext('2d');
+const olCanvas = document.getElementById('overlay2d');
+const olCtx = olCanvas.getContext('2d');
+const gl = canvas.getContext('webgl2', { antialias: true, alpha: false });
+if (!gl) { alert('WebGL2 not supported'); throw new Error('No WebGL2'); }
+
 const overlay = document.getElementById('overlay');
 const startBtn = document.getElementById('startBtn');
 const massDisplay = document.getElementById('massDisplay');
@@ -84,616 +114,667 @@ const speedLabel = document.getElementById('speedLabel');
 
 let W, H;
 function resize() {
-  W = canvas.width = window.innerWidth;
-  H = canvas.height = window.innerHeight;
+  W = canvas.width = olCanvas.width = window.innerWidth;
+  H = canvas.height = olCanvas.height = window.innerHeight;
+  gl.viewport(0, 0, W, H);
 }
 resize();
 window.addEventListener('resize', resize);
 
-// Game state
-const WORLD_R = 3000;
-let cells = [];
-let player = null;
-let camera = { x: 0, y: 0, zoom: 1, targetZoom: 1 };
-let mouseX = W / 2, mouseY = H / 2;
-let gameRunning = false;
-let gameOver = false;
-let gameWon = false;
-let timeScale = 1;
-let ejectCooldown = 0;
-let particles = [];
+// ─── Shader helpers ───
+function compile(src, type) {
+  const s = gl.createShader(type);
+  gl.shaderSource(s, src);
+  gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) { console.error(gl.getShaderInfoLog(s)); return null; }
+  return s;
+}
+function link(vs, fs) {
+  const p = gl.createProgram();
+  gl.attachShader(p, compile(vs, gl.VERTEX_SHADER));
+  gl.attachShader(p, compile(fs, gl.FRAGMENT_SHADER));
+  gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) { console.error(gl.getProgramInfoLog(p)); return null; }
+  return p;
+}
 
-// Time control
-const speeds = [0.25, 0, 1, 2.5];
+// ─── Background program (fullscreen quad) ───
+const bgProg = link(
+`#version 300 es
+in vec2 a;
+out vec2 v;
+void main(){ v=a*.5+.5; gl_Position=vec4(a,0,1); }`,
+`#version 300 es
+precision highp float;
+in vec2 v;
+out vec4 o;
+uniform vec2 res, cam;
+uniform float zoom, worldR;
+void main(){
+  vec2 w = (v-.5)*res/zoom + cam;
+  vec3 c = vec3(.024,.024,.059);
+  // grid
+  float gs=200.;
+  vec2 g=abs(fract(w/gs+.5)-.5);
+  float lw=1.5/zoom;
+  float gx=smoothstep(lw,0.,g.x*gs), gy=smoothstep(lw,0.,g.y*gs);
+  c += vec3(.04,.05,.12)*max(gx,gy)*.35;
+  // boundary
+  float d=length(w), bw=3./zoom;
+  c += vec3(.15,.24,.47)*smoothstep(bw,0.,abs(d-worldR))*.5;
+  c *= 1.-smoothstep(worldR*.8,worldR*1.2,d)*.4;
+  o=vec4(c,1);
+}`);
+
+// ─── Circle instanced program ───
+const circProg = link(
+`#version 300 es
+in vec2 aQ;
+in vec2 iP;
+in float iR;
+in vec4 iC;
+in float iT;
+uniform vec2 res, cam;
+uniform float zoom;
+out vec2 uv;
+flat out vec4 col;
+flat out float typ;
+void main(){
+  float sc = iT==1.?1.6 : iT==2.?1.18 : 1.;
+  float r = iR*sc;
+  vec2 wp = iP + aQ*r;
+  vec2 sp = (wp-cam)*zoom;
+  gl_Position = vec4(sp/(res*.5)*vec2(1,-1),0,1);
+  uv=aQ; col=iC; typ=iT;
+}`,
+`#version 300 es
+precision highp float;
+in vec2 uv;
+flat in vec4 col;
+flat in float typ;
+out vec4 o;
+void main(){
+  float d=length(uv);
+  if(typ==0.){
+    // body
+    if(d>1.) discard;
+    float edge=smoothstep(1.,.94,d);
+    float hl=smoothstep(.8,0.,length(uv-vec2(-.25,-.25)));
+    vec3 c=col.rgb*(1.+hl*.35);
+    float brd=smoothstep(.91,.96,d)*smoothstep(1.,.97,d);
+    c+=vec3(.2)*brd;
+    o=vec4(c, col.a*edge);
+  } else if(typ==1.){
+    // glow
+    float nd=d/1.6;
+    float g=exp(-nd*nd*3.)*.4;
+    o=vec4(col.rgb, g*col.a);
+  } else if(typ==2.){
+    // ring
+    float nd=d/1.18;
+    float ring=smoothstep(.07,0.,abs(nd-.9));
+    if(ring<.01) discard;
+    o=vec4(col.rgb, ring*col.a);
+  } else {
+    // particle
+    if(d>1.) discard;
+    o=vec4(col.rgb, (1.-d*d)*col.a);
+  }
+}`);
+
+// ─── BG VAO ───
+const bgVAO = gl.createVertexArray();
+gl.bindVertexArray(bgVAO);
+const bgB = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, bgB);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,1,1]), gl.STATIC_DRAW);
+const aLoc = gl.getAttribLocation(bgProg,'a');
+gl.enableVertexAttribArray(aLoc);
+gl.vertexAttribPointer(aLoc,2,gl.FLOAT,false,0,0);
+gl.bindVertexArray(null);
+const bgU = {
+  res: gl.getUniformLocation(bgProg,'res'),
+  cam: gl.getUniformLocation(bgProg,'cam'),
+  zoom: gl.getUniformLocation(bgProg,'zoom'),
+  worldR: gl.getUniformLocation(bgProg,'worldR'),
+};
+
+// ─── Circle instanced VAO ───
+const MAX_INST = 5000;
+const FLOATS = 8; // x,y,r, cr,cg,cb,ca, type
+const instArr = new Float32Array(MAX_INST * FLOATS);
+
+const cVAO = gl.createVertexArray();
+gl.bindVertexArray(cVAO);
+
+// quad
+const qB = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, qB);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,1,-1,1,1,-1,1]), gl.STATIC_DRAW);
+const qL = gl.getAttribLocation(circProg,'aQ');
+gl.enableVertexAttribArray(qL);
+gl.vertexAttribPointer(qL,2,gl.FLOAT,false,0,0);
+
+// instance buf
+const iB = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, iB);
+gl.bufferData(gl.ARRAY_BUFFER, instArr.byteLength, gl.DYNAMIC_DRAW);
+const S = FLOATS*4;
+function attr(name,size,off){
+  const l=gl.getAttribLocation(circProg,name);
+  gl.enableVertexAttribArray(l);
+  gl.vertexAttribPointer(l,size,gl.FLOAT,false,S,off);
+  gl.vertexAttribDivisor(l,1);
+}
+attr('iP',2,0);
+attr('iR',1,8);
+attr('iC',4,12);
+attr('iT',1,28);
+gl.bindVertexArray(null);
+
+const cU = {
+  res: gl.getUniformLocation(circProg,'res'),
+  cam: gl.getUniformLocation(circProg,'cam'),
+  zoom: gl.getUniformLocation(circProg,'zoom'),
+};
+
+// ─── HSL → RGB ───
+function hsl2rgb(h,s,l){
+  h=((h%360)+360)%360; s/=100; l/=100;
+  const c=(1-Math.abs(2*l-1))*s, x=c*(1-Math.abs((h/60)%2-1)), m=l-c/2;
+  let r,g,b;
+  if(h<60){r=c;g=x;b=0}else if(h<120){r=x;g=c;b=0}else if(h<180){r=0;g=c;b=x}
+  else if(h<240){r=0;g=x;b=c}else if(h<300){r=x;g=0;b=c}else{r=c;g=0;b=x}
+  return[r+m,g+m,b+m];
+}
+
+// ═══════════════════════════════════════════════════
+//  Game Logic (unchanged)
+// ═══════════════════════════════════════════════════
+const WORLD_R = 3000;
+let cells = [], player = null;
+let camera = { x:0, y:0, zoom:1, targetZoom:1 };
+let mouseX = W/2, mouseY = H/2;
+let gameRunning = false, gameOver = false, gameWon = false;
+let manualZoom = 1, timeScale = 1, ejectCooldown = 0;
+let particles = [];
+let currentWave = 1;
+const MAX_WAVE = 5;
+// Wave configs: [cellCount, smallPct, medPct, largePct, hugePct, massMultiplier, aiAggression]
+const WAVE_CFG = [
+  { count:400, dist:[.35,.6,.8,.93], mRange:[30,80,250,500,1000], mult:1, aiCd:1.5 },   // wave 1
+  { count:120, dist:[.15,.4,.7,.9],  mRange:[50,150,400,800,1500], mult:1.2, aiCd:1.2 }, // wave 2
+  { count:100, dist:[.1,.3,.6,.85],  mRange:[80,200,600,1200,2500], mult:1.5, aiCd:1.0 },// wave 3
+  { count:80,  dist:[.05,.2,.5,.8],  mRange:[120,300,800,2000,4000], mult:1.8, aiCd:.7 },// wave 4
+  { count:60,  dist:[.05,.15,.4,.7], mRange:[200,500,1500,3500,6000], mult:2.2, aiCd:.5 },// wave 5 - boss wave
+];
+let waveMsg = '';
+let waveMsgTimer = 0;
+
+const speeds = [0.25,0,1,2.5];
 const speedBtns = [
   document.getElementById('btnSlow'),
   document.getElementById('btnPause'),
   document.getElementById('btnNormal'),
   document.getElementById('btnFast'),
 ];
-function setSpeed(idx) {
-  timeScale = speeds[idx];
-  speedBtns.forEach((b, i) => b.classList.toggle('active', i === idx));
-  speedLabel.textContent = timeScale === 0 ? '暂停' : timeScale + 'x';
-}
-speedBtns.forEach((b, i) => b.addEventListener('click', () => setSpeed(i)));
+function setSpeed(i){ timeScale=speeds[i]; speedBtns.forEach((b,j)=>b.classList.toggle('active',j===i)); speedLabel.textContent=timeScale===0?'暂停':timeScale+'x'; }
+speedBtns.forEach((b,i)=>b.addEventListener('click',()=>setSpeed(i)));
 
-function massToRadius(mass) {
-  return Math.sqrt(mass / Math.PI);
-}
+const zoomLabel = document.getElementById('zoomLabel');
+document.getElementById('btnZoomIn').addEventListener('click',()=>{ manualZoom=Math.min(5,manualZoom*1.4); });
+document.getElementById('btnZoomOut').addEventListener('click',()=>{ manualZoom=Math.max(0.08,manualZoom/1.4); });
+function updateZoomLabel(){ zoomLabel.textContent=Math.round(camera.zoom*100)+'%'; }
 
-function radiusToMass(r) {
-  return Math.PI * r * r;
-}
-
-function hsl(h, s, l, a = 1) {
-  return `hsla(${h},${s}%,${l}%,${a})`;
-}
+function massToRadius(m){ return Math.sqrt(m/Math.PI); }
 
 class Cell {
-  constructor(x, y, mass, isPlayer = false) {
-    this.x = x;
-    this.y = y;
-    this.vx = 0;
-    this.vy = 0;
-    this.mass = mass;
-    this.isPlayer = isPlayer;
-    this.alive = true;
-    this.hue = isPlayer ? 200 : Math.random() * 360;
-    this.saturation = isPlayer ? 70 : 40 + Math.random() * 30;
-    this.lightness = isPlayer ? 55 : 35 + Math.random() * 25;
-    this.pulsePhase = Math.random() * Math.PI * 2;
-    // AI
-    this.aiTimer = Math.random() * 2;
-    this.aiTarget = null;
+  constructor(x,y,mass,isPlayer=false){
+    this.x=x;this.y=y;this.vx=0;this.vy=0;this.mass=mass;this.isPlayer=isPlayer;
+    this.alive=true;
+    this.hue=isPlayer?200:Math.random()*360;
+    this.sat=isPlayer?70:40+Math.random()*30;
+    this.lit=isPlayer?55:35+Math.random()*25;
+    this.pulse=Math.random()*Math.PI*2;
+    this.aiTimer=Math.random()*2;
+    this.rgb=hsl2rgb(this.hue,this.sat,this.lit);
+    this.rgbB=hsl2rgb(this.hue,this.sat,Math.min(100,this.lit+15));
+  }
+  get radius(){ return massToRadius(this.mass); }
+
+  update(dt){
+    this.x+=this.vx*dt; this.y+=this.vy*dt;
+    const f=0.998; this.vx*=Math.pow(f,dt*60); this.vy*=Math.pow(f,dt*60);
+    const r=this.radius, d=Math.sqrt(this.x*this.x+this.y*this.y);
+    if(d+r>WORLD_R){
+      const nx=this.x/d,ny=this.y/d,ol=d+r-WORLD_R;
+      this.x-=nx*ol*.5;this.y-=ny*ol*.5;
+      const dot=this.vx*nx+this.vy*ny;
+      if(dot>0){this.vx-=nx*dot*1.5;this.vy-=ny*dot*1.5;}
+    }
+    this.pulse+=dt*2;
   }
 
-  get radius() { return massToRadius(this.mass); }
-
-  update(dt) {
-    this.x += this.vx * dt;
-    this.y += this.vy * dt;
-    // Friction
-    const friction = 0.998;
-    this.vx *= Math.pow(friction, dt * 60);
-    this.vy *= Math.pow(friction, dt * 60);
-    // World boundary - soft bounce
-    const r = this.radius;
-    const dist = Math.sqrt(this.x * this.x + this.y * this.y);
-    if (dist + r > WORLD_R) {
-      const nx = this.x / dist;
-      const ny = this.y / dist;
-      const overlap = dist + r - WORLD_R;
-      this.x -= nx * overlap * 0.5;
-      this.y -= ny * overlap * 0.5;
-      const dot = this.vx * nx + this.vy * ny;
-      if (dot > 0) {
-        this.vx -= nx * dot * 1.5;
-        this.vy -= ny * dot * 1.5;
-      }
+  aiUpdate(dt,all){
+    if(this.isPlayer||!this.alive)return;
+    this.aiTimer-=dt; if(this.aiTimer>0)return;
+    const cfg=WAVE_CFG[Math.min(currentWave-1,MAX_WAVE-1)];
+    this.aiTimer=.3+Math.random()*cfg.aiCd;
+    let ns=null,nl=null,ds=1/0,dl=1/0;
+    for(const c of all){
+      if(c===this||!c.alive)continue;
+      const dx=c.x-this.x,dy=c.y-this.y,d=Math.sqrt(dx*dx+dy*dy);
+      if(c.mass<this.mass*.8&&d<ds){ds=d;ns=c;}
+      if(c.mass>this.mass*1.3&&d<dl){dl=d;nl=c;}
     }
-    this.pulsePhase += dt * 2;
-  }
-
-  aiUpdate(dt, allCells) {
-    if (this.isPlayer || !this.alive) return;
-    this.aiTimer -= dt;
-    if (this.aiTimer > 0) return;
-    this.aiTimer = 0.5 + Math.random() * 1.5;
-
-    let nearestSmaller = null, nearestLarger = null;
-    let dSmall = Infinity, dLarge = Infinity;
-
-    for (const c of allCells) {
-      if (c === this || !c.alive) continue;
-      const dx = c.x - this.x;
-      const dy = c.y - this.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (c.mass < this.mass * 0.8 && dist < dSmall) {
-        dSmall = dist;
-        nearestSmaller = c;
-      }
-      if (c.mass > this.mass * 1.3 && dist < dLarge) {
-        dLarge = dist;
-        nearestLarger = c;
-      }
-    }
-
-    // Flee from larger if close
-    if (nearestLarger && dLarge < this.radius * 8) {
-      const dx = this.x - nearestLarger.x;
-      const dy = this.y - nearestLarger.y;
-      const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-      this.ejectMass(this.x - dx / dist * 100, this.y - dy / dist * 100);
-    }
-    // Chase smaller if nearby
-    else if (nearestSmaller && dSmall < this.radius * 12) {
-      this.ejectMass(this.x - (nearestSmaller.x - this.x), this.y - (nearestSmaller.y - this.y));
+    if(nl&&dl<this.radius*8){
+      const dx=this.x-nl.x,dy=this.y-nl.y,d=Math.sqrt(dx*dx+dy*dy)||1;
+      this.ejectMass(this.x-dx/d*100,this.y-dy/d*100);
+    }else if(ns&&ds<this.radius*12){
+      this.ejectMass(this.x-(ns.x-this.x),this.y-(ns.y-this.y));
     }
   }
 
-  ejectMass(targetX, targetY) {
-    if (this.mass < 5) return;
-    const dx = targetX - this.x;
-    const dy = targetY - this.y;
-    const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-    const nx = dx / dist;
-    const ny = dy / dist;
-
-    const ejectMass = this.mass * 0.012;
-    this.mass -= ejectMass;
-
-    const speed = 250;
-    this.vx -= nx * speed * ejectMass / this.mass;
-    this.vy -= ny * speed * ejectMass / this.mass;
-
-    // Create ejected particle
-    particles.push({
-      x: this.x + nx * this.radius,
-      y: this.y + ny * this.radius,
-      vx: nx * speed + this.vx,
-      vy: ny * speed + this.vy,
-      mass: ejectMass,
-      radius: massToRadius(ejectMass),
-      life: 1,
-      hue: this.hue,
-      saturation: this.saturation,
-      lightness: this.lightness + 15,
-    });
-  }
-
-  draw(ctx) {
-    const r = this.radius;
-    const pulse = 1 + Math.sin(this.pulsePhase) * 0.02;
-    const drawR = r * pulse;
-
-    // Glow
-    const grad = ctx.createRadialGradient(this.x, this.y, drawR * 0.2, this.x, this.y, drawR * 1.5);
-    const baseAlpha = this.isPlayer ? 0.35 : 0.2;
-    grad.addColorStop(0, hsl(this.hue, this.saturation, this.lightness, baseAlpha));
-    grad.addColorStop(1, hsl(this.hue, this.saturation, this.lightness, 0));
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, drawR * 1.5, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Body
-    const bodyGrad = ctx.createRadialGradient(
-      this.x - drawR * 0.3, this.y - drawR * 0.3, drawR * 0.1,
-      this.x, this.y, drawR
-    );
-    bodyGrad.addColorStop(0, hsl(this.hue, this.saturation, this.lightness + 20, 0.9));
-    bodyGrad.addColorStop(0.7, hsl(this.hue, this.saturation, this.lightness, 0.8));
-    bodyGrad.addColorStop(1, hsl(this.hue, this.saturation, this.lightness - 10, 0.6));
-    ctx.fillStyle = bodyGrad;
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, drawR, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Border
-    ctx.strokeStyle = hsl(this.hue, this.saturation, this.lightness + 10, 0.4);
-    ctx.lineWidth = this.isPlayer ? 2 : 1;
-    ctx.stroke();
-
-    // Inner highlight
-    if (drawR > 8) {
-      ctx.fillStyle = hsl(this.hue, this.saturation - 10, this.lightness + 30, 0.15);
-      ctx.beginPath();
-      ctx.arc(this.x - drawR * 0.25, this.y - drawR * 0.25, drawR * 0.4, 0, Math.PI * 2);
-      ctx.fill();
-    }
+  ejectMass(tx,ty){
+    if(this.mass<5)return;
+    const dx=tx-this.x,dy=ty-this.y,d=Math.sqrt(dx*dx+dy*dy)||1;
+    const nx=dx/d,ny=dy/d,em=this.mass*.012;
+    this.mass-=em;
+    const sp=250;
+    this.vx-=nx*sp*em/this.mass;
+    this.vy-=ny*sp*em/this.mass;
+    particles.push({ x:this.x+nx*this.radius, y:this.y+ny*this.radius,
+      vx:nx*sp+this.vx, vy:ny*sp+this.vy, mass:em, radius:massToRadius(em),
+      life:1, rgb:this.rgbB });
   }
 }
 
-function spawnCells() {
-  cells = [];
-  particles = [];
+function spawnCells(){
+  cells=[]; particles=[];
+  currentWave=1;
+  player=new Cell(0,0,300,true); cells.push(player);
+  spawnWaveCells(WAVE_CFG[0]);
+}
 
-  // Player
-  player = new Cell(0, 0, 80, true);
-  cells.push(player);
-
-  // Other cells - varying sizes
-  const count = 120;
-  for (let i = 0; i < count; i++) {
-    const angle = Math.random() * Math.PI * 2;
-    const dist = 200 + Math.random() * (WORLD_R - 400);
-    const x = Math.cos(angle) * dist;
-    const y = Math.sin(angle) * dist;
-
-    // Mass distribution: many small, some medium, few large
-    let mass;
-    const r = Math.random();
-    if (r < 0.5) mass = 3 + Math.random() * 30;        // small
-    else if (r < 0.8) mass = 30 + Math.random() * 80;   // medium
-    else if (r < 0.95) mass = 80 + Math.random() * 200;  // large
-    else mass = 200 + Math.random() * 400;                // huge
-
-    const cell = new Cell(x, y, mass);
-    cell.vx = (Math.random() - 0.5) * 20;
-    cell.vy = (Math.random() - 0.5) * 20;
-    cells.push(cell);
+function spawnWaveCells(cfg){
+  for(let i=0;i<cfg.count;i++){
+    const a=Math.random()*Math.PI*2;
+    // Spawn away from player
+    const minDist=Math.max(400, player?player.radius*3:400);
+    const d=minDist+Math.random()*(WORLD_R-minDist-200);
+    let mass; const r=Math.random();
+    const [d1,d2,d3,d4]=cfg.dist;
+    const [m1,m2,m3,m4,m5]=cfg.mRange;
+    if(r<d1)mass=3+Math.random()*m1;
+    else if(r<d2)mass=m1+Math.random()*m2;
+    else if(r<d3)mass=m2+Math.random()*m3;
+    else if(r<d4)mass=m3+Math.random()*m4;
+    else mass=m4+Math.random()*m5;
+    mass*=cfg.mult;
+    const c=new Cell(Math.cos(a)*d,Math.sin(a)*d,mass);
+    c.vx=(Math.random()-.5)*30; c.vy=(Math.random()-.5)*30;
+    cells.push(c);
   }
 }
 
-function checkCollisions() {
-  for (let i = 0; i < cells.length; i++) {
-    if (!cells[i].alive) continue;
-    for (let j = i + 1; j < cells.length; j++) {
-      if (!cells[j].alive) continue;
-
-      const dx = cells[j].x - cells[i].x;
-      const dy = cells[j].y - cells[i].y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      const r1 = cells[i].radius;
-      const r2 = cells[j].radius;
-
-      if (dist < r1 + r2) {
-        // The larger absorbs the smaller
-        let bigger, smaller;
-        if (cells[i].mass >= cells[j].mass) {
-          bigger = cells[i]; smaller = cells[j];
-        } else {
-          bigger = cells[j]; smaller = cells[i];
-        }
-
-        // Only absorb if significantly overlapping
-        if (dist < bigger.radius) {
-          // Absorb
-          const ratio = smaller.mass / bigger.mass;
-          bigger.mass += smaller.mass * 0.9;
-          // Momentum conservation
-          bigger.vx = (bigger.vx * (1 - ratio) + smaller.vx * ratio);
-          bigger.vy = (bigger.vy * (1 - ratio) + smaller.vy * ratio);
-          smaller.alive = false;
-
-          // Absorb particles for effect
-          for (let k = 0; k < Math.min(5, smaller.radius); k++) {
-            const angle = Math.random() * Math.PI * 2;
-            particles.push({
-              x: smaller.x, y: smaller.y,
-              vx: Math.cos(angle) * 50 + bigger.vx,
-              vy: Math.sin(angle) * 50 + bigger.vy,
-              mass: 0.5, radius: 2,
-              life: 0.5,
-              hue: smaller.hue, saturation: smaller.saturation, lightness: smaller.lightness + 20,
-            });
+function checkCollisions(){
+  for(let i=0;i<cells.length;i++){
+    if(!cells[i].alive)continue;
+    for(let j=i+1;j<cells.length;j++){
+      if(!cells[j].alive)continue;
+      const dx=cells[j].x-cells[i].x,dy=cells[j].y-cells[i].y,
+        dist=Math.sqrt(dx*dx+dy*dy),r1=cells[i].radius,r2=cells[j].radius;
+      if(dist<r1+r2){
+        let big,smol;
+        if(cells[i].mass>=cells[j].mass){big=cells[i];smol=cells[j];}
+        else{big=cells[j];smol=cells[i];}
+        if(dist<big.radius){
+          const rat=smol.mass/big.mass;
+          big.mass+=smol.mass*.9;
+          big.vx=big.vx*(1-rat)+smol.vx*rat;
+          big.vy=big.vy*(1-rat)+smol.vy*rat;
+          smol.alive=false;
+          for(let k=0;k<Math.min(5,smol.radius);k++){
+            const a=Math.random()*Math.PI*2;
+            particles.push({x:smol.x,y:smol.y,vx:Math.cos(a)*50+big.vx,vy:Math.sin(a)*50+big.vy,
+              mass:.5,radius:2,life:.5,rgb:smol.rgbB});
           }
-        } else if (dist < r1 + r2 - Math.min(r1, r2) * 0.3) {
-          // Gradual absorption
-          const rate = 0.02;
-          const transfer = smaller.mass * rate;
-          bigger.mass += transfer * 0.9;
-          smaller.mass -= transfer;
-          if (smaller.mass < 1) smaller.alive = false;
+        }else if(dist<r1+r2-Math.min(r1,r2)*.3){
+          const t=smol.mass*.02;
+          big.mass+=t*.9; smol.mass-=t;
+          if(smol.mass<1)smol.alive=false;
         }
       }
     }
   }
-
-  // Particle absorption
-  for (let i = particles.length - 1; i >= 0; i--) {
-    const p = particles[i];
-    for (const c of cells) {
-      if (!c.alive) continue;
-      const dx = c.x - p.x;
-      const dy = c.y - p.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < c.radius * 0.8) {
-        c.mass += p.mass * 0.5;
-        particles.splice(i, 1);
-        break;
+  for(let i=particles.length-1;i>=0;i--){
+    const p=particles[i];
+    for(const c of cells){
+      if(!c.alive)continue;
+      const dx=c.x-p.x,dy=c.y-p.y;
+      if(Math.sqrt(dx*dx+dy*dy)<c.radius*.8){
+        c.mass+=p.mass*.5; particles.splice(i,1); break;
       }
     }
   }
 }
 
-function updateParticles(dt) {
-  for (let i = particles.length - 1; i >= 0; i--) {
-    const p = particles[i];
-    p.x += p.vx * dt;
-    p.y += p.vy * dt;
-    p.vx *= 0.98;
-    p.vy *= 0.98;
-    p.life -= dt * 0.3;
-    if (p.life <= 0) {
-      particles.splice(i, 1);
+function updateParticles(dt){
+  for(let i=particles.length-1;i>=0;i--){
+    const p=particles[i];
+    p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=.98;p.vy*=.98;
+    p.life-=dt*.3; if(p.life<=0)particles.splice(i,1);
+  }
+}
+
+function updateCamera(dt){
+  if(!player||!player.alive)return;
+  const s=1-Math.pow(.05,dt);
+  camera.x+=(player.x-camera.x)*s;
+  camera.y+=(player.y-camera.y)*s;
+  const az=Math.max(.15,Math.min(2,30/player.radius));
+  camera.targetZoom=Math.max(.03,Math.min(5,az*manualZoom));
+  camera.zoom+=(camera.targetZoom-camera.zoom)*s*.5;
+}
+
+const levelDisplay = document.getElementById('levelDisplay');
+
+function updateUI(){
+  if(!player)return;
+  massDisplay.textContent='质量: '+Math.floor(player.mass);
+  levelDisplay.textContent='阶段 '+currentWave+'/'+MAX_WAVE;
+  const alive=cells.filter(c=>c.alive);
+  alive.sort((a,b)=>b.mass-a.mass);
+  rankDisplay.textContent='排名: '+(alive.indexOf(player)+1)+'/'+alive.length;
+}
+
+function checkWinLose(){
+  if(!player.alive){ gameOver=true;gameWon=false;showOverlay('你被吞噬了！',false);return; }
+  // Check wave clear: all remaining NPCs smaller than player
+  const alive=cells.filter(c=>c.alive&&!c.isPlayer);
+  const dominantCount=alive.filter(c=>c.mass>=player.mass*.5).length;
+  if(alive.length>0 && dominantCount===0){
+    // Wave cleared!
+    if(currentWave>=MAX_WAVE){
+      gameOver=true;gameWon=true;showOverlay('你赢了！',true);return;
     }
+    // Next wave
+    currentWave++;
+    const cfg=WAVE_CFG[currentWave-1];
+    waveMsg='⚠ 阶段 '+currentWave+' — 新的威胁出现！';
+    waveMsgTimer=3;
+    spawnWaveCells(cfg);
   }
 }
 
-function drawParticles(ctx) {
-  for (const p of particles) {
-    const alpha = Math.max(0, p.life);
-    ctx.fillStyle = hsl(p.hue, p.saturation, p.lightness, alpha * 0.7);
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.radius * alpha, 0, Math.PI * 2);
-    ctx.fill();
-  }
-}
-
-function drawBackground(ctx) {
-  // Dark background
-  ctx.fillStyle = '#06060f';
-  ctx.fillRect(0, 0, W, H);
-
-  ctx.save();
-  ctx.translate(W / 2, H / 2);
-  ctx.scale(camera.zoom, camera.zoom);
-  ctx.translate(-camera.x, -camera.y);
-
-  // World boundary circle
-  ctx.strokeStyle = 'rgba(40, 60, 120, 0.15)';
-  ctx.lineWidth = 3 / camera.zoom;
-  ctx.beginPath();
-  ctx.arc(0, 0, WORLD_R, 0, Math.PI * 2);
-  ctx.stroke();
-
-  // Grid
-  const gridSize = 200;
-  ctx.strokeStyle = 'rgba(30, 40, 80, 0.08)';
-  ctx.lineWidth = 1 / camera.zoom;
-  const viewR = WORLD_R + 200;
-  for (let x = -viewR; x <= viewR; x += gridSize) {
-    ctx.beginPath();
-    ctx.moveTo(x, -viewR);
-    ctx.lineTo(x, viewR);
-    ctx.stroke();
-  }
-  for (let y = -viewR; y <= viewR; y += gridSize) {
-    ctx.beginPath();
-    ctx.moveTo(-viewR, y);
-    ctx.lineTo(viewR, y);
-    ctx.stroke();
-  }
-
-  ctx.restore();
-}
-
-function drawCursor(ctx) {
-  if (!gameRunning || gameOver) return;
-  // Direction indicator from player
-  ctx.save();
-  ctx.translate(W / 2, H / 2);
-  ctx.scale(camera.zoom, camera.zoom);
-  ctx.translate(-camera.x, -camera.y);
-
-  const dx = (mouseX - W / 2) / camera.zoom + camera.x - player.x;
-  const dy = (mouseY - H / 2) / camera.zoom + camera.y - player.y;
-  const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-  const nx = dx / dist;
-  const ny = dy / dist;
-
-  // Draw trajectory hint (opposite direction)
-  const pr = player.radius;
-  ctx.strokeStyle = 'rgba(100, 180, 255, 0.2)';
-  ctx.lineWidth = 2 / camera.zoom;
-  ctx.setLineDash([5 / camera.zoom, 5 / camera.zoom]);
-  ctx.beginPath();
-  ctx.moveTo(player.x - nx * pr * 1.2, player.y - ny * pr * 1.2);
-  ctx.lineTo(player.x - nx * pr * 3, player.y - ny * pr * 3);
-  ctx.stroke();
-  ctx.setLineDash([]);
-
-  ctx.restore();
-
-  // Crosshair at mouse
-  ctx.strokeStyle = 'rgba(255,255,255,0.3)';
-  ctx.lineWidth = 1;
-  const s = 10;
-  ctx.beginPath();
-  ctx.moveTo(mouseX - s, mouseY); ctx.lineTo(mouseX + s, mouseY);
-  ctx.moveTo(mouseX, mouseY - s); ctx.lineTo(mouseX, mouseY + s);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.arc(mouseX, mouseY, 4, 0, Math.PI * 2);
-  ctx.stroke();
-}
-
-function updateCamera(dt) {
-  if (!player || !player.alive) return;
-  // Smooth follow
-  const smoothing = 1 - Math.pow(0.05, dt);
-  camera.x += (player.x - camera.x) * smoothing;
-  camera.y += (player.y - camera.y) * smoothing;
-
-  // Auto zoom based on player size
-  const desiredZoom = Math.max(0.15, Math.min(2, 30 / player.radius));
-  camera.targetZoom = desiredZoom;
-  camera.zoom += (camera.targetZoom - camera.zoom) * smoothing * 0.5;
-}
-
-function updateUI() {
-  if (!player) return;
-  massDisplay.textContent = `质量: ${Math.floor(player.mass)}`;
-  const alive = cells.filter(c => c.alive);
-  alive.sort((a, b) => b.mass - a.mass);
-  const rank = alive.indexOf(player) + 1;
-  rankDisplay.textContent = `排名: ${rank}/${alive.length}`;
-}
-
-function checkWinLose() {
-  if (!player.alive) {
-    gameOver = true;
-    gameWon = false;
-    showOverlay('你被吞噬了！', false);
-    return;
-  }
-  const alive = cells.filter(c => c.alive && !c.isPlayer);
-  if (alive.length === 0 || (alive.length > 0 && alive.every(c => c.mass < player.mass * 0.3))) {
-    const allSmaller = alive.every(c => c.mass < player.mass);
-    if (allSmaller && player.mass > 500) {
-      gameOver = true;
-      gameWon = true;
-      showOverlay('你赢了！', true);
-    }
-  }
-}
-
-function showOverlay(msg, won) {
+function showOverlay(msg,won){
   overlay.classList.remove('hidden');
-  overlay.querySelector('h1').textContent = msg;
-  overlay.querySelector('p').textContent = won ? '你成功吞噬了所有对手！' : '你的细胞已被吸收...';
-  overlay.querySelectorAll('p')[1].textContent = '';
-  overlay.querySelectorAll('p')[2].textContent = '';
-  const sub = overlay.querySelector('.sub');
-  sub.textContent = '';
-  startBtn.textContent = '再来一局';
+  overlay.querySelector('h1').textContent=msg;
+  overlay.querySelector('p').textContent=won?'你通过了全部 '+MAX_WAVE+' 个阶段！':'你的细胞已被吸收...';
+  overlay.querySelectorAll('p')[1].textContent=won?'最终质量: '+Math.floor(player.mass):'';
+  overlay.querySelectorAll('p')[2].textContent='';
+  overlay.querySelector('.sub').textContent='';
+  startBtn.textContent='再来一局';
 }
 
-let lastTime = 0;
-function gameLoop(time) {
-  requestAnimationFrame(gameLoop);
-  const rawDt = Math.min((time - lastTime) / 1000, 0.05);
-  lastTime = time;
+// ═══════════════════════════════════════════════════
+//  WebGL Render
+// ═══════════════════════════════════════════════════
+function buildInstances(){
+  let idx=0, cnt=0;
+  function push(x,y,r,cr,cg,cb,ca,t){
+    if(cnt>=MAX_INST)return;
+    instArr[idx++]=x;instArr[idx++]=y;instArr[idx++]=r;
+    instArr[idx++]=cr;instArr[idx++]=cg;instArr[idx++]=cb;instArr[idx++]=ca;
+    instArr[idx++]=t; cnt++;
+  }
 
-  if (!gameRunning || gameOver) {
-    drawBackground(ctx);
-    if (cells.length > 0) {
-      ctx.save();
-      ctx.translate(W / 2, H / 2);
-      ctx.scale(camera.zoom, camera.zoom);
-      ctx.translate(-camera.x, -camera.y);
-      cells.filter(c => c.alive).forEach(c => c.draw(ctx));
-      drawParticles(ctx);
-      ctx.restore();
+  const alive=cells.filter(c=>c.alive);
+  alive.sort((a,b)=>b.mass-a.mass); // big first → small on top
+
+  // 1. Glows
+  for(const c of alive){
+    const r=c.radius*(1+Math.sin(c.pulse)*.02);
+    push(c.x,c.y,r, c.rgb[0],c.rgb[1],c.rgb[2], c.isPlayer?.9:.7, 1);
+  }
+
+  // 2. Ring indicators
+  if(player&&player.alive){
+    for(const c of alive){
+      if(c===player)continue;
+      if(c.radius<3)continue;
+      let rr,gg,bb;
+      if(c.mass<player.mass*.95){rr=.31;gg=.71;bb=1;}
+      else if(c.mass>player.mass*1.05){rr=1;gg=.31;bb=.31;}
+      else{rr=1;gg=1;bb=.4;}
+      push(c.x,c.y,c.radius, rr,gg,bb,.25, 2);
     }
+  }
+
+  // 3. Particles
+  for(const p of particles){
+    const a=Math.max(0,p.life)*.7, r=p.radius*p.life;
+    if(r<.5)continue;
+    push(p.x,p.y,r, p.rgb[0],p.rgb[1],p.rgb[2],a, 3);
+  }
+
+  // 4. Bodies (on top)
+  for(const c of alive){
+    const r=c.radius*(1+Math.sin(c.pulse)*.02);
+    push(c.x,c.y,r, c.rgb[0],c.rgb[1],c.rgb[2], c.isPlayer?.92:.82, 0);
+  }
+
+  return cnt;
+}
+
+function drawCursor(){
+  olCtx.clearRect(0,0,W,H);
+  if(!gameRunning||gameOver||!player||!player.alive)return;
+
+  const dx=(mouseX-W/2)/camera.zoom+camera.x-player.x;
+  const dy=(mouseY-H/2)/camera.zoom+camera.y-player.y;
+  const d=Math.sqrt(dx*dx+dy*dy)||1;
+  const nx=dx/d,ny=dy/d,pr=player.radius;
+
+  // trajectory hint
+  const x1=W/2+(player.x-nx*pr*1.2-camera.x)*camera.zoom;
+  const y1=H/2+(player.y-ny*pr*1.2-camera.y)*camera.zoom;
+  const x2=W/2+(player.x-nx*pr*3-camera.x)*camera.zoom;
+  const y2=H/2+(player.y-ny*pr*3-camera.y)*camera.zoom;
+  olCtx.strokeStyle='rgba(100,180,255,0.2)';
+  olCtx.lineWidth=2;
+  olCtx.setLineDash([5,5]);
+  olCtx.beginPath();olCtx.moveTo(x1,y1);olCtx.lineTo(x2,y2);olCtx.stroke();
+  olCtx.setLineDash([]);
+
+  // crosshair
+  olCtx.strokeStyle='rgba(255,255,255,0.3)';
+  olCtx.lineWidth=1;
+  const s=10;
+  olCtx.beginPath();
+  olCtx.moveTo(mouseX-s,mouseY);olCtx.lineTo(mouseX+s,mouseY);
+  olCtx.moveTo(mouseX,mouseY-s);olCtx.lineTo(mouseX,mouseY+s);
+  olCtx.stroke();
+  olCtx.beginPath();olCtx.arc(mouseX,mouseY,4,0,Math.PI*2);olCtx.stroke();
+}
+
+// ═══════════════════════════════════════════════════
+//  Main Loop
+// ═══════════════════════════════════════════════════
+let lastTime=0;
+function loop(time){
+  requestAnimationFrame(loop);
+  const rawDt=Math.min((time-lastTime)/1000,.05);
+  lastTime=time;
+  const dt=(gameRunning&&!gameOver)?rawDt*timeScale:0;
+
+  if(gameRunning&&!gameOver){
+    ejectCooldown=Math.max(0,ejectCooldown-rawDt);
+    for(const c of cells){ if(c.alive){ c.update(dt); c.aiUpdate(dt,cells); } }
+    updateParticles(dt);
+    checkCollisions();
+    updateCamera(rawDt);
+    updateUI();
+    updateZoomLabel();
+    checkWinLose();
+    if(waveMsgTimer>0) waveMsgTimer-=rawDt;
+  }
+
+  // ── WebGL draw ──
+  gl.disable(gl.DEPTH_TEST);
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
+
+  // background
+  gl.useProgram(bgProg);
+  gl.uniform2f(bgU.res,W,H);
+  gl.uniform2f(bgU.cam,camera.x,camera.y);
+  gl.uniform1f(bgU.zoom,camera.zoom);
+  gl.uniform1f(bgU.worldR,WORLD_R);
+  gl.bindVertexArray(bgVAO);
+  gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+
+  // circles
+  const n=buildInstances();
+  if(n>0){
+    gl.useProgram(circProg);
+    gl.uniform2f(cU.res,W,H);
+    gl.uniform2f(cU.cam,camera.x,camera.y);
+    gl.uniform1f(cU.zoom,camera.zoom);
+    gl.bindVertexArray(cVAO);
+    gl.bindBuffer(gl.ARRAY_BUFFER,iB);
+    gl.bufferSubData(gl.ARRAY_BUFFER,0,instArr,0,n*FLOATS);
+    gl.drawArraysInstanced(gl.TRIANGLES,0,6,n);
+  }
+
+  drawCursor();
+
+  // Wave message overlay
+  if(waveMsgTimer>0){
+    const a=Math.min(1,waveMsgTimer);
+    olCtx.save();
+    olCtx.font='bold 28px Helvetica Neue';
+    olCtx.textAlign='center';
+    olCtx.fillStyle='rgba(255,200,80,'+a+')';
+    olCtx.fillText(waveMsg,W/2,H*0.18);
+    olCtx.restore();
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  Input (Mouse + Touch)
+// ═══════════════════════════════════════════════════
+const isTouchDevice = 'ontouchstart' in window;
+
+function onMove(e){ mouseX=e.clientX; mouseY=e.clientY; }
+canvas.addEventListener('mousemove',onMove);
+olCanvas.addEventListener('mousemove',onMove);
+
+function onDown(e){
+  if(!gameRunning||gameOver||!player||!player.alive||timeScale===0)return;
+  player.ejectMass((e.clientX-W/2)/camera.zoom+camera.x, (e.clientY-H/2)/camera.zoom+camera.y);
+}
+canvas.addEventListener('mousedown',onDown);
+olCanvas.addEventListener('mousedown',onDown);
+
+let mouseDown=false;
+function md(){mouseDown=true}function mu(){mouseDown=false}
+canvas.addEventListener('mousedown',md); olCanvas.addEventListener('mousedown',md);
+canvas.addEventListener('mouseup',mu); olCanvas.addEventListener('mouseup',mu);
+canvas.addEventListener('mouseleave',mu); olCanvas.addEventListener('mouseleave',mu);
+
+// ─── Touch support ───
+let lastPinchDist=0;
+let touchCount=0;
+
+function getTouchXY(e){
+  const t=e.touches[0];
+  return {x:t.clientX, y:t.clientY};
+}
+
+function handleTouchStart(e){
+  e.preventDefault();
+  touchCount=e.touches.length;
+  if(e.touches.length===2){
+    // Pinch start
+    const dx=e.touches[0].clientX-e.touches[1].clientX;
+    const dy=e.touches[0].clientY-e.touches[1].clientY;
+    lastPinchDist=Math.sqrt(dx*dx+dy*dy);
+    mouseDown=false;
     return;
   }
-
-  const dt = rawDt * timeScale;
-
-  // Eject cooldown
-  ejectCooldown = Math.max(0, ejectCooldown - rawDt);
-
-  // Update cells
-  for (const c of cells) {
-    if (!c.alive) continue;
-    c.update(dt);
-    c.aiUpdate(dt, cells);
+  const {x,y}=getTouchXY(e);
+  mouseX=x; mouseY=y;
+  mouseDown=true;
+  if(gameRunning&&!gameOver&&player&&player.alive&&timeScale>0){
+    player.ejectMass((x-W/2)/camera.zoom+camera.x,(y-H/2)/camera.zoom+camera.y);
   }
-
-  updateParticles(dt);
-  checkCollisions();
-
-  // Remove dead cells
-  // cells = cells.filter(c => c.alive); // keep for ranking
-
-  updateCamera(rawDt); // Camera always smooth
-
-  // Draw
-  drawBackground(ctx);
-
-  ctx.save();
-  ctx.translate(W / 2, H / 2);
-  ctx.scale(camera.zoom, camera.zoom);
-  ctx.translate(-camera.x, -camera.y);
-
-  // Draw cells sorted by size (small on top)
-  const alive = cells.filter(c => c.alive);
-  alive.sort((a, b) => b.mass - a.mass);
-
-  // Draw size comparison indicators
-  if (player.alive) {
-    for (const c of alive) {
-      if (c === player) continue;
-      const r = c.radius;
-      if (r < 3) continue;
-      // Color ring: blue=smaller (edible), red=larger (danger)
-      if (c.mass < player.mass * 0.95) {
-        ctx.strokeStyle = 'rgba(80, 180, 255, 0.15)';
-      } else if (c.mass > player.mass * 1.05) {
-        ctx.strokeStyle = 'rgba(255, 80, 80, 0.15)';
-      } else {
-        ctx.strokeStyle = 'rgba(255, 255, 100, 0.15)';
-      }
-      ctx.lineWidth = Math.max(2, r * 0.08);
-      ctx.beginPath();
-      ctx.arc(c.x, c.y, r + ctx.lineWidth, 0, Math.PI * 2);
-      ctx.stroke();
-    }
-  }
-
-  drawParticles(ctx);
-
-  for (const c of alive) {
-    c.draw(ctx);
-  }
-
-  ctx.restore();
-
-  drawCursor(ctx);
-  updateUI();
-  checkWinLose();
 }
 
-// Input
-canvas.addEventListener('mousemove', (e) => {
-  mouseX = e.clientX;
-  mouseY = e.clientY;
-});
-
-canvas.addEventListener('mousedown', (e) => {
-  if (!gameRunning || gameOver || !player.alive) return;
-  if (timeScale === 0) return;
-  // Convert mouse to world coords
-  const worldX = (e.clientX - W / 2) / camera.zoom + camera.x;
-  const worldY = (e.clientY - H / 2) / camera.zoom + camera.y;
-  player.ejectMass(worldX, worldY);
-});
-
-// Continuous ejection on hold
-let mouseDown = false;
-canvas.addEventListener('mousedown', () => { mouseDown = true; });
-canvas.addEventListener('mouseup', () => { mouseDown = false; });
-canvas.addEventListener('mouseleave', () => { mouseDown = false; });
-
-setInterval(() => {
-  if (mouseDown && gameRunning && !gameOver && player && player.alive && timeScale > 0) {
-    const worldX = (mouseX - W / 2) / camera.zoom + camera.x;
-    const worldY = (mouseY - H / 2) / camera.zoom + camera.y;
-    player.ejectMass(worldX, worldY);
-  }
-}, 80);
-
-// Scroll to zoom
-canvas.addEventListener('wheel', (e) => {
+function handleTouchMove(e){
   e.preventDefault();
-  const factor = e.deltaY > 0 ? 0.9 : 1.1;
-  camera.targetZoom = Math.max(0.05, Math.min(3, camera.targetZoom * factor));
-}, { passive: false });
-
-// Keyboard
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'r' || e.key === 'R') {
-    startGame();
+  if(e.touches.length===2){
+    // Pinch zoom
+    const dx=e.touches[0].clientX-e.touches[1].clientX;
+    const dy=e.touches[0].clientY-e.touches[1].clientY;
+    const dist=Math.sqrt(dx*dx+dy*dy);
+    if(lastPinchDist>0){
+      const scale=dist/lastPinchDist;
+      manualZoom=Math.max(.08,Math.min(5,manualZoom*scale));
+    }
+    lastPinchDist=dist;
+    return;
   }
-  if (e.key === ' ') {
-    e.preventDefault();
-    if (timeScale === 0) setSpeed(2);
-    else setSpeed(1);
-  }
-});
-
-function startGame() {
-  gameOver = false;
-  gameRunning = true;
-  overlay.classList.add('hidden');
-  setSpeed(2);
-  spawnCells();
-  camera.x = player.x;
-  camera.y = player.y;
-  camera.zoom = 1;
-  camera.targetZoom = 1;
+  const {x,y}=getTouchXY(e);
+  mouseX=x; mouseY=y;
 }
 
-startBtn.addEventListener('click', startGame);
+function handleTouchEnd(e){
+  e.preventDefault();
+  touchCount=e.touches.length;
+  if(e.touches.length<2) lastPinchDist=0;
+  if(e.touches.length===0) mouseDown=false;
+}
+
+canvas.addEventListener('touchstart',handleTouchStart,{passive:false});
+canvas.addEventListener('touchmove',handleTouchMove,{passive:false});
+canvas.addEventListener('touchend',handleTouchEnd,{passive:false});
+canvas.addEventListener('touchcancel',handleTouchEnd,{passive:false});
+olCanvas.addEventListener('touchstart',handleTouchStart,{passive:false});
+olCanvas.addEventListener('touchmove',handleTouchMove,{passive:false});
+olCanvas.addEventListener('touchend',handleTouchEnd,{passive:false});
+olCanvas.addEventListener('touchcancel',handleTouchEnd,{passive:false});
+
+setInterval(()=>{
+  if(mouseDown&&touchCount<=1&&gameRunning&&!gameOver&&player&&player.alive&&timeScale>0)
+    player.ejectMass((mouseX-W/2)/camera.zoom+camera.x,(mouseY-H/2)/camera.zoom+camera.y);
+},80);
+
+document.addEventListener('wheel',e=>{
+  e.preventDefault();
+  manualZoom=Math.max(.08,Math.min(5,manualZoom*(e.deltaY>0?.85:1.18)));
+},{passive:false});
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='r'||e.key==='R')startGame();
+  if(e.key===' '){ e.preventDefault(); timeScale===0?setSpeed(2):setSpeed(1); }
+});
+
+function startGame(){
+  gameOver=false; gameRunning=true;
+  overlay.classList.add('hidden');
+  setSpeed(2); manualZoom=1;
+  spawnCells();
+  camera.x=player.x; camera.y=player.y;
+  camera.zoom=1; camera.targetZoom=1;
+}
+
+startBtn.addEventListener('click',startGame);
 
 // Init
 spawnCells();
-camera.zoom = 0.3;
-camera.targetZoom = 0.3;
-requestAnimationFrame(gameLoop);
+camera.zoom=.3; camera.targetZoom=.3;
+requestAnimationFrame(loop);
 </script>
 </body>
 </html>
