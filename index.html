@@ -205,7 +205,8 @@ void main(){
     c+=vec3(.2)*brd;
     o=vec4(c, col.a*edge);
   } else if(typ==1.){
-    // glow
+    // glow - discard fragments outside circular boundary to prevent square artifacts
+    if(d>=1.) discard;
     float nd=d/1.6;
     float g=exp(-nd*nd*3.)*.4;
     o=vec4(col.rgb, g*col.a);
