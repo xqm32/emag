@@ -544,8 +544,19 @@ function buildInstances(){
       if(c===player)continue;
       if(c.radius<3)continue;
       let rr,gg,bb;
-      if(c.mass<player.mass*.95){rr=.31;gg=.71;bb=1;}
-      else if(c.mass>player.mass*1.05){rr=1;gg=.31;bb=.31;}
+      const massRatio = c.mass / player.mass;
+      if(c.mass<player.mass*.95){
+        // Eatable - green color with intensity based on size difference
+        // Smaller mass ratio = easier to eat = deeper green
+        const intensity = Math.max(0.3, 1 - massRatio); // Range: 0.3 to ~0.7
+        rr=0; gg=intensity; bb=0;
+      }
+      else if(c.mass>player.mass*1.05){
+        // Dangerous - red color with intensity based on size difference
+        // Larger mass ratio = more dangerous = deeper red
+        const intensity = Math.min(1, massRatio * 0.5); // Scales with danger level
+        rr=intensity; gg=0; bb=0;
+      }
       else{rr=1;gg=1;bb=.4;}
       push(c.x,c.y,c.radius, rr,gg,bb,.25, 2);
     }
