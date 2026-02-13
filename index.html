@@ -533,9 +533,9 @@ function checkAndSpawnComebackResources(dt){
   
   // Spawn comeback resources if: player is small AND few eatable cells nearby AND many threats
   if(player.mass<200 && eatableCells.length<8 && largerCells.length>5){
-    comebackTimer=5; // Check again in 5 seconds
-    // Spawn 8-12 small resources near player
-    const spawnCount=8+Math.floor(Math.random()*5);
+    comebackTimer=5; // Wait 5 seconds before next check if triggered
+    // Spawn 8-13 small resources near player
+    const spawnCount=8+Math.floor(Math.random()*6);
     for(let i=0;i<spawnCount;i++){
       const a=Math.random()*Math.PI*2;
       const d=100+Math.random()*250; // Spawn close to player
