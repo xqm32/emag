@@ -311,7 +311,6 @@ const WAVE_CFG = [
 let waveMsg = '';
 let waveMsgTimer = 0;
 let comebackTimer = 0; // Timer for comeback resource spawning
-let particleSpawnTimer = 0; // Timer for continuous particle spawning
 
 // Super small particle spawning constants
 const PARTICLE_SPAWN_INTERVAL = 2; // seconds between spawns
@@ -322,6 +321,8 @@ const PARTICLE_MAX_SPAWN_RANGE = 400; // additional range beyond min offset
 const PARTICLE_MIN_MASS = 3;
 const PARTICLE_MASS_RANGE = 8; // 3-11 mass total
 const PARTICLE_VELOCITY_RANGE = 15;
+
+let particleSpawnTimer = PARTICLE_SPAWN_INTERVAL; // Timer for continuous particle spawning
 
 const speeds = [0.25,0,1,2.5];
 const speedBtns = [
@@ -568,7 +569,8 @@ function spawnSuperSmallParticles(dt){
   
   // Spawn super small particles at regular intervals
   particleSpawnTimer=PARTICLE_SPAWN_INTERVAL;
-  const spawnCount=PARTICLE_SPAWN_COUNT_MIN+Math.floor(Math.random()*(PARTICLE_SPAWN_COUNT_MAX-PARTICLE_SPAWN_COUNT_MIN+1));
+  const countRange=PARTICLE_SPAWN_COUNT_MAX-PARTICLE_SPAWN_COUNT_MIN+1;
+  const spawnCount=PARTICLE_SPAWN_COUNT_MIN+Math.floor(Math.random()*countRange);
   
   for(let i=0;i<spawnCount;i++){
     const a=Math.random()*Math.PI*2;
