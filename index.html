@@ -151,7 +151,7 @@ out vec4 o;
 uniform vec2 res, cam;
 uniform float zoom, worldR;
 void main(){
-  vec2 w = (v-.5)*res/zoom + cam;
+  vec2 w = vec2(v.x-.5,.5-v.y)*res/zoom + cam;
   vec3 c = vec3(.024,.024,.059);
   // grid
   float gs=200.;
@@ -211,8 +211,7 @@ void main(){
     o=vec4(col.rgb, g*col.a);
   } else if(typ==2.){
     // ring
-    float nd=d/1.18;
-    float ring=smoothstep(.07,0.,abs(nd-.9));
+    float ring=smoothstep(.07,0.,abs(d-.85));
     if(ring<.01) discard;
     o=vec4(col.rgb, ring*col.a);
   } else {
