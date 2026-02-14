@@ -157,6 +157,27 @@ canvas { display: block; }
   color: rgba(255,255,255,0.4); font-size: 12px; font-family: 'Helvetica Neue', sans-serif;
   z-index: 10; pointer-events: none;
 }
+#velocityDisplay {
+  position: fixed; bottom: 20px; right: 20px;
+  background: rgba(0,0,0,0.4); padding: 10px 16px; border-radius: 10px;
+  font-family: 'Helvetica Neue', sans-serif; color: rgba(255,255,255,0.7);
+  font-size: 13px; z-index: 10; pointer-events: none; display: flex; align-items: center; gap: 12px;
+}
+#velocityDisplay .speed-value { color: rgba(100,200,255,0.9); font-weight: 500; }
+#velocityDisplay .speed-bar {
+  width: 60px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 2px; overflow: hidden;
+}
+#velocityDisplay .speed-fill {
+  height: 100%; background: linear-gradient(90deg, rgba(100,200,255,0.6), rgba(150,255,200,0.8));
+  border-radius: 2px; transition: width 0.1s;
+}
+#velocityArrow {
+  width: 24px; height: 24px; position: relative;
+}
+#velocityArrow svg {
+  width: 100%; height: 100%; transform-origin: center;
+  transition: transform 0.1s;
+}
 </style>
 </head>
 <body>
@@ -182,6 +203,18 @@ canvas { display: block; }
 
 <div id="rogueTimer">下波强化: 30s</div>
 <div id="activeBuffs"></div>
+
+<div id="velocityDisplay">
+  <div id="velocityArrow">
+    <svg viewBox="0 0 24 24" fill="none">
+      <path d="M12 4L12 20M12 4L8 8M12 4L16 8" stroke="rgba(100,200,255,0.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+  <div>
+    <div>速度: <span class="speed-value" id="speedValue">0</span></div>
+    <div class="speed-bar"><div class="speed-fill" id="speedFill"></div></div>
+  </div>
+</div>
 
 <div id="rogueModal">
   <h2>选择强化</h2>
@@ -1154,6 +1187,20 @@ function updateUI(){
   const alive=cells.filter(c=>c.alive);
   alive.sort((a,b)=>b.mass-a.mass);
   rankDisplay.textContent='排名: '+(alive.indexOf(player)+1)+'/'+alive.length;
+  
+  // Update velocity display
+  const speed = Math.sqrt(player.vx*player.vx + player.vy*player.vy);
+  const maxSpeed = 200; // Reference max speed for bar
+  const speedPercent = Math.min(100, (speed / maxSpeed) * 100);
+  
+  document.getElementById('speedValue').textContent = speed.toFixed(1);
+  document.getElementById('speedFill').style.width = speedPercent + '%';
+  
+  // Update direction arrow
+  if (speed > 1) {
+    const angle = Math.atan2(player.vy, player.vx) * (180 / Math.PI) + 90;
+    document.querySelector('#velocityArrow svg').style.transform = `rotate(${angle}deg)`;
+  }
 }
 
 let endlessChoicePending = false;
