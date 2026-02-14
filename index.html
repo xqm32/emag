@@ -1409,8 +1409,8 @@ function checkCollisions(){
         // Calculate mass ratio for absorption speed
         // ratio >= 1.2 (already checked), higher ratio = faster absorption
         const massRatio = big.mass / smol.mass;
-        // Absorption speed factor: 1.2->0.1, 2.0->0.5, 3.0+->1.0 (instant)
-        const absorbSpeed = Math.min(1, Math.max(0.02, (massRatio - 1.2) / 1.8));
+        // Absorption speed factor: 1.2->0.3, 2.0->0.7, 3.0+->1.0 (instant)
+        const absorbSpeed = Math.min(1, Math.max(0.08, (massRatio - 1.0) / 1.5));
         
         // Osmos-style absorption: full containment = eat, partial = gradual drain
         if (centerDist < big.radius) {
@@ -1438,7 +1438,7 @@ function checkCollisions(){
             smol.alive = false;
           } else {
             // Similar size - gradual consume even when fully contained
-            const drainRate = absorbSpeed * 0.1; // 0.2% to 5% per frame
+            const drainRate = absorbSpeed * 0.2; // 1.6% to 20% per frame
             const transfer = smol.mass * drainRate;
             if (transfer > 0.01) {
               big.mass += transfer * absorbRate;
@@ -1461,9 +1461,9 @@ function checkCollisions(){
         } else {
           // Partial overlap - gradual drain based on overlap and mass ratio
           const overlapRatio = (minDist - centerDist) / smol.radius;
-          if (overlapRatio > 0.2) {
+          if (overlapRatio > 0.05) { // Lower threshold for contact
             // Drain rate depends on: overlap amount AND mass ratio
-            const drainRate = absorbSpeed * 0.08 * Math.min(1, overlapRatio);
+            const drainRate = absorbSpeed * 0.15 * Math.min(1, overlapRatio);
             const transfer = smol.mass * drainRate;
             if (transfer > 0.01) {
               big.mass += transfer * 0.9;
