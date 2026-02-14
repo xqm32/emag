@@ -882,17 +882,32 @@ function checkCollisions(){
         const smol = m1 > m2 ? c2 : c1;
         const centerDist = Math.sqrt(distSq);
         
-        // Eat if smaller cell's center is inside bigger cell (same as original logic)
-        if (centerDist > big.radius) continue;
+        // Osmos-style gradual absorption
+        // If small cell's center is inside big cell → fast absorption (eat)
+        // If just touching → slow absorption (drain)
+        const overlap = (c1.radius + c2.radius - centerDist) / Math.min(c1.radius, c2.radius);
         
-        // Eat!
-        let absorbRate = big.isPlayer ? (big.absorbMult || 0.9) : 0.9;
-        absorbRate += big.isPlayer ? (big.bonusAbsorb || 0) : 0;
-        big.mass += smol.mass * Math.min(0.99, absorbRate);
-        if (big.isPlayer && big.vampireLevel > 0) {
-          big.mass += smol.mass * big.vampireLevel * 0.1;
+        if (centerDist < big.radius) {
+          // Complete overlap - consume entirely
+          let absorbRate = big.isPlayer ? (big.absorbMult || 0.95) : 0.95;
+          absorbRate += big.isPlayer ? (big.bonusAbsorb || 0) : 0;
+          big.mass += smol.mass * Math.min(0.99, absorbRate);
+          if (big.isPlayer && big.vampireLevel > 0) {
+            big.mass += smol.mass * big.vampireLevel * 0.1;
+          }
+          // Transfer momentum
+          const rat = smol.mass / big.mass;
+          big.vx = big.vx * (1 - rat) + smol.vx * rat;
+          big.vy = big.vy * (1 - rat) + smol.vy * rat;
+          smol.alive = false;
+        } else if (overlap > 0.3) {
+          // Partial overlap - gradual drain (Osmos style)
+          const drainRate = 0.03; // 3% per frame
+          const transfer = smol.mass * drainRate;
+          big.mass += transfer * 0.9;
+          smol.mass -= transfer;
+          if (smol.mass < 1) smol.alive = false;
         }
-        smol.alive = false;
       }
     }
   }
