@@ -1176,7 +1176,7 @@ class Cell {
     // Physics: momentum conservation
     // Impulse = ejected_mass * eject_velocity
     // Larger ejection = proportionally more thrust (Newton's 3rd law)
-    const ejectVelocity = 120; // Constant ejection speed relative to player
+    const ejectVelocity = 200; // Constant ejection speed relative to player
     const playerMassFactor = Math.min(1, 80 / this.mass); // Larger player gets less acceleration
     
     // Apply speed cap
@@ -1200,8 +1200,8 @@ class Cell {
         em * 0.8, // 80% efficiency conversion
         false
       );
-      c.vx = this.vx + nx * 80;
-      c.vy = this.vy + ny * 80;
+      c.vx = this.vx + nx * 200;
+      c.vy = this.vy + ny * 200;
       c.hue = 200; // Blue-ish for player eject
       c.sat = 50;
       c.lit = 60;
@@ -1214,8 +1214,8 @@ class Cell {
       const p = getParticle();
       p.x = this.x + nx * this.radius;
       p.y = this.y + ny * this.radius;
-      p.vx = this.vx + nx * 90;
-      p.vy = this.vy + ny * 90;
+      p.vx = this.vx + nx * 250;
+      p.vy = this.vy + ny * 250;
       p.mass = em;
       p.radius = particleRadius;
       p.life = 0.8;
