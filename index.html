@@ -376,8 +376,8 @@ let activeBuffs = []; // { id, name, icon, stacks, effect }
 
 const ROGUE_EFFECTS = [
   // Common (60% chance)
-  { id: 'eject_efficiency', name: '节能喷射', icon: '💨', rarity: 'common', desc: '喷射消耗质量-20%', 
-    apply: (p) => { p.ejectCostMult = (p.ejectCostMult||1) * 0.8; } },
+  { id: 'eject_efficiency', name: '节能喷射', icon: '💨', rarity: 'common', desc: '喷射消耗质量-25%', 
+    apply: (p) => { p.ejectCostMult = (p.ejectCostMult||1) * 0.75; } },
   { id: 'absorb_boost', name: '贪婪吞噬', icon: '🌀', rarity: 'common', desc: '吞噬效率+15%',
     apply: (p) => { p.absorbMult = (p.absorbMult||1) * 1.15; } },
   { id: 'speed_boost', name: '轻盈移动', icon: '⚡', rarity: 'common', desc: '移动速度+15%',
@@ -541,22 +541,22 @@ function updateRogueTimer(dt) {
 }
 // Wave configs: [cellCount, smallPct, medPct, largePct, hugePct, massMultiplier, aiAggression]
 const WAVE_CFG = [
-  { count:350, dist:[.55,.75,.88,.96], mRange:[15,50,150,350,700], mult:1, aiCd:1.6 },    // wave 1 - easier start, more small cells
-  { count:280, dist:[.40,.62,.80,.92], mRange:[30,80,250,550,1100], mult:1.1, aiCd:1.4 },  // wave 2 - gradual increase
-  { count:220, dist:[.30,.52,.72,.87], mRange:[50,130,380,750,1600], mult:1.25, aiCd:1.2 },// wave 3 - moderate
-  { count:170, dist:[.20,.42,.65,.82], mRange:[70,180,500,1000,2200], mult:1.45, aiCd:1.0 },// wave 4 - getting harder
-  { count:130, dist:[.12,.32,.55,.75], mRange:[100,250,700,1400,3000], mult:1.7, aiCd:0.8 },// wave 5 - challenging
-  { count:100, dist:[.08,.25,.48,.70], mRange:[150,350,1000,2200,4500], mult:2.0, aiCd:0.6 },// wave 6 - very hard
-  { count:80,  dist:[.05,.18,.40,.65], mRange:[200,500,1500,3500,6000], mult:2.3, aiCd:0.45 },// wave 7 - boss wave
+  { count:600, dist:[.70,.85,.93,.98], mRange:[8,30,80,200,500], mult:1, aiCd:1.6 },    // wave 1 - lots of small cells to eat
+  { count:450, dist:[.55,.75,.88,.95], mRange:[15,50,150,400,900], mult:1.1, aiCd:1.4 },  // wave 2
+  { count:320, dist:[.40,.62,.80,.92], mRange:[30,80,250,600,1300], mult:1.25, aiCd:1.2 },// wave 3
+  { count:220, dist:[.28,.50,.72,.87], mRange:[50,130,380,900,1800], mult:1.45, aiCd:1.0 },// wave 4
+  { count:160, dist:[.18,.40,.62,.82], mRange:[80,200,550,1200,2500], mult:1.7, aiCd:0.8 },// wave 5
+  { count:120, dist:[.12,.32,.55,.77], mRange:[120,300,800,1800,3800], mult:2.0, aiCd:0.6 },// wave 6
+  { count:90,  dist:[.08,.25,.48,.72], mRange:[180,450,1200,2800,5500], mult:2.3, aiCd:0.45 },// wave 7
 ];
 let waveMsg = '';
 let waveMsgTimer = 0;
 let comebackTimer = 0; // Timer for comeback resource spawning
 
 // Super small particle spawning constants
-const PARTICLE_SPAWN_INTERVAL = 2; // seconds between spawns
-const PARTICLE_SPAWN_COUNT_MIN = 3;
-const PARTICLE_SPAWN_COUNT_MAX = 5;
+const PARTICLE_SPAWN_INTERVAL = 1; // seconds between spawns (more frequent)
+const PARTICLE_SPAWN_COUNT_MIN = 5;
+const PARTICLE_SPAWN_COUNT_MAX = 9;
 const PARTICLE_MIN_SPAWN_OFFSET = 100; // minimum distance from player radius
 const PARTICLE_MAX_SPAWN_RANGE = 400; // additional range beyond min offset
 const PARTICLE_MIN_MASS = 3;
@@ -715,9 +715,9 @@ class Cell {
     const dx=tx-this.x, dy=ty-this.y, d=Math.sqrt(dx*dx+dy*dy)||1;
     const nx=dx/d, ny=dy/d;
     
-    // Apply eject cost multiplier
-    let em = this.mass * 0.012 * (this.ejectCostMult || 1);
-    em = Math.min(em, this.mass * 0.1); // Cap at 10% mass
+    // Apply eject cost multiplier (reduced base cost for better mass retention)
+    let em = this.mass * 0.006 * (this.ejectCostMult || 1);
+    em = Math.min(em, this.mass * 0.05); // Cap at 5% mass
     
     this.mass -= em;
     
