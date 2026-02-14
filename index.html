@@ -1039,15 +1039,15 @@ function checkCollisions(){
     const indices = grid[g];
     if (!indices || indices.length < 2) continue;
     
-    // Limit checks per cell to maintain performance
-    const checkCount = Math.min(indices.length, 30);
+    // Check all pairs in this grid cell
+    const cellCount = indices.length;
     
-    for (let a = 0; a < checkCount; a++) {
+    for (let a = 0; a < cellCount; a++) {
       const i = indices[a];
       const c1 = cells[i];
       if (!c1 || !c1.alive || c1.mass <= 0) continue;
       
-      for (let b = a + 1; b < checkCount; b++) {
+      for (let b = a + 1; b < cellCount; b++) {
         const j = indices[b];
         const c2 = cells[j];
         if (!c2 || !c2.alive || c2.mass <= 0) continue;
@@ -1060,7 +1060,7 @@ function checkCollisions(){
         const dy = c2.y - c1.y;
         const distSq = dx * dx + dy * dy;
         
-        // Skip if too far or same position
+        // Skip if same position
         if (distSq < 0.0001) continue;
         
         const minDist = c1.radius + c2.radius;
@@ -1077,13 +1077,13 @@ function checkCollisions(){
         const big = m1 > m2 ? c1 : c2;
         const smol = m1 > m2 ? c2 : c1;
         
-        // Safety check
         if (big.mass <= 0 || smol.mass <= 0) continue;
         
         const centerDist = Math.sqrt(distSq);
         
-        // Fast complete absorption
+        // Osmos-style absorption: full containment = eat, partial = gradual drain
         if (centerDist < big.radius) {
+          // Complete overlap - consume entirely
           let absorbRate = big.isPlayer ? (big.absorbMult || 0.95) : 0.95;
           absorbRate += big.isPlayer ? (big.bonusAbsorb || 0) : 0;
           
@@ -1094,7 +1094,7 @@ function checkCollisions(){
             big.mass += smol.mass * big.vampireLevel * 0.1;
           }
           
-          // Momentum transfer (with safety check)
+          // Momentum transfer
           if (big.mass > 0.001) {
             const rat = Math.min(1, smol.mass / big.mass);
             big.vx = big.vx * (1 - rat) + smol.vx * rat;
@@ -1102,6 +1102,18 @@ function checkCollisions(){
           }
           
           smol.alive = false;
+        } else {
+          // Partial overlap - gradual drain
+          const overlapRatio = (minDist - centerDist) / smol.radius;
+          if (overlapRatio > 0.3) {
+            const drainRate = 0.05; // 5% per frame
+            const transfer = smol.mass * drainRate * Math.min(1, overlapRatio);
+            if (transfer > 0.01) {
+              big.mass += transfer * 0.9;
+              smol.mass -= transfer;
+              if (smol.mass < 1) smol.alive = false;
+            }
+          }
         }
       }
     }
