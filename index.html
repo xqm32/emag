@@ -832,19 +832,39 @@ class Cell {
     this.vx -= nx * baseImpulse * massFactor;
     this.vy -= ny * baseImpulse * massFactor;
     
-    // Visual particle from pool
-    const particleRadius = Math.max(3, massToRadius(em) * 1.5);
-    const p = getParticle();
-    p.x = this.x + nx * this.radius;
-    p.y = this.y + ny * this.radius;
-    p.vx = this.vx + nx * 120;
-    p.vy = this.vy + ny * 120;
-    p.mass = em;
-    p.radius = particleRadius;
-    p.life = 0.8;
-    p.rgb = this.isPlayer ? [0.5, 0.75, 1] : this.rgbB;
-    p.owner = this.isPlayer ? this : null;
-    particles.push(p);
+    // Chance to spawn a small cell instead of just a particle
+    const SPAWN_CELL_CHANCE = 0.2; // 20% chance
+    if (this.isPlayer && Math.random() < SPAWN_CELL_CHANCE) {
+      // Spawn as a small cell that can be eaten later
+      const c = new Cell(
+        this.x + nx * this.radius,
+        this.y + ny * this.radius,
+        em * 0.8, // 80% efficiency conversion
+        false
+      );
+      c.vx = this.vx + nx * 100;
+      c.vy = this.vy + ny * 100;
+      c.hue = 200; // Blue-ish for player eject
+      c.sat = 50;
+      c.lit = 60;
+      c.rgb = hsl2rgb(c.hue, c.sat, c.lit);
+      c.rgbB = hsl2rgb(c.hue, c.sat, Math.min(100, c.lit + 15));
+      cells.push(c);
+    } else {
+      // Visual particle from pool
+      const particleRadius = Math.max(3, massToRadius(em) * 1.5);
+      const p = getParticle();
+      p.x = this.x + nx * this.radius;
+      p.y = this.y + ny * this.radius;
+      p.vx = this.vx + nx * 120;
+      p.vy = this.vy + ny * 120;
+      p.mass = em;
+      p.radius = particleRadius;
+      p.life = 0.8;
+      p.rgb = this.isPlayer ? [0.5, 0.75, 1] : this.rgbB;
+      p.owner = this.isPlayer ? this : null;
+      particles.push(p);
+    }
   }
 }
 
