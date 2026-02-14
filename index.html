@@ -398,8 +398,8 @@ const ROGUE_EFFECTS = [
     apply: (p) => { p.zoomMult = (p.zoomMult||1) * 1.2; } },
   { id: 'shield_temp', name: '缓冲护盾', icon: '🛡️', rarity: 'rare', desc: '被吞噬阈值+15%',
     apply: (p) => { p.shieldBonus = (p.shieldBonus||0) + 0.15; } },
-  { id: 'split_resist', name: '坚韧细胞', icon: '💪', rarity: 'rare', desc: '碰撞损失质量-25%',
-    apply: (p) => { p.damageReduce = (p.damageReduce||0) + 0.25; } },
+  { id: 'growth_boost', name: '快速成长', icon: '📈', rarity: 'rare', desc: '吞噬后额外获得20%质量',
+    apply: (p) => { p.bonusAbsorb = (p.bonusAbsorb||0) + 0.2; } },
   { id: 'comeback_king', name: '绝地反击', icon: '🔥', rarity: 'rare', desc: '质量<100时移动+50%',
     apply: (p) => { p.comebackBonus = true; } },
   
@@ -606,7 +606,7 @@ class Cell {
     this.ejectPowerMult = 1;
     this.zoomMult = 1;
     this.shieldBonus = 0;
-    this.damageReduce = 0;
+    this.bonusAbsorb = 0;
     this.comebackBonus = false;
     this.vampireLevel = 0;
     this.timeWarp = 0;
@@ -836,11 +836,10 @@ function buildSpatialGrid() {
 
 function checkCollisions(){
   const grid = buildSpatialGrid();
-  const checked = new Set(); // Avoid checking same pair twice
+  const checked = new Set();
   
-  // Cell-to-cell collisions
+  // Cell-to-cell: simple eat logic only
   for (const [key, indices] of grid) {
-    // Check all pairs in this grid cell
     for (let a = 0; a < indices.length; a++) {
       const i = indices[a];
       if (!cells[i].alive) continue;
@@ -849,74 +848,57 @@ function checkCollisions(){
         const j = indices[b];
         if (!cells[j].alive) continue;
         
-        // Skip if already checked
         const pairKey = i < j ? `${i},${j}` : `${j},${i}`;
         if (checked.has(pairKey)) continue;
         checked.add(pairKey);
         
-        const dx = cells[j].x - cells[i].x;
-        const dy = cells[j].y - cells[i].y;
+        const c1 = cells[i], c2 = cells[j];
+        const dx = c2.x - c1.x, dy = c2.y - c1.y;
         const distSq = dx * dx + dy * dy;
-        const r1 = cells[i].radius, r2 = cells[j].radius;
-        const minDist = r1 + r2;
+        const minDist = c1.radius + c2.radius;
         
-        if (distSq < minDist * minDist) {
-          const dist = Math.sqrt(distSq);
-          let big, smol;
-          const m1 = cells[i].isPlayer ? cells[i].effectiveMass : cells[i].mass;
-          const m2 = cells[j].isPlayer ? cells[j].effectiveMass : cells[j].mass;
-          if (m1 >= m2) { big = cells[i]; smol = cells[j]; }
-          else { big = cells[j]; smol = cells[i]; }
-          
-          if (dist < big.radius) {
-            const rat = smol.mass / big.mass;
-            let absorbRate = 0.9;
-            if (big.isPlayer && big.absorbMult) {
-              absorbRate = Math.min(0.99, 0.9 * big.absorbMult);
-            }
-            big.mass += smol.mass * absorbRate;
-            if (big.isPlayer && big.vampireLevel > 0) {
-              big.mass += smol.mass * big.vampireLevel * 0.1;
-            }
-            big.vx = big.vx * (1 - rat) + smol.vx * rat;
-            big.vy = big.vy * (1 - rat) + smol.vy * rat;
-            smol.alive = false;
-            for (let k = 0; k < Math.min(5, smol.radius); k++) {
-              const a = Math.random() * Math.PI * 2;
-              particles.push({ x: smol.x, y: smol.y, vx: Math.cos(a) * 50 + big.vx, vy: Math.sin(a) * 50 + big.vy,
-                mass: .5, radius: 2, life: .5, rgb: smol.rgbB });
-            }
-          } else if (dist < r1 + r2 - Math.min(r1, r2) * .3) {
-            const t = smol.mass * .02;
-            let actualT = t;
-            if (smol.isPlayer && smol.damageReduce > 0) {
-              actualT = t * (1 - Math.min(0.8, smol.damageReduce));
-            }
-            big.mass += actualT * .9; smol.mass -= actualT;
-            if (smol.mass < 1) smol.alive = false;
-          }
+        // Only eat if fully overlapped
+        if (distSq >= minDist * minDist) continue;
+        
+        // Determine eater (bigger effective mass wins)
+        const m1 = c1.isPlayer ? c1.effectiveMass : c1.mass;
+        const m2 = c2.isPlayer ? c2.effectiveMass : c2.mass;
+        if (m1 < m2 * 1.2 && m2 < m1 * 1.2) continue; // Too similar, no eat
+        
+        const big = m1 > m2 ? c1 : c2;
+        const smol = m1 > m2 ? c2 : c1;
+        const centerDist = Math.sqrt(distSq);
+        
+        // Must fully contain smaller cell
+        if (centerDist + smol.radius > big.radius * 0.9) continue;
+        
+        // Eat!
+        let absorbRate = big.isPlayer ? (big.absorbMult || 0.9) : 0.9;
+        absorbRate += big.isPlayer ? (big.bonusAbsorb || 0) : 0;
+        big.mass += smol.mass * Math.min(0.99, absorbRate);
+        if (big.isPlayer && big.vampireLevel > 0) {
+          big.mass += smol.mass * big.vampireLevel * 0.1;
         }
+        smol.alive = false;
       }
     }
   }
   
-  // Particle collisions - only check against nearby cells using grid
+  // Particle collisions
   for (let i = particles.length - 1; i >= 0; i--) {
     const p = particles[i];
     const key = getGridKey(p.x, p.y);
-    const nearbyIndices = grid.get(key);
-    if (!nearbyIndices) continue;
+    const nearby = grid.get(key);
+    if (!nearby) continue;
     
-    for (const idx of nearbyIndices) {
+    for (const idx of nearby) {
       const c = cells[idx];
       if (!c.alive) continue;
       const dx = c.x - p.x, dy = c.y - p.y;
-      if (dx * dx + dy * dy < c.radius * c.radius * .64) { // .8^2
-        let particleValue = p.mass * 0.5;
-        if (p.owner && p.owner.vampireLevel > 0) {
-          particleValue *= (1 + p.owner.vampireLevel);
-        }
-        c.mass += particleValue;
+      if (dx * dx + dy * dy < c.radius * c.radius * 0.5) {
+        let val = p.mass * 0.5;
+        if (p.owner && p.owner.vampireLevel > 0) val *= 1.15;
+        c.mass += val;
         particles.splice(i, 1);
         break;
       }
