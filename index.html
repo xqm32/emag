@@ -764,6 +764,19 @@ function spawnCells(){
   activeBuffs = [];
   updateBuffDisplay();
   player=new Cell(0,0,300,true); cells.push(player);
+  
+  // Spawn starter food around player (immediate gratification)
+  const starterCount = 12 + Math.floor(Math.random() * 8); // 12-20 cells
+  for (let i = 0; i < starterCount; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const d = 80 + Math.random() * 150; // Close to player (80-230 distance)
+    const mass = 5 + Math.random() * 15; // Small mass (5-20)
+    const c = new Cell(Math.cos(a) * d, Math.sin(a) * d, mass);
+    c.vx = (Math.random() - 0.5) * 10; // Slow movement
+    c.vy = (Math.random() - 0.5) * 10;
+    cells.push(c);
+  }
+  
   spawnWaveCells(WAVE_CFG[0]);
 }
 
