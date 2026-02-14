@@ -82,7 +82,8 @@ canvas { display: block; }
   background: rgba(255,255,255,0.12); border-color: rgba(100,180,255,0.5);
   transform: translateY(-6px);
 }
-.rogue-card .icon { font-size: 32px; margin-bottom: 12px; color: rgba(100, 200, 255, 0.9); font-weight: bold; }
+.rogue-card .icon { width: 40px; height: 40px; margin: 0 auto 12px auto; }
+.rogue-card .icon svg { width: 100%; height: 100%; }
 .rogue-card .name { color: #fff; font-size: 16px; font-weight: 500; margin-bottom: 8px; }
 .rogue-card .desc { color: rgba(255,255,255,0.5); font-size: 12px; line-height: 1.5; }
 .rogue-card .rarity-common { border-color: rgba(150,150,150,0.4); }
@@ -145,7 +146,8 @@ canvas { display: block; }
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
 }
-.buff-item .buff-icon { font-size: 12px; font-weight: bold; color: rgba(100, 200, 255, 0.9); }
+.buff-item .buff-icon { width: 16px; height: 16px; flex-shrink: 0; }
+.buff-item .buff-icon svg { width: 100%; height: 100%; }
 .buff-item .buff-name { color: #fff; }
 .buff-item .buff-stack { color: rgba(255,200,100,0.9); font-size: 10px; margin-left: auto; }
 #timeControl button {
@@ -280,7 +282,8 @@ canvas { display: block; }
     padding: 16px 12px;
   }
   .rogue-card .icon {
-    font-size: 24px;
+    width: 32px;
+    height: 32px;
   }
   .rogue-card .name {
     font-size: 14px;
@@ -303,7 +306,8 @@ canvas { display: block; }
     padding: 4px 6px;
   }
   .buff-item .buff-icon {
-    font-size: 14px;
+    width: 18px;
+    height: 18px;
   }
   .buff-item .buff-stack {
     font-size: 9px;
@@ -671,42 +675,74 @@ let rogueTimer = ROGUE_INTERVAL;
 let roguePaused = false;
 let activeBuffs = []; // { id, name, icon, stacks, effect }
 
+// SVG图标定义 - 高级感简约设计
+const BUFF_ICONS = {
+  eject_efficiency: `<svg viewBox="0 0 24 24" fill="none" stroke="rgba(100,200,255,0.9)" stroke-width="1.5"><circle cx="12" cy="12" r="8" stroke-dasharray="3 2"/><circle cx="12" cy="12" r="3" fill="rgba(100,200,255,0.4)"/></svg>`,
+  absorb_boost: `<svg viewBox="0 0 24 24" fill="none" stroke="rgba(100,200,255,0.9)" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5" fill="rgba(100,200,255,0.3)"/><circle cx="12" cy="12" r="2" fill="rgba(100,200,255,0.8)"/></svg>`,
+  speed_boost: `<svg viewBox="0 0 24 24" fill="none" stroke="rgba(100,200,255,0.9)" stroke-width="1.5"><path d="M5 12h14M15 7l5 5-5 5"/><path d="M3 12h3" opacity="0.5"/></svg>`,
+  mass_growth: `<svg viewBox="0 0 24 24" fill="none" stroke="rgba(100,200,255,0.9)" stroke-width="1.5"><path d="M12 20V10M12 10l-4 4M12 10l4 4"/><circle cx="12" cy="6" r="2" fill="rgba(100,200,255,0.6)"/></svg>`,
+  friction_reduce: `<svg viewBox="0 0 24 24" fill="none" stroke="rgba(100,200,255,0.9)" stroke-width="1.5"><path d="M4 12h16" stroke-dasharray="1 3"/><path d="M4 8h16" stroke-dasharray="1 3" opacity="0.6"/><path d="M4 16h16" stroke-dasharray="1 3" opacity="0.6"/></svg>`,
+  eject_power: `<svg viewBox="0 0 24 24" fill="none" stroke="rgba(150,180,255,0.9)" stroke-width="1.5"><polygon points="12,3 20,12 12,21 4,12" fill="rgba(100,150,255,0.2)"/><polygon points="12,7 16,12 12,17 8,12" fill="rgba(100,150,255,0.4)"/></svg>`,
+  zoom_expand: `<svg viewBox="0 0 24 24" fill="none" stroke="rgba(150,180,255,0.9)" stroke-width="1.5"><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="8" stroke-dasharray="2 2"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>`,
+  shield_temp: `<svg viewBox="0 0 24 24" fill="none" stroke="rgba(150,180,255,0.9)" stroke-width="1.5"><path d="M12 3L4 7v6c0 5 8 8 8 8s8-3 8-8V7l-8-4z" fill="rgba(100,150,255,0.15)"/></svg>`,
+  growth_boost: `<svg viewBox="0 0 24 24" fill="none" stroke="rgba(150,180,255,0.9)" stroke-width="1.5"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/><circle cx="12" cy="5" r="2" fill="rgba(150,255,200,0.6)"/></svg>`,
+  comeback_king: `<svg viewBox="0 0 24 24" fill="none" stroke="rgba(150,180,255,0.9)" stroke-width="1.5"><path d="M12 3l2.5 5 5.5.8-4 3.9.9 5.5L12 16l-4.9 2.2.9-5.5-4-3.9 5.5-.8L12 3z" fill="rgba(255,200,100,0.3)"/></svg>`,
+  vampire_touch: `<svg viewBox="0 0 24 24" fill="none" stroke="rgba(200,100,255,0.9)" stroke-width="1.5"><path d="M12 4c-4 4-7 8-7 11a7 7 0 0014 0c0-3-3-7-7-11z" fill="rgba(200,100,255,0.2)"/><circle cx="12" cy="14" r="2" fill="rgba(255,100,150,0.6)"/></svg>`,
+  time_warp: `<svg viewBox="0 0 24 24" fill="none" stroke="rgba(200,100,255,0.9)" stroke-width="1.5"><circle cx="8" cy="12" r="4"/><circle cx="16" cy="12" r="4"/><path d="M12 8c0 8 0 8 0 8" stroke-dasharray="2 1"/></svg>`,
+  gravity_well: `<svg viewBox="0 0 24 24" fill="none" stroke="rgba(200,100,255,0.9)" stroke-width="1.5"><circle cx="12" cy="12" r="3" fill="rgba(200,100,255,0.5)"/><circle cx="12" cy="12" r="6" stroke-dasharray="2 2"/><circle cx="12" cy="12" r="9" stroke-dasharray="3 3" opacity="0.5"/><path d="M5 5l2 2M19 5l-2 2M5 19l2-2M19 19l-2-2" opacity="0.7"/></svg>`,
+  mass_converter: `<svg viewBox="0 0 24 24" fill="none" stroke="rgba(200,100,255,0.9)" stroke-width="1.5"><circle cx="12" cy="12" r="8"/><path d="M8 12h8M12 8v8" stroke-dasharray="0"/><circle cx="12" cy="12" r="3" fill="rgba(200,100,255,0.4)"/></svg>`,
+  predator: `<svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,200,100,0.9)" stroke-width="1.5"><path d="M12 4l2 4h4l-3 3 1 5-4-2-4 2 1-5-3-3h4l2-4z" fill="rgba(255,200,100,0.3)"/><circle cx="12" cy="14" r="2" fill="rgba(255,200,100,0.6)"/></svg>`,
+  // 新增buff图标
+  sticky_field: `<svg viewBox="0 0 24 24" fill="none" stroke="rgba(100,200,255,0.9)" stroke-width="1.5"><circle cx="12" cy="12" r="8" stroke-dasharray="4 2"/><path d="M8 10c2 4 6 4 8 0" stroke="rgba(100,200,255,0.6)"/><path d="M8 14c2 4 6 4 8 0" stroke="rgba(100,200,255,0.6)"/></svg>`,
+  pursuit_inertia: `<svg viewBox="0 0 24 24" fill="none" stroke="rgba(150,180,255,0.9)" stroke-width="1.5"><circle cx="8" cy="12" r="4" fill="rgba(150,180,255,0.2)"/><path d="M14 12h6M17 9l3 3-3 3"/><path d="M14 8h4" opacity="0.5"/><path d="M14 16h4" opacity="0.5"/></svg>`,
+  mass_stabilizer: `<svg viewBox="0 0 24 24" fill="none" stroke="rgba(150,180,255,0.9)" stroke-width="1.5"><rect x="6" y="6" width="12" height="12" rx="2" fill="rgba(150,180,255,0.15)"/><path d="M9 12h6M12 9v6"/></svg>`,
+  enemy_friction: `<svg viewBox="0 0 24 24" fill="none" stroke="rgba(200,100,255,0.9)" stroke-width="1.5"><circle cx="12" cy="12" r="7"/><path d="M6 12h12" stroke-dasharray="2 2"/><path d="M12 6v12" stroke-dasharray="2 2"/><path d="M8 8l8 8M16 8l-8 8" stroke-dasharray="1 2" opacity="0.6"/></svg>`,
+};
+
 const ROGUE_EFFECTS = [
   // Common (60% chance)
-  { id: 'eject_efficiency', name: '节能喷射', icon: '◈', rarity: 'common', desc: '喷射消耗质量-25%', 
+  { id: 'eject_efficiency', name: '节能喷射', icon: 'eject_efficiency', rarity: 'common', desc: '喷射消耗质量-25%', 
     apply: (p) => { p.ejectCostMult = (p.ejectCostMult||1) * 0.75; } },
-  { id: 'absorb_boost', name: '贪婪吞噬', icon: '◉', rarity: 'common', desc: '吞噬效率+15%',
+  { id: 'absorb_boost', name: '贪婪吞噬', icon: 'absorb_boost', rarity: 'common', desc: '吞噬效率+15%',
     apply: (p) => { p.absorbMult = (p.absorbMult||1) * 1.15; } },
-  { id: 'speed_boost', name: '轻盈移动', icon: '»', rarity: 'common', desc: '移动速度+15%',
+  { id: 'speed_boost', name: '轻盈移动', icon: 'speed_boost', rarity: 'common', desc: '移动速度+15%',
     apply: (p) => { p.speedMult = (p.speedMult||1) * 1.15; } },
-  { id: 'mass_growth', name: '缓慢生长', icon: '▲', rarity: 'common', desc: '每秒自动+1质量',
+  { id: 'mass_growth', name: '缓慢生长', icon: 'mass_growth', rarity: 'common', desc: '每秒自动+1质量',
     apply: (p) => { p.massGrowth = (p.massGrowth||0) + 1; } },
-  { id: 'friction_reduce', name: '惯性滑行', icon: '≋', rarity: 'common', desc: '摩擦力-20%',
-    apply: (p) => { p.frictionMult = (p.frictionMult||1) * 0.98; } },
+  { id: 'friction_reduce', name: '惯性滑行', icon: 'friction_reduce', rarity: 'common', desc: '自身摩擦力-20%',
+    apply: (p) => { p.frictionMult = (p.frictionMult||1) * 0.8; } },
+  { id: 'sticky_field', name: '黏滞领域', icon: 'sticky_field', rarity: 'common', desc: '周围敌人减速15%',
+    apply: (p) => { p.stickyFieldRange = (p.stickyFieldRange||0) + 150; p.stickyFieldPower = (p.stickyFieldPower||0) + 0.15; } },
   
   // Rare (30% chance)
-  { id: 'eject_power', name: '强力喷射', icon: '◆', rarity: 'rare', desc: '喷射推力+30%',
+  { id: 'eject_power', name: '强力喷射', icon: 'eject_power', rarity: 'rare', desc: '喷射推力+30%',
     apply: (p) => { p.ejectPowerMult = (p.ejectPowerMult||1) * 1.3; } },
-  { id: 'zoom_expand', name: '视野扩展', icon: '◎', rarity: 'rare', desc: '视野范围+20%',
+  { id: 'zoom_expand', name: '视野扩展', icon: 'zoom_expand', rarity: 'rare', desc: '视野范围+20%',
     apply: (p) => { p.zoomMult = (p.zoomMult||1) * 1.2; } },
-  { id: 'shield_temp', name: '缓冲护盾', icon: '□', rarity: 'rare', desc: '被吞噬阈值+15%',
+  { id: 'shield_temp', name: '缓冲护盾', icon: 'shield_temp', rarity: 'rare', desc: '被吞噬阈值+15%',
     apply: (p) => { p.shieldBonus = (p.shieldBonus||0) + 0.15; } },
-  { id: 'growth_boost', name: '快速成长', icon: '↑', rarity: 'rare', desc: '吞噬后额外获得20%质量',
+  { id: 'growth_boost', name: '快速成长', icon: 'growth_boost', rarity: 'rare', desc: '吞噬后额外获得20%质量',
     apply: (p) => { p.bonusAbsorb = (p.bonusAbsorb||0) + 0.2; } },
-  { id: 'comeback_king', name: '绝地反击', icon: '★', rarity: 'rare', desc: '质量<100时移动+50%',
+  { id: 'comeback_king', name: '绝地反击', icon: 'comeback_king', rarity: 'rare', desc: '质量<100时移动+50%',
     apply: (p) => { p.comebackBonus = true; } },
+  { id: 'pursuit_inertia', name: '追击惯性', icon: 'pursuit_inertia', rarity: 'rare', desc: '追击时速度+25%',
+    apply: (p) => { p.pursuitBonus = (p.pursuitBonus||0) + 0.25; } },
+  { id: 'mass_stabilizer', name: '质量稳定', icon: 'mass_stabilizer', rarity: 'rare', desc: '被吞噬速度-30%',
+    apply: (p) => { p.massStability = (p.massStability||0) + 0.3; } },
   
   // Epic (10% chance)
-  { id: 'vampire_touch', name: '吸血之触', icon: '◊', rarity: 'epic', desc: '吞噬时恢复15%喷射质量',
+  { id: 'vampire_touch', name: '吸血之触', icon: 'vampire_touch', rarity: 'epic', desc: '吞噬时恢复15%喷射质量',
     apply: (p) => { p.vampireLevel = (p.vampireLevel||0) + 0.15; } },
-  { id: 'time_warp', name: '时间扭曲', icon: '∞', rarity: 'epic', desc: '游戏速度-15%(仅对你有利)',
+  { id: 'time_warp', name: '时间扭曲', icon: 'time_warp', rarity: 'epic', desc: '游戏速度-15%(仅对你有利)',
     apply: (p) => { p.timeWarp = (p.timeWarp||0) + 0.15; } },
-  { id: 'gravity_well', name: '引力井', icon: '◎', rarity: 'epic', desc: '吸引周围小细胞',
+  { id: 'gravity_well', name: '引力井', icon: 'gravity_well', rarity: 'epic', desc: '吸引周围小细胞',
     apply: (p) => { p.gravityRange = (p.gravityRange||0) + 200; } },
-  { id: 'mass_converter', name: '质能转换', icon: '⟡', rarity: 'epic', desc: '移动时缓慢获得质量',
+  { id: 'mass_converter', name: '质能转换', icon: 'mass_converter', rarity: 'epic', desc: '移动时缓慢获得质量',
     apply: (p) => { p.motionMass = true; } },
-  { id: 'predator', name: '顶级掠食者', icon: '♔', rarity: 'epic', desc: '对大鱼威慑+30%，吞噬范围+20%',
+  { id: 'predator', name: '顶级掠食者', icon: 'predator', rarity: 'epic', desc: '对大鱼威慑+30%，吞噬范围+20%',
     apply: (p) => { p.predatorLevel = (p.predatorLevel||0) + 1; } },
+  { id: 'enemy_friction', name: '泥沼领域', icon: 'enemy_friction', rarity: 'epic', desc: '视野内所有敌人摩擦力+50%',
+    apply: (p) => { p.enemyFrictionMult = (p.enemyFrictionMult||1) + 0.5; } },
 ];
 
 const rogueTimerEl = document.getElementById('rogueTimer');
@@ -780,7 +816,7 @@ function showRogueSelection() {
     const card = document.createElement('div');
     card.className = `rogue-card rarity-${effect.rarity}`;
     card.innerHTML = `
-      <div class="icon">${effect.icon}</div>
+      <div class="icon">${BUFF_ICONS[effect.icon] || ''}</div>
       <div class="name">${effect.name}</div>
       <div class="desc">${effect.desc}</div>
     `;
@@ -831,7 +867,7 @@ function updateBuffDisplay() {
     const el = document.createElement('div');
     el.className = 'buff-item';
     el.innerHTML = `
-      <span class="buff-icon">${buff.icon}</span>
+      <span class="buff-icon">${BUFF_ICONS[buff.icon] || ''}</span>
       <span class="buff-name">${buff.name}</span>
       ${buff.stacks > 1 ? `<span class="buff-stack">x${buff.stacks}</span>` : ''}
     `;
@@ -934,6 +970,12 @@ class Cell {
     this.motionMass = false;
     this.predatorLevel = 0;
     this.lastMotionMass = 0;
+    // New buff properties
+    this.stickyFieldRange = 0;
+    this.stickyFieldPower = 0;
+    this.pursuitBonus = 0;
+    this.massStability = 0;
+    this.enemyFrictionMult = 1;
     
     // AI Personality traits (only for NPCs)
     if (!isPlayer) {
@@ -969,6 +1011,26 @@ class Cell {
     // Comeback bonus: faster when small
     if (this.isPlayer && this.comebackBonus && this.mass < 100) {
       speedMult *= 1.5;
+    }
+    
+    // Pursuit bonus: faster when chasing smaller cells
+    if (this.isPlayer && this.pursuitBonus > 0) {
+      const speed = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
+      if (speed > 10) {
+        const dirX = this.vx / speed, dirY = this.vy / speed;
+        for (const c of cells) {
+          if (c === this || !c.alive || c.mass >= this.mass * 0.9) continue;
+          const dx = c.x - this.x, dy = c.y - this.y;
+          const dist = Math.sqrt(dx*dx + dy*dy);
+          if (dist < 300) {
+            const dot = (dx/dist) * dirX + (dy/dist) * dirY;
+            if (dot > 0.7) { // Moving towards a smaller cell
+              speedMult *= (1 + this.pursuitBonus);
+              break;
+            }
+          }
+        }
+      }
     }
     
     // AI personality affects movement speed
@@ -1017,6 +1079,35 @@ class Cell {
           const force = (1 - dist / this.gravityRange) * 50 * dt;
           c.vx += (dx / dist) * force;
           c.vy += (dy / dist) * force;
+        }
+      }
+    }
+    
+    // Sticky field: slow nearby enemies
+    if (this.isPlayer && this.stickyFieldRange > 0) {
+      for (const c of cells) {
+        if (c === this || !c.alive) continue;
+        const dx = this.x - c.x, dy = this.y - c.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < this.stickyFieldRange) {
+          const slowFactor = 1 - this.stickyFieldPower * (1 - dist / this.stickyFieldRange);
+          c.vx *= slowFactor;
+          c.vy *= slowFactor;
+        }
+      }
+    }
+    
+    // Enemy friction field: slow all enemies in vision
+    if (this.isPlayer && this.enemyFrictionMult > 1) {
+      const viewDist = Math.max(W, H) / (camera.zoom || 1);
+      for (const c of cells) {
+        if (c === this || !c.alive) continue;
+        const dx = this.x - c.x, dy = this.y - c.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < viewDist) {
+          const frictionFactor = Math.pow(0.98, this.enemyFrictionMult - 1);
+          c.vx *= frictionFactor;
+          c.vy *= frictionFactor;
         }
       }
     }
@@ -1396,7 +1487,12 @@ function checkCollisions(){
         // ratio >= 1.2 (already checked), higher ratio = faster absorption
         const massRatio = big.mass / smol.mass;
         // Absorption speed factor: 1.2->0.3, 2.0->0.7, 3.0+->1.0 (instant)
-        const absorbSpeed = Math.min(1, Math.max(0.08, (massRatio - 1.0) / 1.5));
+        let absorbSpeed = Math.min(1, Math.max(0.08, (massRatio - 1.0) / 1.5));
+        
+        // Mass stability: reduce absorption speed when player is being absorbed
+        if (smol.isPlayer && smol.massStability > 0) {
+          absorbSpeed *= (1 - smol.massStability);
+        }
         
         // Osmos-style absorption: full containment = eat, partial = gradual drain
         if (centerDist < big.radius) {
