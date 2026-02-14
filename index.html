@@ -846,8 +846,8 @@ class Cell {
     
     // Friction - Osmos-like smooth gliding
     // Larger cells have less friction (maintain momentum better)
-    const sizeFactor = Math.min(1, 80 / Math.sqrt(this.mass));
-    let baseFriction = 0.992 * Math.pow(0.998, this.frictionMult - 1);
+    const sizeFactor = Math.min(1, 60 / Math.sqrt(this.mass));
+    let baseFriction = 0.985 * Math.pow(0.997, this.frictionMult - 1);
     
     // Lazy AI has more friction (slows down faster)
     if (!this.isPlayer && this.aiType === 2) {
@@ -861,6 +861,15 @@ class Cell {
     const frictionPerFrame = Math.pow(baseFriction, actualDt * 60 * sizeFactor);
     this.vx *= frictionPerFrame;
     this.vy *= frictionPerFrame;
+    
+    // Hard speed cap for better control
+    const speedLimit = this.isPlayer ? 180 : 150;
+    const currentSpeed = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
+    if (currentSpeed > speedLimit) {
+      const scale = speedLimit / currentSpeed;
+      this.vx *= scale;
+      this.vy *= scale;
+    }
     
     // Mass growth
     if (this.isPlayer && this.massGrowth > 0) {
@@ -1024,11 +1033,16 @@ class Cell {
     
     // Consistent eject power - constant velocity boost regardless of mass
     // This gives better "spaceship" feel like Osmos
-    const baseImpulse = 180 * (this.ejectPowerMult || 1);
-    const massFactor = Math.min(1, 100 / this.mass); // Larger cells get slightly less boost
+    const baseImpulse = 120 * (this.ejectPowerMult || 1);
+    const massFactor = Math.min(1, 80 / this.mass); // Larger cells get less boost
     
-    this.vx -= nx * baseImpulse * massFactor;
-    this.vy -= ny * baseImpulse * massFactor;
+    // Apply speed cap to prevent too fast movement
+    const maxSpeed = 250;
+    const currentSpeed = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
+    const speedFactor = currentSpeed > maxSpeed ? 0.3 : 1;
+    
+    this.vx -= nx * baseImpulse * massFactor * speedFactor;
+    this.vy -= ny * baseImpulse * massFactor * speedFactor;
     
     // Chance to spawn a small cell instead of just a particle
     const SPAWN_CELL_CHANCE = 0.2; // 20% chance
@@ -1040,8 +1054,8 @@ class Cell {
         em * 0.8, // 80% efficiency conversion
         false
       );
-      c.vx = this.vx + nx * 100;
-      c.vy = this.vy + ny * 100;
+      c.vx = this.vx + nx * 80;
+      c.vy = this.vy + ny * 80;
       c.hue = 200; // Blue-ish for player eject
       c.sat = 50;
       c.lit = 60;
@@ -1054,8 +1068,8 @@ class Cell {
       const p = getParticle();
       p.x = this.x + nx * this.radius;
       p.y = this.y + ny * this.radius;
-      p.vx = this.vx + nx * 120;
-      p.vy = this.vy + ny * 120;
+      p.vx = this.vx + nx * 90;
+      p.vy = this.vy + ny * 90;
       p.mass = em;
       p.radius = particleRadius;
       p.life = 0.8;
