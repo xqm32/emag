@@ -61,16 +61,10 @@ canvas { display: block; }
 }
 #rogueModal .cards {
   display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;
-  max-height: 70vh;
-  overflow-y: auto;
-  padding: 10px;
+  max-height: 70vh; overflow-y: auto; padding: 10px;
 }
 @media (max-width: 768px) {
-  #rogueModal .cards {
-    gap: 10px;
-    flex-direction: column;
-    align-items: center;
-  }
+  #rogueModal .cards { gap: 10px; flex-direction: column; align-items: center; }
 }
 .rogue-card {
   width: 200px; padding: 24px 20px; background: rgba(255,255,255,0.05);
@@ -104,12 +98,8 @@ canvas { display: block; }
   color: rgba(255,255,255,0.7); font-family: 'Helvetica Neue', sans-serif;
   font-size: 16px; margin: 8px 0;
 }
-#endlessModal .final-mass {
-  color: rgba(100,200,255,0.9); font-size: 20px; margin: 20px 0;
-}
-#endlessModal .choice-buttons {
-  display: flex; gap: 20px; margin-top: 30px;
-}
+#endlessModal .final-mass { color: rgba(100,200,255,0.9); font-size: 20px; margin: 20px 0; }
+#endlessModal .choice-buttons { display: flex; gap: 20px; margin-top: 30px; }
 #endlessModal button {
   padding: 14px 32px; font-size: 15px; border-radius: 30px;
   cursor: pointer; transition: all 0.3s; font-family: 'Helvetica Neue', sans-serif;
@@ -118,24 +108,18 @@ canvas { display: block; }
   background: rgba(100,180,100,0.2); border: 1px solid rgba(100,200,100,0.5);
   color: rgba(150,255,150,0.9);
 }
-#btnContinue:hover {
-  background: rgba(100,180,100,0.35); border-color: rgba(100,255,100,0.7);
-}
+#btnContinue:hover { background: rgba(100,180,100,0.35); border-color: rgba(100,255,100,0.7); }
 #btnEndGame {
   background: rgba(255,100,100,0.15); border: 1px solid rgba(255,150,150,0.4);
   color: rgba(255,200,200,0.8);
 }
-#btnEndGame:hover {
-  background: rgba(255,100,100,0.25); border-color: rgba(255,150,150,0.6);
-}
+#btnEndGame:hover { background: rgba(255,100,100,0.25); border-color: rgba(255,150,150,0.6); }
 #activeBuffs {
   position: fixed; top: 120px; right: 20px;
   display: flex; flex-direction: column; gap: 6px;
   z-index: 10; pointer-events: auto;
-  max-height: calc(50vh - 100px);
-  overflow-y: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  max-height: calc(50vh - 100px); overflow-y: auto;
+  scrollbar-width: none; -ms-overflow-style: none;
 }
 #activeBuffs::-webkit-scrollbar { display: none; }
 .buff-item {
@@ -143,8 +127,7 @@ canvas { display: block; }
   font-family: 'Helvetica Neue', sans-serif; font-size: 11px;
   color: rgba(255,255,255,0.8); display: flex; align-items: center; gap: 6px;
   border-left: 2px solid rgba(100,180,255,0.6);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
 }
 .buff-item .buff-icon { width: 16px; height: 16px; flex-shrink: 0; }
 .buff-item .buff-icon svg { width: 100%; height: 100%; }
@@ -190,132 +173,42 @@ canvas { display: block; }
   height: 100%; background: linear-gradient(90deg, rgba(100,200,255,0.6), rgba(150,255,200,0.8));
   border-radius: 2px; transition: width 0.1s;
 }
-#velocityArrow {
-  width: 24px; height: 24px; position: relative;
-}
-#velocityArrow svg {
-  width: 100%; height: 100%; transform-origin: center;
-  transition: transform 0.1s;
+#velocityArrow { width: 24px; height: 24px; position: relative; }
+#velocityArrow svg { width: 100%; height: 100%; transform-origin: center; transition: transform 0.1s; }
+#rendererBadge {
+  position: fixed; bottom: 5px; left: 10px; font-family: monospace;
+  font-size: 10px; color: rgba(255,255,255,0.2); z-index: 10; pointer-events: none;
 }
 
-/* Mobile Responsive Styles */
+/* Mobile Responsive */
 @media (max-width: 768px) {
-  #ui {
-    padding: 10px 15px;
-    font-size: 12px;
-  }
-  #ui > div {
-    padding: 6px 10px;
-    font-size: 11px;
-  }
-  
-  #activeBuffs {
-    top: 80px;
-    right: 10px;
-    max-height: 35vh;
-    gap: 4px;
-  }
-  .buff-item {
-    padding: 4px 8px;
-    font-size: 10px;
-    gap: 4px;
-  }
-  .buff-item .buff-name {
-    max-width: 80px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  
-  #velocityDisplay {
-    bottom: 80px;
-    right: 10px;
-    padding: 6px 10px;
-    font-size: 11px;
-    gap: 8px;
-  }
-  #velocityDisplay .speed-bar {
-    width: 40px;
-    height: 3px;
-  }
-  #velocityArrow {
-    width: 18px;
-    height: 18px;
-  }
-  
-  #timeControl {
-    bottom: 15px;
-    gap: 6px;
-  }
-  #timeControl button {
-    width: 32px;
-    height: 32px;
-    font-size: 12px;
-  }
-  
-  #zoomControl {
-    right: 10px;
-    gap: 6px;
-  }
-  #zoomControl button {
-    width: 36px;
-    height: 36px;
-    font-size: 16px;
-  }
-  #zoomLabel {
-    font-size: 10px;
-  }
-  
-  #speedLabel {
-    bottom: 55px;
-    font-size: 10px;
-  }
-  
-  #rogueTimer {
-    top: 60px;
-    font-size: 12px;
-    padding: 4px 10px;
-  }
-  
-  .rogue-card {
-    width: 140px;
-    padding: 16px 12px;
-  }
-  .rogue-card .icon {
-    width: 32px;
-    height: 32px;
-  }
-  .rogue-card .name {
-    font-size: 14px;
-  }
-  .rogue-card .desc {
-    font-size: 10px;
-  }
+  #ui { padding: 10px 15px; font-size: 12px; }
+  #ui > div { padding: 6px 10px; font-size: 11px; }
+  #activeBuffs { top: 80px; right: 10px; max-height: 35vh; gap: 4px; }
+  .buff-item { padding: 4px 8px; font-size: 10px; gap: 4px; }
+  .buff-item .buff-name { max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #velocityDisplay { bottom: 80px; right: 10px; padding: 6px 10px; font-size: 11px; gap: 8px; }
+  #velocityDisplay .speed-bar { width: 40px; height: 3px; }
+  #velocityArrow { width: 18px; height: 18px; }
+  #timeControl { bottom: 15px; gap: 6px; }
+  #timeControl button { width: 32px; height: 32px; font-size: 12px; }
+  #zoomControl { right: 10px; gap: 6px; }
+  #zoomControl button { width: 36px; height: 36px; font-size: 16px; }
+  #zoomLabel { font-size: 10px; }
+  #speedLabel { bottom: 55px; font-size: 10px; }
+  #rogueTimer { top: 60px; font-size: 12px; padding: 4px 10px; }
+  .rogue-card { width: 140px; padding: 16px 12px; }
+  .rogue-card .icon { width: 32px; height: 32px; }
+  .rogue-card .name { font-size: 14px; }
+  .rogue-card .desc { font-size: 10px; }
 }
-
 @media (max-width: 480px) {
-  #activeBuffs {
-    top: 70px;
-    right: 8px;
-    max-height: 30vh;
-  }
-  .buff-item .buff-name {
-    display: none;
-  }
-  .buff-item {
-    padding: 4px 6px;
-  }
-  .buff-item .buff-icon {
-    width: 18px;
-    height: 18px;
-  }
-  .buff-item .buff-stack {
-    font-size: 9px;
-  }
-  
-  #velocityDisplay {
-    display: none;
-  }
+  #activeBuffs { top: 70px; right: 8px; max-height: 30vh; }
+  .buff-item .buff-name { display: none; }
+  .buff-item { padding: 4px 6px; }
+  .buff-item .buff-icon { width: 18px; height: 18px; }
+  .buff-item .buff-stack { font-size: 9px; }
+  #velocityDisplay { display: none; }
 }
 </style>
 </head>
@@ -325,7 +218,6 @@ canvas { display: block; }
   <div id="levelDisplay">阶段 1/5</div>
   <div id="rankDisplay">排名: 0/0</div>
 </div>
-
 <div id="timeControl">
   <button id="btnSlow" title="慢速">«</button>
   <button id="btnPause" title="暂停">||</button>
@@ -333,16 +225,13 @@ canvas { display: block; }
   <button id="btnFast" title="快速">»</button>
 </div>
 <div id="speedLabel">1.0x</div>
-
 <div id="zoomControl">
   <button id="btnZoomIn" title="放大">+</button>
   <div id="zoomLabel">100%</div>
   <button id="btnZoomOut" title="缩小">−</button>
 </div>
-
 <div id="rogueTimer">下波强化: 30s</div>
 <div id="activeBuffs"></div>
-
 <div id="velocityDisplay">
   <div id="velocityArrow">
     <svg viewBox="0 0 24 24" fill="none">
@@ -354,12 +243,10 @@ canvas { display: block; }
     <div class="speed-bar"><div class="speed-fill" id="speedFill"></div></div>
   </div>
 </div>
-
 <div id="rogueModal">
   <h2>选择强化</h2>
   <div class="cards" id="rogueCards"></div>
 </div>
-
 <div id="endlessModal">
   <h2>恭喜通关</h2>
   <p>你已经完成了全部 7 个阶段</p>
@@ -369,7 +256,6 @@ canvas { display: block; }
     <button id="btnEndGame">结束游戏</button>
   </div>
 </div>
-
 <div id="overlay">
   <h1>OSMOS</h1>
   <p>点击/触屏向反方向喷射质量来移动</p>
@@ -378,129 +264,124 @@ canvas { display: block; }
   <p class="sub">滚轮/双指缩放 · 底部按钮调速 · R 重开</p>
   <button id="startBtn">开 始</button>
 </div>
-
 <canvas id="overlay2d" style="position:fixed;top:0;left:0;z-index:5;"></canvas>
 <canvas id="c"></canvas>
+<div id="rendererBadge"></div>
 
 <script>
-// ═══════════════════════════════════════════════════
-//  WebGL2 Osmos
-// ═══════════════════════════════════════════════════
-const canvas = document.getElementById('c');
-const olCanvas = document.getElementById('overlay2d');
-const olCtx = olCanvas.getContext('2d');
-const gl = canvas.getContext('webgl2', { antialias: true, alpha: false });
-if (!gl) { alert('WebGL2 not supported'); throw new Error('No WebGL2'); }
+'use strict';
 
-const overlay = document.getElementById('overlay');
-const startBtn = document.getElementById('startBtn');
-const massDisplay = document.getElementById('massDisplay');
-const rankDisplay = document.getElementById('rankDisplay');
-const speedLabel = document.getElementById('speedLabel');
+// ═══════════════════════════════════════════════════════════
+//  § 1. Configuration
+// ═══════════════════════════════════════════════════════════
+const CFG = Object.freeze({
+  WORLD_R:       3000,
+  MAX_WAVE:      7,
+  MAX_INST:      5000,
+  INST_FLOATS:   8,      // x, y, r, cr, cg, cb, ca, type
+  ROGUE_INTERVAL:30,
+  PARTICLE_POOL: 1500,
+  GRID_SIZE:     200,
+  AI_UPDATE_HZ:  30,
+  UI_UPDATE_HZ:  10,
+  // Particle spawning
+  PARTICLE_SPAWN_INTERVAL: 1,
+  PARTICLE_SPAWN_MIN: 5,
+  PARTICLE_SPAWN_MAX: 9,
+  PARTICLE_MIN_OFFSET: 100,
+  PARTICLE_MAX_RANGE:  400,
+  PARTICLE_MIN_MASS:   3,
+  PARTICLE_MASS_RANGE: 8,
+  PARTICLE_VEL_RANGE:  15,
+});
 
-let W, H;
-function resize() {
-  W = canvas.width = olCanvas.width = window.innerWidth;
-  H = canvas.height = olCanvas.height = window.innerHeight;
-  gl.viewport(0, 0, W, H);
+// Wave configs: [cellCount, distribution, massRanges, multiplier, aiCooldown]
+const WAVE_CFG = Object.freeze([
+  { count:600, dist:[.70,.85,.93,.98], mRange:[8,30,80,200,500],   mult:1,    aiCd:1.6 },
+  { count:450, dist:[.55,.75,.88,.95], mRange:[15,50,150,400,900],  mult:1.1,  aiCd:1.4 },
+  { count:320, dist:[.40,.62,.80,.92], mRange:[30,80,250,600,1300], mult:1.25, aiCd:1.2 },
+  { count:220, dist:[.28,.50,.72,.87], mRange:[50,130,380,900,1800],mult:1.45, aiCd:1.0 },
+  { count:160, dist:[.18,.40,.62,.82], mRange:[80,200,550,1200,2500],mult:1.7, aiCd:0.8 },
+  { count:120, dist:[.12,.32,.55,.77], mRange:[120,300,800,1800,3800],mult:2.0, aiCd:0.6 },
+  { count:90,  dist:[.08,.25,.48,.72], mRange:[180,450,1200,2800,5500],mult:2.3,aiCd:0.45},
+]);
+
+// ═══════════════════════════════════════════════════════════
+//  § 2. Utility Functions
+// ═══════════════════════════════════════════════════════════
+function hsl2rgb(h,s,l){
+  h=((h%360)+360)%360; s/=100; l/=100;
+  const c=(1-Math.abs(2*l-1))*s, x=c*(1-Math.abs((h/60)%2-1)), m=l-c/2;
+  let r,g,b;
+  if(h<60){r=c;g=x;b=0}else if(h<120){r=x;g=c;b=0}else if(h<180){r=0;g=c;b=x}
+  else if(h<240){r=0;g=x;b=c}else if(h<300){r=x;g=0;b=c}else{r=c;g=0;b=x}
+  return[r+m,g+m,b+m];
 }
-resize();
-window.addEventListener('resize', resize);
+function massToRadius(m){ return Math.sqrt(m / Math.PI); }
 
-// ─── Shader helpers ───
-function compile(src, type) {
-  const s = gl.createShader(type);
-  gl.shaderSource(s, src);
-  gl.compileShader(s);
-  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) { console.error(gl.getShaderInfoLog(s)); return null; }
-  return s;
-}
-function link(vs, fs) {
-  const p = gl.createProgram();
-  gl.attachShader(p, compile(vs, gl.VERTEX_SHADER));
-  gl.attachShader(p, compile(fs, gl.FRAGMENT_SHADER));
-  gl.linkProgram(p);
-  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) { console.error(gl.getProgramInfoLog(p)); return null; }
-  return p;
-}
+// ═══════════════════════════════════════════════════════════
+//  § 3. Shader Sources
+// ═══════════════════════════════════════════════════════════
 
-// ─── Background program (fullscreen quad) ───
-const bgProg = link(
-`#version 300 es
+// ─── GLSL (WebGL2) ───
+const GLSL_BG_VS = `#version 300 es
 in vec2 a;
 out vec2 v;
-void main(){ v=a*.5+.5; gl_Position=vec4(a,0,1); }`,
-`#version 300 es
+void main(){ v=a*.5+.5; gl_Position=vec4(a,0,1); }`;
+
+const GLSL_BG_FS = `#version 300 es
 precision highp float;
 in vec2 v;
 out vec4 o;
 uniform vec2 res, cam;
-uniform float zoom, worldR;
-uniform float time;
+uniform float zoom, worldR, time;
 
-// Simplex noise function
-vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
-float snoise(vec2 v) {
-  const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
-  vec2 i  = floor(v + dot(v, C.yy));
-  vec2 x0 = v - i + dot(i, C.xx);
-  vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
-  vec4 x12 = x0.xyxy + C.xxzz;
-  x12.xy -= i1;
-  i = mod289(i);
-  vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
-  vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
-  m = m*m; m = m*m;
-  vec3 x = 2.0 * fract(p * C.www) - 1.0;
-  vec3 h = abs(x) - 0.5;
-  vec3 ox = floor(x + 0.5);
-  vec3 a0 = x - ox;
-  m *= 1.79284291400159 - 0.85373472095314 * (a0*a0 + h*h);
-  return 130.0 * dot(m, a0);
+vec3 mod289(vec3 x){return x-floor(x*(1./289.))*289.;}
+vec2 mod289(vec2 x){return x-floor(x*(1./289.))*289.;}
+vec3 permute(vec3 x){return mod289(((x*34.)+1.)*x);}
+float snoise(vec2 v){
+  const vec4 C=vec4(.211324865405187,.366025403784439,-.577350269189626,.024390243902439);
+  vec2 i=floor(v+dot(v,C.yy));
+  vec2 x0=v-i+dot(i,C.xx);
+  vec2 i1=(x0.x>x0.y)?vec2(1,0):vec2(0,1);
+  vec4 x12=x0.xyxy+C.xxzz; x12.xy-=i1;
+  i=mod289(i);
+  vec3 p=permute(permute(i.y+vec3(0,i1.y,1))+i.x+vec3(0,i1.x,1));
+  vec3 m=max(.5-vec3(dot(x0,x0),dot(x12.xy,x12.xy),dot(x12.zw,x12.zw)),0.);
+  m=m*m; m=m*m;
+  vec3 x2=2.*fract(p*C.www)-1.;
+  vec3 h=abs(x2)-.5;
+  vec3 ox=floor(x2+.5);
+  vec3 a0=x2-ox;
+  m*=1.79284291400159-.85373472095314*(a0*a0+h*h);
+  return 130.*dot(m,a0);
 }
-
 void main(){
-  vec2 w = vec2(v.x-.5,.5-v.y)*res/zoom + cam;
-  
-  // Deep space background with subtle noise
-  float noise = snoise(w * 0.002) * 0.5 + 0.5;
-  float noise2 = snoise(w * 0.005 + 100.0) * 0.5 + 0.5;
-  vec3 bgColor = mix(vec3(0.02, 0.02, 0.05), vec3(0.03, 0.035, 0.08), noise * 0.3 + noise2 * 0.1);
-  
-  // Vignette effect
-  vec2 screenPos = (v - 0.5) * 2.0;
-  float vignette = 1.0 - dot(screenPos, screenPos) * 0.15;
-  
-  // Grid with depth
-  float gs = 200.0;
-  vec2 gridPos = w / gs;
-  vec2 g = abs(fract(gridPos + 0.5) - 0.5);
-  float lw = 1.0 / zoom;
-  float gx = smoothstep(lw, 0.0, g.x * gs);
-  float gy = smoothstep(lw, 0.0, g.y * gs);
-  float gridIntensity = max(gx, gy) * 0.15;
-  vec3 gridColor = vec3(0.12, 0.15, 0.25) * gridIntensity;
-  
-  // World boundary with glow
-  float d = length(w);
-  float boundaryDist = abs(d - worldR);
-  float boundaryGlow = smoothstep(50.0 / zoom, 0.0, boundaryDist) * 0.8;
-  vec3 boundaryColor = vec3(0.2, 0.4, 0.8) * boundaryGlow;
-  
-  // Fade out near edge
-  float edgeFade = 1.0 - smoothstep(worldR * 0.85, worldR * 1.15, d) * 0.6;
-  
-  vec3 c = bgColor + gridColor + boundaryColor;
-  c *= vignette * edgeFade;
-  
-  o = vec4(c, 1.0);
-}`);
+  vec2 w=vec2(v.x-.5,.5-v.y)*res/zoom+cam;
+  float n1=snoise(w*.002)*.5+.5;
+  float n2=snoise(w*.005+100.)*.5+.5;
+  vec3 bg=mix(vec3(.02,.02,.05),vec3(.03,.035,.08),n1*.3+n2*.1);
+  vec2 sp2=(v-.5)*2.;
+  float vig=1.-dot(sp2,sp2)*.15;
+  float gs=200.;
+  vec2 gp=w/gs;
+  vec2 g=abs(fract(gp+.5)-.5);
+  float lw=1./zoom;
+  float gx=smoothstep(lw,0.,g.x*gs);
+  float gy=smoothstep(lw,0.,g.y*gs);
+  float gi=max(gx,gy)*.15;
+  vec3 gc=vec3(.12,.15,.25)*gi;
+  float d=length(w);
+  float bd=abs(d-worldR);
+  float bgl=smoothstep(50./zoom,0.,bd)*.8;
+  vec3 bc=vec3(.2,.4,.8)*bgl;
+  float ef=1.-smoothstep(worldR*.85,worldR*1.15,d)*.6;
+  vec3 c=bg+gc+bc;
+  c*=vig*ef;
+  o=vec4(c,1);
+}`;
 
-// ─── Circle instanced program ───
-const circProg = link(
-`#version 300 es
+const GLSL_CIRC_VS = `#version 300 es
 in vec2 aQ;
 in vec2 iP;
 in float iR;
@@ -512,170 +393,707 @@ out vec2 uv;
 flat out vec4 col;
 flat out float typ;
 void main(){
-  float sc = iT==1.?1.35 : iT==2.?1.15 : 1.;
-  float r = iR*sc;
-  vec2 wp = iP + aQ*r;
-  vec2 sp = (wp-cam)*zoom;
-  gl_Position = vec4(sp/(res*.5)*vec2(1,-1),0,1);
+  float sc=iT==1.?1.35:iT==2.?1.15:1.;
+  float r=iR*sc;
+  vec2 wp=iP+aQ*r;
+  vec2 sp=(wp-cam)*zoom;
+  gl_Position=vec4(sp/(res*.5)*vec2(1,-1),0,1);
   uv=aQ; col=iC; typ=iT;
-}`,
-`#version 300 es
+}`;
+
+const GLSL_CIRC_FS = `#version 300 es
 precision highp float;
 in vec2 uv;
 flat in vec4 col;
 flat in float typ;
 out vec4 o;
-
 void main(){
-  float d = length(uv);
-  
-  if(typ == 0.0){
-    // Cell body with 3D effect
-    if(d > 1.0) discard;
-    
-    // Soft edge anti-aliasing
-    float edge = smoothstep(1.0, 0.96, d);
-    
-    // Inner glow/gradient (simulates sphere lighting)
-    float innerLight = smoothstep(1.0, 0.0, d) * 0.3;
-    
-    // Specular highlight (top-left)
-    vec2 highlightPos = vec2(-0.35, -0.35);
-    float highlight = smoothstep(0.4, 0.0, length(uv - highlightPos)) * 0.5;
-    
-    // Rim lighting
-    float rim = smoothstep(0.85, 1.0, d) * 0.4;
-    
-    // Combine colors
-    vec3 baseColor = col.rgb;
-    vec3 litColor = baseColor * (1.0 + innerLight) + vec3(highlight);
-    litColor += rim * vec3(0.3, 0.4, 0.5);
-    
-    o = vec4(litColor, col.a * edge);
-    
-  } else if(typ == 1.0){
-    // Outer glow - tighter and softer
-    if(d >= 1.0) discard;
-    float nd = d / 1.0;
-    float g = exp(-nd * nd * 3.5) * 0.6;
-    // Color intensity falloff
-    vec3 glowCol = col.rgb * (1.0 + 0.3 * (1.0 - d));
-    o = vec4(glowCol, g * col.a * 0.7);
-    
-  } else if(typ == 2.0){
-    // Status ring (eatable/dangerous indicator)
-    float ringWidth = 0.08;
-    float ringDist = abs(d - 0.88);
-    float ring = smoothstep(ringWidth, 0.0, ringDist);
-    if(ring < 0.01) discard;
-    
-    // Pulsing effect
-    float pulse = sin(float(gl_FragCoord.x) * 0.1 + float(gl_FragCoord.y) * 0.1) * 0.1 + 0.9;
-    o = vec4(col.rgb * pulse, ring * col.a * 0.8);
-    
-  } else {
-    // Particle with soft glow
-    if(d > 1.0) discard;
-    float alpha = pow(1.0 - d, 1.5);
-    // Center brightening
-    vec3 particleCol = col.rgb * (1.0 + 0.5 * (1.0 - d));
-    o = vec4(particleCol, alpha * col.a);
+  float d=length(uv);
+  if(typ==0.){
+    if(d>1.)discard;
+    float edge=smoothstep(1.,.96,d);
+    float il=smoothstep(1.,0.,d)*.3;
+    vec2 hp=vec2(-.35,-.35);
+    float hl=smoothstep(.4,0.,length(uv-hp))*.5;
+    float rim=smoothstep(.85,1.,d)*.4;
+    vec3 lc=col.rgb*(1.+il)+vec3(hl);
+    lc+=rim*vec3(.3,.4,.5);
+    o=vec4(lc,col.a*edge);
+  }else if(typ==1.){
+    if(d>=1.)discard;
+    float g=exp(-d*d*3.5)*.6;
+    vec3 gc=col.rgb*(1.+.3*(1.-d));
+    o=vec4(gc,g*col.a*.7);
+  }else if(typ==2.){
+    float rd=abs(d-.88);
+    float ring=smoothstep(.08,0.,rd);
+    if(ring<.01)discard;
+    float pulse=sin(gl_FragCoord.x*.1+gl_FragCoord.y*.1)*.1+.9;
+    o=vec4(col.rgb*pulse,ring*col.a*.8);
+  }else{
+    if(d>1.)discard;
+    float a=pow(1.-d,1.5);
+    vec3 pc=col.rgb*(1.+.5*(1.-d));
+    o=vec4(pc,a*col.a);
   }
-}`);
+}`;
 
-// ─── BG VAO ───
-const bgVAO = gl.createVertexArray();
-gl.bindVertexArray(bgVAO);
-const bgB = gl.createBuffer();
-gl.bindBuffer(gl.ARRAY_BUFFER, bgB);
-gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,1,1]), gl.STATIC_DRAW);
-const aLoc = gl.getAttribLocation(bgProg,'a');
-gl.enableVertexAttribArray(aLoc);
-gl.vertexAttribPointer(aLoc,2,gl.FLOAT,false,0,0);
-gl.bindVertexArray(null);
-const bgU = {
-  res: gl.getUniformLocation(bgProg,'res'),
-  cam: gl.getUniformLocation(bgProg,'cam'),
-  zoom: gl.getUniformLocation(bgProg,'zoom'),
-  worldR: gl.getUniformLocation(bgProg,'worldR'),
-  time: gl.getUniformLocation(bgProg,'time'),
+// ─── WGSL (WebGPU) ───
+const WGSL_BG = `
+struct BgUniforms {
+  res: vec2f,
+  cam: vec2f,
+  zoom: f32,
+  worldR: f32,
+  time: f32,
+};
+@group(0) @binding(0) var<uniform> u: BgUniforms;
+
+struct VSOut {
+  @builtin(position) pos: vec4f,
+  @location(0) v: vec2f,
 };
 
-// ─── Circle instanced VAO ───
-const MAX_INST = 5000;
-const FLOATS = 8; // x,y,r, cr,cg,cb,ca, type
-const instArr = new Float32Array(MAX_INST * FLOATS);
-
-const cVAO = gl.createVertexArray();
-gl.bindVertexArray(cVAO);
-
-// quad
-const qB = gl.createBuffer();
-gl.bindBuffer(gl.ARRAY_BUFFER, qB);
-gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,1,-1,1,1,-1,1]), gl.STATIC_DRAW);
-const qL = gl.getAttribLocation(circProg,'aQ');
-gl.enableVertexAttribArray(qL);
-gl.vertexAttribPointer(qL,2,gl.FLOAT,false,0,0);
-
-// instance buf
-const iB = gl.createBuffer();
-gl.bindBuffer(gl.ARRAY_BUFFER, iB);
-gl.bufferData(gl.ARRAY_BUFFER, instArr.byteLength, gl.DYNAMIC_DRAW);
-const S = FLOATS*4;
-function attr(name,size,off){
-  const l=gl.getAttribLocation(circProg,name);
-  gl.enableVertexAttribArray(l);
-  gl.vertexAttribPointer(l,size,gl.FLOAT,false,S,off);
-  gl.vertexAttribDivisor(l,1);
+@vertex fn vs_main(@location(0) a: vec2f) -> VSOut {
+  var o: VSOut;
+  o.v = a * 0.5 + 0.5;
+  o.pos = vec4f(a, 0.0, 1.0);
+  return o;
 }
-attr('iP',2,0);
-attr('iR',1,8);
-attr('iC',4,12);
-attr('iT',1,28);
-gl.bindVertexArray(null);
 
-const cU = {
-  res: gl.getUniformLocation(circProg,'res'),
-  cam: gl.getUniformLocation(circProg,'cam'),
-  zoom: gl.getUniformLocation(circProg,'zoom'),
+fn mod289_3(x: vec3f) -> vec3f { return x - floor(x * (1.0/289.0)) * 289.0; }
+fn mod289_2(x: vec2f) -> vec2f { return x - floor(x * (1.0/289.0)) * 289.0; }
+fn perm3(x: vec3f) -> vec3f { return mod289_3(((x*34.0)+1.0)*x); }
+fn snoise(v: vec2f) -> f32 {
+  let C = vec4f(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
+  let i = floor(v + dot(v, C.yy));
+  let x0 = v - i + dot(i, C.xx);
+  var i1: vec2f;
+  if (x0.x > x0.y) { i1 = vec2f(1.0, 0.0); } else { i1 = vec2f(0.0, 1.0); }
+  let x12b = x0.xyxy + C.xxzz;
+  let x12 = vec4f(x12b.xy - i1, x12b.zw);
+  let im = mod289_2(i);
+  let p = perm3(perm3(im.y + vec3f(0.0, i1.y, 1.0)) + im.x + vec3f(0.0, i1.x, 1.0));
+  var m = max(vec3f(0.5) - vec3f(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), vec3f(0.0));
+  m = m*m; m = m*m;
+  let xg = 2.0 * fract(p * C.www) - 1.0;
+  let h = abs(xg) - 0.5;
+  let ox = floor(xg + 0.5);
+  let a0 = xg - ox;
+  m *= 1.79284291400159 - 0.85373472095314 * (a0*a0 + h*h);
+  return 130.0 * dot(m, a0);
+}
+
+@fragment fn fs_main(@location(0) v: vec2f) -> @location(0) vec4f {
+  let w = vec2f(v.x - 0.5, 0.5 - v.y) * u.res / u.zoom + u.cam;
+  let n1 = snoise(w * 0.002) * 0.5 + 0.5;
+  let n2 = snoise(w * 0.005 + 100.0) * 0.5 + 0.5;
+  let bg = mix(vec3f(0.02, 0.02, 0.05), vec3f(0.03, 0.035, 0.08), n1*0.3 + n2*0.1);
+  let sp = (v - 0.5) * 2.0;
+  let vig = 1.0 - dot(sp, sp) * 0.15;
+  let gs = 200.0;
+  let gp = w / gs;
+  let g = abs(fract(gp + 0.5) - 0.5);
+  let lw = 1.0 / u.zoom;
+  let gx = smoothstep(lw, 0.0, g.x * gs);
+  let gy = smoothstep(lw, 0.0, g.y * gs);
+  let gi = max(gx, gy) * 0.15;
+  let gc = vec3f(0.12, 0.15, 0.25) * gi;
+  let d = length(w);
+  let bd = abs(d - u.worldR);
+  let bgl = smoothstep(50.0 / u.zoom, 0.0, bd) * 0.8;
+  let bc = vec3f(0.2, 0.4, 0.8) * bgl;
+  let ef = 1.0 - smoothstep(u.worldR * 0.85, u.worldR * 1.15, d) * 0.6;
+  let c = (bg + gc + bc) * vig * ef;
+  return vec4f(c, 1.0);
+}`;
+
+const WGSL_CIRC = `
+struct CircUniforms {
+  res: vec2f,
+  cam: vec2f,
+  zoom: f32,
+};
+@group(0) @binding(0) var<uniform> u: CircUniforms;
+
+struct VSOut {
+  @builtin(position) pos: vec4f,
+  @location(0) uv: vec2f,
+  @location(1) @interpolate(flat) col: vec4f,
+  @location(2) @interpolate(flat) typ: f32,
 };
 
-// ─── HSL → RGB ───
-function hsl2rgb(h,s,l){
-  h=((h%360)+360)%360; s/=100; l/=100;
-  const c=(1-Math.abs(2*l-1))*s, x=c*(1-Math.abs((h/60)%2-1)), m=l-c/2;
-  let r,g,b;
-  if(h<60){r=c;g=x;b=0}else if(h<120){r=x;g=c;b=0}else if(h<180){r=0;g=c;b=x}
-  else if(h<240){r=0;g=x;b=c}else if(h<300){r=x;g=0;b=c}else{r=c;g=0;b=x}
-  return[r+m,g+m,b+m];
+@vertex fn vs_main(
+  @location(0) aQ: vec2f,
+  @location(1) iP: vec2f,
+  @location(2) iR: f32,
+  @location(3) iC: vec4f,
+  @location(4) iT: f32,
+) -> VSOut {
+  var o: VSOut;
+  var sc: f32 = 1.0;
+  if (iT == 1.0) { sc = 1.35; }
+  else { if (iT == 2.0) { sc = 1.15; } }
+  let r = iR * sc;
+  let wp = iP + aQ * r;
+  let sp = (wp - u.cam) * u.zoom;
+  o.pos = vec4f(sp / (u.res * 0.5) * vec2f(1.0, -1.0), 0.0, 1.0);
+  o.uv = aQ; o.col = iC; o.typ = iT;
+  return o;
 }
 
-// ═══════════════════════════════════════════════════
-//  Game Constants & Config
-// ═══════════════════════════════════════════════════
-const WORLD_R = 3000;
-let cells = [], player = null;
-let camera = { x:0, y:0, zoom:1, targetZoom:1 };
-let mouseX = W/2, mouseY = H/2;
-let gameRunning = false, gameOver = false, gameWon = false;
-let manualZoom = 1, timeScale = 1, ejectCooldown = 0;
-let particles = [];
-let currentWave = 1;
-const MAX_WAVE = 7;
+@fragment fn fs_main(in: VSOut) -> @location(0) vec4f {
+  let d = length(in.uv);
+  if (in.typ == 0.0) {
+    if (d > 1.0) { discard; }
+    let edge = smoothstep(1.0, 0.96, d);
+    let il = smoothstep(1.0, 0.0, d) * 0.3;
+    let hp = vec2f(-0.35, -0.35);
+    let hl = smoothstep(0.4, 0.0, length(in.uv - hp)) * 0.5;
+    let rim = smoothstep(0.85, 1.0, d) * 0.4;
+    var lc = in.col.rgb * (1.0 + il) + vec3f(hl);
+    lc += rim * vec3f(0.3, 0.4, 0.5);
+    return vec4f(lc, in.col.a * edge);
+  }
+  if (in.typ == 1.0) {
+    if (d >= 1.0) { discard; }
+    let g = exp(-d * d * 3.5) * 0.6;
+    let gc = in.col.rgb * (1.0 + 0.3 * (1.0 - d));
+    return vec4f(gc, g * in.col.a * 0.7);
+  }
+  if (in.typ == 2.0) {
+    let rd = abs(d - 0.88);
+    let ring = smoothstep(0.08, 0.0, rd);
+    if (ring < 0.01) { discard; }
+    let pulse = sin(in.pos.x * 0.1 + in.pos.y * 0.1) * 0.1 + 0.9;
+    return vec4f(in.col.rgb * pulse, ring * in.col.a * 0.8);
+  }
+  // Particle
+  if (d > 1.0) { discard; }
+  let a = pow(1.0 - d, 1.5);
+  let pc = in.col.rgb * (1.0 + 0.5 * (1.0 - d));
+  return vec4f(pc, a * in.col.a);
+}`;
 
-// Performance optimization: AI update throttling
-let aiUpdateAccumulator = 0;
-const AI_UPDATE_INTERVAL = 1/30; // Update AI at 30fps max
+// ═══════════════════════════════════════════════════════════
+//  § 4. Renderer Abstraction
+// ═══════════════════════════════════════════════════════════
+const canvas  = document.getElementById('c');
+const olCanvas = document.getElementById('overlay2d');
+const olCtx    = olCanvas.getContext('2d');
 
-// ═══════════════════════════════════════════════════
-//  Roguelike System
-// ═══════════════════════════════════════════════════
-const ROGUE_INTERVAL = 30; // seconds
-let rogueTimer = ROGUE_INTERVAL;
-let roguePaused = false;
-let activeBuffs = []; // { id, name, icon, stacks, effect }
+let W, H;
+function resize() {
+  W = canvas.width = olCanvas.width = innerWidth;
+  H = canvas.height = olCanvas.height = innerHeight;
+  if (renderer) renderer.resize(W, H);
+}
 
-// SVG图标定义 - 高级感简约设计
+let renderer = null;
+
+// ─── WebGL2 Renderer ───
+function createWebGL2Renderer() {
+  const gl = canvas.getContext('webgl2', { antialias: true, alpha: false });
+  if (!gl) return null;
+
+  function compileShader(src, type) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src); gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) { console.error(gl.getShaderInfoLog(s)); return null; }
+    return s;
+  }
+  function linkProgram(vs, fs) {
+    const p = gl.createProgram();
+    gl.attachShader(p, compileShader(vs, gl.VERTEX_SHADER));
+    gl.attachShader(p, compileShader(fs, gl.FRAGMENT_SHADER));
+    gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) { console.error(gl.getProgramInfoLog(p)); return null; }
+    return p;
+  }
+
+  // Background program
+  const bgProg = linkProgram(GLSL_BG_VS, GLSL_BG_FS);
+  const bgVAO = gl.createVertexArray();
+  gl.bindVertexArray(bgVAO);
+  const bgBuf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, bgBuf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const aLoc = gl.getAttribLocation(bgProg, 'a');
+  gl.enableVertexAttribArray(aLoc);
+  gl.vertexAttribPointer(aLoc, 2, gl.FLOAT, false, 0, 0);
+  gl.bindVertexArray(null);
+  const bgU = {
+    res:    gl.getUniformLocation(bgProg, 'res'),
+    cam:    gl.getUniformLocation(bgProg, 'cam'),
+    zoom:   gl.getUniformLocation(bgProg, 'zoom'),
+    worldR: gl.getUniformLocation(bgProg, 'worldR'),
+    time:   gl.getUniformLocation(bgProg, 'time'),
+  };
+
+  // Circle instanced program
+  const circProg = linkProgram(GLSL_CIRC_VS, GLSL_CIRC_FS);
+  const cVAO = gl.createVertexArray();
+  gl.bindVertexArray(cVAO);
+  const qBuf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, qBuf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,-1, 1,1, -1,1]), gl.STATIC_DRAW);
+  const qL = gl.getAttribLocation(circProg, 'aQ');
+  gl.enableVertexAttribArray(qL);
+  gl.vertexAttribPointer(qL, 2, gl.FLOAT, false, 0, 0);
+
+  const iBuf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, iBuf);
+  gl.bufferData(gl.ARRAY_BUFFER, CFG.MAX_INST * CFG.INST_FLOATS * 4, gl.DYNAMIC_DRAW);
+  const S = CFG.INST_FLOATS * 4;
+  function instAttr(name, size, off) {
+    const l = gl.getAttribLocation(circProg, name);
+    gl.enableVertexAttribArray(l);
+    gl.vertexAttribPointer(l, size, gl.FLOAT, false, S, off);
+    gl.vertexAttribDivisor(l, 1);
+  }
+  instAttr('iP', 2, 0);
+  instAttr('iR', 1, 8);
+  instAttr('iC', 4, 12);
+  instAttr('iT', 1, 28);
+  gl.bindVertexArray(null);
+  const cU = {
+    res:  gl.getUniformLocation(circProg, 'res'),
+    cam:  gl.getUniformLocation(circProg, 'cam'),
+    zoom: gl.getUniformLocation(circProg, 'zoom'),
+  };
+
+  return {
+    type: 'WebGL2',
+    resize(w, h) { gl.viewport(0, 0, w, h); },
+    render(w, h, cam, worldR, time, instArr, instCount) {
+      gl.disable(gl.DEPTH_TEST);
+      gl.enable(gl.BLEND);
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+      // Background
+      gl.useProgram(bgProg);
+      gl.uniform2f(bgU.res, w, h);
+      gl.uniform2f(bgU.cam, cam.x, cam.y);
+      gl.uniform1f(bgU.zoom, cam.zoom);
+      gl.uniform1f(bgU.worldR, worldR);
+      gl.uniform1f(bgU.time, time);
+      gl.bindVertexArray(bgVAO);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      // Circles
+      if (instCount > 0) {
+        gl.useProgram(circProg);
+        gl.uniform2f(cU.res, w, h);
+        gl.uniform2f(cU.cam, cam.x, cam.y);
+        gl.uniform1f(cU.zoom, cam.zoom);
+        gl.bindVertexArray(cVAO);
+        gl.bindBuffer(gl.ARRAY_BUFFER, iBuf);
+        gl.bufferSubData(gl.ARRAY_BUFFER, 0, instArr, 0, instCount * CFG.INST_FLOATS);
+        gl.drawArraysInstanced(gl.TRIANGLES, 0, 6, instCount);
+      }
+    },
+  };
+}
+
+// ─── WebGPU Renderer ───
+async function createWebGPURenderer() {
+  if (!navigator.gpu) return null;
+  let adapter, device;
+  try {
+    adapter = await navigator.gpu.requestAdapter();
+    if (!adapter) return null;
+    device = await adapter.requestDevice();
+  } catch (e) { console.warn('WebGPU adapter/device failed:', e); return null; }
+
+  const ctx = canvas.getContext('webgpu');
+  if (!ctx) { device.destroy(); return null; }
+  const fmt = navigator.gpu.getPreferredCanvasFormat();
+  ctx.configure({ device, format: fmt, alphaMode: 'opaque' });
+
+  // Shader modules
+  const bgMod   = device.createShaderModule({ code: WGSL_BG });
+  const circMod = device.createShaderModule({ code: WGSL_CIRC });
+
+  // Background pipeline
+  const bgVertBuf = device.createBuffer({
+    size: 32, usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+  });
+  device.queue.writeBuffer(bgVertBuf, 0, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]));
+
+  const bgUniBuf = device.createBuffer({
+    size: 32, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
+  const bgUniData = new Float32Array(8);
+
+  const bgPipeline = device.createRenderPipeline({
+    layout: 'auto',
+    vertex: {
+      module: bgMod, entryPoint: 'vs_main',
+      buffers: [{ arrayStride: 8, stepMode: 'vertex',
+        attributes: [{ shaderLocation: 0, offset: 0, format: 'float32x2' }]
+      }],
+    },
+    fragment: {
+      module: bgMod, entryPoint: 'fs_main',
+      targets: [{ format: fmt }],
+    },
+    primitive: { topology: 'triangle-strip' },
+  });
+  const bgBindGroup = device.createBindGroup({
+    layout: bgPipeline.getBindGroupLayout(0),
+    entries: [{ binding: 0, resource: { buffer: bgUniBuf } }],
+  });
+
+  // Circle pipeline
+  const quadBuf = device.createBuffer({
+    size: 48, usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+  });
+  device.queue.writeBuffer(quadBuf, 0, new Float32Array([-1,-1, 1,-1, -1,1, 1,-1, 1,1, -1,1]));
+
+  const instBufSize = CFG.MAX_INST * CFG.INST_FLOATS * 4;
+  const instBuf = device.createBuffer({
+    size: instBufSize, usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+  });
+
+  const circUniBuf = device.createBuffer({
+    size: 32, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
+  const circUniData = new Float32Array(8);
+
+  const circPipeline = device.createRenderPipeline({
+    layout: 'auto',
+    vertex: {
+      module: circMod, entryPoint: 'vs_main',
+      buffers: [
+        { arrayStride: 8, stepMode: 'vertex',
+          attributes: [{ shaderLocation: 0, offset: 0, format: 'float32x2' }]
+        },
+        { arrayStride: 32, stepMode: 'instance',
+          attributes: [
+            { shaderLocation: 1, offset: 0,  format: 'float32x2' },
+            { shaderLocation: 2, offset: 8,  format: 'float32' },
+            { shaderLocation: 3, offset: 12, format: 'float32x4' },
+            { shaderLocation: 4, offset: 28, format: 'float32' },
+          ]
+        },
+      ],
+    },
+    fragment: {
+      module: circMod, entryPoint: 'fs_main',
+      targets: [{
+        format: fmt,
+        blend: {
+          color: { srcFactor: 'src-alpha', dstFactor: 'one-minus-src-alpha', operation: 'add' },
+          alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },
+        },
+      }],
+    },
+    primitive: { topology: 'triangle-list' },
+  });
+  const circBindGroup = device.createBindGroup({
+    layout: circPipeline.getBindGroupLayout(0),
+    entries: [{ binding: 0, resource: { buffer: circUniBuf } }],
+  });
+
+  return {
+    type: 'WebGPU',
+    resize(w, h) { /* WebGPU auto-sizes via getCurrentTexture */ },
+    render(w, h, cam, worldR, time, instArr, instCount) {
+      // Update uniforms
+      bgUniData[0]=w; bgUniData[1]=h; bgUniData[2]=cam.x; bgUniData[3]=cam.y;
+      bgUniData[4]=cam.zoom; bgUniData[5]=worldR; bgUniData[6]=time;
+      device.queue.writeBuffer(bgUniBuf, 0, bgUniData);
+
+      circUniData[0]=w; circUniData[1]=h; circUniData[2]=cam.x; circUniData[3]=cam.y;
+      circUniData[4]=cam.zoom;
+      device.queue.writeBuffer(circUniBuf, 0, circUniData);
+
+      if (instCount > 0) {
+        device.queue.writeBuffer(instBuf, 0, instArr.buffer, instArr.byteOffset, instCount * CFG.INST_FLOATS * 4);
+      }
+
+      const encoder = device.createCommandEncoder();
+      const pass = encoder.beginRenderPass({
+        colorAttachments: [{
+          view: ctx.getCurrentTexture().createView(),
+          clearValue: { r: 0.04, g: 0.04, b: 0.1, a: 1 },
+          loadOp: 'clear', storeOp: 'store',
+        }],
+      });
+
+      // Background
+      pass.setPipeline(bgPipeline);
+      pass.setBindGroup(0, bgBindGroup);
+      pass.setVertexBuffer(0, bgVertBuf);
+      pass.draw(4);
+
+      // Circles
+      if (instCount > 0) {
+        pass.setPipeline(circPipeline);
+        pass.setBindGroup(0, circBindGroup);
+        pass.setVertexBuffer(0, quadBuf);
+        pass.setVertexBuffer(1, instBuf);
+        pass.draw(6, instCount);
+      }
+
+      pass.end();
+      device.queue.submit([encoder.finish()]);
+    },
+  };
+}
+
+// ═══════════════════════════════════════════════════════════
+//  § 5. Spatial Grid  (optimized collision broadphase)
+// ═══════════════════════════════════════════════════════════
+const GRID_DIM = Math.ceil((CFG.WORLD_R * 2) / CFG.GRID_SIZE) + 2;
+const GRID_TOTAL = GRID_DIM * GRID_DIM;
+const spatialGrid = new Array(GRID_TOTAL);
+const gridUsed = new Uint8Array(GRID_TOTAL);
+function initSpatialGrid() {
+  for (let i = 0; i < GRID_TOTAL; i++) spatialGrid[i] = [];
+}
+function getGridIdx(x, y) {
+  return (Math.floor((y + CFG.WORLD_R) / CFG.GRID_SIZE)) * GRID_DIM
+       + Math.floor((x + CFG.WORLD_R) / CFG.GRID_SIZE);
+}
+function buildSpatialGrid(cells) {
+  for (let i = 0; i < GRID_TOTAL; i++) { if (gridUsed[i]) { spatialGrid[i].length = 0; gridUsed[i] = 0; } }
+  for (let i = 0; i < cells.length; i++) {
+    const c = cells[i]; if (!c.alive) continue;
+    const r = c.radius;
+    const xlo = Math.floor((c.x - r + CFG.WORLD_R) / CFG.GRID_SIZE);
+    const xhi = Math.floor((c.x + r + CFG.WORLD_R) / CFG.GRID_SIZE);
+    const ylo = Math.floor((c.y - r + CFG.WORLD_R) / CFG.GRID_SIZE);
+    const yhi = Math.floor((c.y + r + CFG.WORLD_R) / CFG.GRID_SIZE);
+    for (let gy = ylo; gy <= yhi; gy++) {
+      for (let gx = xlo; gx <= xhi; gx++) {
+        const idx = gy * GRID_DIM + gx;
+        if (idx >= 0 && idx < GRID_TOTAL) { spatialGrid[idx].push(i); gridUsed[idx] = 1; }
+      }
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  § 6. Particle Pool
+// ═══════════════════════════════════════════════════════════
+const particlePool = new Array(CFG.PARTICLE_POOL);
+let particlePoolIdx = 0;
+function initParticlePool() {
+  for (let i = 0; i < CFG.PARTICLE_POOL; i++)
+    particlePool[i] = { x:0,y:0,vx:0,vy:0,mass:0,radius:0,life:0,rgb:null,owner:null };
+  particlePoolIdx = 0;
+}
+function getParticle() {
+  const p = particlePool[particlePoolIdx];
+  particlePoolIdx = (particlePoolIdx + 1) % CFG.PARTICLE_POOL;
+  p.life = 0; p.owner = null;
+  return p;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  § 7. Cell Class
+// ═══════════════════════════════════════════════════════════
+class Cell {
+  constructor(x, y, mass, isPlayer = false) {
+    this.x = x; this.y = y; this.vx = 0; this.vy = 0;
+    this.mass = mass; this.isPlayer = isPlayer; this.alive = true;
+    this.hue = isPlayer ? 200 : Math.random() * 360;
+    this.sat = isPlayer ? 70 : 40 + Math.random() * 30;
+    this.lit = isPlayer ? 55 : 35 + Math.random() * 25;
+    this.pulse = Math.random() * Math.PI * 2;
+    this.aiTimer = Math.random() * 2;
+    this.rgb  = hsl2rgb(this.hue, this.sat, this.lit);
+    this.rgbB = hsl2rgb(this.hue, this.sat, Math.min(100, this.lit + 15));
+    // Rogue effect properties
+    this.ejectCostMult=1; this.absorbMult=1; this.speedMult=1; this.massGrowth=0;
+    this.frictionMult=1; this.ejectPowerMult=1; this.zoomMult=1; this.shieldBonus=0;
+    this.bonusAbsorb=0; this.comebackBonus=false; this.vampireLevel=0; this.timeWarp=0;
+    this.gravityRange=0; this.motionMass=false; this.predatorLevel=0; this.lastMotionMass=0;
+    this.stickyFieldRange=0; this.stickyFieldPower=0; this.pursuitBonus=0;
+    this.massStability=0; this.enemyFrictionMult=1;
+    // AI personality (NPCs only)
+    if (!isPlayer) {
+      this.aiType = Math.floor(Math.random() * 5);
+      this.aiSpeedMult = 0.3 + Math.random() * 0.9;
+      this.aiVisionMult = 0.5 + Math.random();
+      this.aiReactionMult = 0.5 + Math.random() * 1.5;
+      this.aiAggression = Math.random();
+      this.aiErrorRate = Math.random() * 0.3;
+    }
+  }
+  get radius() { return massToRadius(this.mass); }
+  get effectiveMass() { return this.mass * (1 + this.shieldBonus); }
+
+  update(dt, cells, camera) {
+    let adt = dt;
+    if (this.isPlayer && this.timeWarp > 0) adt = dt * (1 - this.timeWarp * 0.5);
+    let sm = this.speedMult;
+    if (this.isPlayer && this.comebackBonus && this.mass < 100) sm *= 1.5;
+
+    // Pursuit bonus
+    if (this.isPlayer && this.pursuitBonus > 0) {
+      const spd = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
+      if (spd > 10) {
+        const dirX = this.vx/spd, dirY = this.vy/spd;
+        for (let i = 0; i < cells.length; i++) {
+          const c = cells[i];
+          if (c === this || !c.alive || c.mass >= this.mass * 0.9) continue;
+          const dx = c.x-this.x, dy = c.y-this.y;
+          const dist = Math.sqrt(dx*dx+dy*dy);
+          if (dist < 300 && (dx/dist)*dirX + (dy/dist)*dirY > 0.7) { sm *= 1 + this.pursuitBonus; break; }
+        }
+      }
+    }
+    if (!this.isPlayer && this.aiSpeedMult) sm *= this.aiSpeedMult;
+    this.x += this.vx * adt * sm;
+    this.y += this.vy * adt * sm;
+
+    // Soft speed cap
+    const lim = this.isPlayer ? 400 : 300;
+    if (this.vx*this.vx + this.vy*this.vy > lim*lim) { this.vx *= 0.995; this.vy *= 0.995; }
+
+    // Mass growth / motion mass
+    if (this.isPlayer && this.massGrowth > 0) this.mass += this.massGrowth * dt;
+    if (this.isPlayer && this.motionMass) {
+      this.lastMotionMass += Math.sqrt(this.vx*this.vx+this.vy*this.vy) * dt * 0.01;
+      if (this.lastMotionMass >= 1) { this.mass += Math.floor(this.lastMotionMass); this.lastMotionMass %= 1; }
+    }
+
+    // Gravity well
+    if (this.isPlayer && this.gravityRange > 0) {
+      for (let i = 0; i < cells.length; i++) {
+        const c = cells[i];
+        if (c === this || !c.alive || c.mass >= this.mass * 0.5) continue;
+        const dx = this.x-c.x, dy = this.y-c.y;
+        const dist = Math.sqrt(dx*dx+dy*dy);
+        if (dist < this.gravityRange && dist > 10) {
+          const f = (1 - dist / this.gravityRange) * 50 * dt;
+          c.vx += (dx/dist)*f; c.vy += (dy/dist)*f;
+        }
+      }
+    }
+    // Sticky field
+    if (this.isPlayer && this.stickyFieldRange > 0) {
+      for (let i = 0; i < cells.length; i++) {
+        const c = cells[i]; if (c === this || !c.alive) continue;
+        const dx = this.x-c.x, dy = this.y-c.y;
+        const dist = Math.sqrt(dx*dx+dy*dy);
+        if (dist < this.stickyFieldRange) {
+          const sf = 1 - this.stickyFieldPower * (1 - dist/this.stickyFieldRange);
+          c.vx *= sf; c.vy *= sf;
+        }
+      }
+    }
+    // Enemy friction
+    if (this.isPlayer && this.enemyFrictionMult > 1 && camera) {
+      const viewDist = Math.max(W, H) / (camera.zoom || 1);
+      const ef = Math.pow(0.98, this.enemyFrictionMult - 1);
+      for (let i = 0; i < cells.length; i++) {
+        const c = cells[i]; if (c === this || !c.alive) continue;
+        const dx = this.x-c.x, dy = this.y-c.y;
+        if (dx*dx+dy*dy < viewDist*viewDist) { c.vx *= ef; c.vy *= ef; }
+      }
+    }
+
+    // Soft boundary
+    const r = this.radius;
+    const d = Math.sqrt(this.x*this.x + this.y*this.y);
+    if (d + r > CFG.WORLD_R) {
+      const nx = this.x/d, ny = this.y/d;
+      const push = (d + r - CFG.WORLD_R) * 2;
+      this.x -= nx * push; this.y -= ny * push;
+      const dot = this.vx*nx + this.vy*ny;
+      if (dot > 0) { this.vx -= nx*dot*0.3; this.vy -= ny*dot*0.3; }
+    }
+    this.pulse += dt * 2;
+  }
+
+  aiUpdate(dt, cells) {
+    if (this.isPlayer || !this.alive) return;
+    this.aiTimer -= dt; if (this.aiTimer > 0) return;
+    const cfg = WAVE_CFG[Math.min(currentWave-1, CFG.MAX_WAVE-1)];
+    this.aiTimer = 0.3 + Math.random() * cfg.aiCd * this.aiReactionMult;
+    if (this.aiType === 2 && Math.random() > 0.6) return;
+    if (this.aiType === 4 && Math.random() < 0.3) {
+      const a = Math.random()*Math.PI*2;
+      this.ejectMass(this.x+Math.cos(a)*100, this.y+Math.sin(a)*100);
+      return;
+    }
+    let ns=null,nl=null,ds=1/0,dl=1/0;
+    let fearMult = 1;
+    if (player && player.predatorLevel > 0) fearMult = 1 + player.predatorLevel * 0.3;
+    if (this.aiType === 0) fearMult *= 0.7;
+    if (this.aiType === 1) fearMult *= 1.5;
+    const vr = this.radius * 25 * this.aiVisionMult;
+    const vrSq = vr * vr;
+    let canEat = 0.8, danger = 1.3;
+    if (this.aiType === 0) { canEat = 1.0; danger = 1.5; }
+    else if (this.aiType === 1) { canEat = 0.6; danger = 1.1; }
+    else if (this.aiType === 3) { canEat = 0.5; }
+
+    for (let i = 0; i < cells.length; i++) {
+      const c = cells[i]; if (c === this || !c.alive) continue;
+      const dx = c.x-this.x, dy = c.y-this.y;
+      const dSq = dx*dx+dy*dy;
+      if (dSq > vrSq) continue;
+      const d = Math.sqrt(dSq);
+      const tm = c.isPlayer ? c.effectiveMass : c.mass;
+      if (tm < this.mass * canEat && d < ds) { ds = d; ns = c; }
+      if (tm > this.mass * danger * fearMult && d < dl) { dl = d; nl = c; }
+    }
+    let tx = null, ty = null;
+    if (nl && dl < this.radius * 8) {
+      const dx = this.x-nl.x, dy = this.y-nl.y, d = Math.sqrt(dx*dx+dy*dy)||1;
+      tx = this.x - dx/d*100; ty = this.y - dy/d*100;
+    } else if (ns && ds < this.radius * 12) {
+      tx = this.x - (ns.x-this.x); ty = this.y - (ns.y-this.y);
+    }
+    if (tx !== null) {
+      if (this.aiErrorRate > 0) { tx += (Math.random()-.5)*this.aiErrorRate*100; ty += (Math.random()-.5)*this.aiErrorRate*100; }
+      this.ejectMass(tx, ty);
+    }
+  }
+
+  ejectMass(tx, ty, distFactor = 1) {
+    const minMass = this.isPlayer ? 6 : 10;
+    if (this.mass < minMass) return;
+    const dx = tx-this.x, dy = ty-this.y;
+    const d = Math.sqrt(dx*dx+dy*dy) || 1;
+    const nx = dx/d, ny = dy/d;
+    const base = 3 * (this.ejectCostMult || 1);
+    const minE = base * 0.5;
+    const maxE = Math.min(this.mass * 0.05, base * 3);
+    let em = minE + (maxE - minE) * Math.min(1, distFactor);
+    em = Math.min(em, this.mass * 0.05);
+    this.mass -= em;
+    const ejectV = 350;
+    const massFac = Math.min(1, 80 / this.mass);
+    const curSpd = Math.sqrt(this.vx*this.vx+this.vy*this.vy);
+    const spdFac = curSpd > 180 ? 0.5 : 1;
+    const impulse = em * ejectV * (this.ejectPowerMult||1) * massFac * spdFac;
+    this.vx -= nx * impulse / this.mass;
+    this.vy -= ny * impulse / this.mass;
+
+    if (this.isPlayer && Math.random() < 0.2) {
+      const c = new Cell(this.x+nx*this.radius, this.y+ny*this.radius, em*0.8);
+      c.vx = this.vx+nx*350; c.vy = this.vy+ny*350;
+      c.hue=200; c.sat=50; c.lit=60; c.rgb=hsl2rgb(200,50,60); c.rgbB=hsl2rgb(200,50,75);
+      cells.push(c);
+    } else {
+      const pr = Math.max(3, massToRadius(em)*1.5);
+      const p = getParticle();
+      p.x = this.x+nx*this.radius; p.y = this.y+ny*this.radius;
+      p.vx = this.vx+nx*400; p.vy = this.vy+ny*400;
+      p.mass = em; p.radius = pr; p.life = 0.8;
+      p.rgb = this.isPlayer ? [0.5,0.75,1] : this.rgbB;
+      p.owner = this.isPlayer ? this : null;
+      particles.push(p);
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  § 8. Roguelike System
+// ═══════════════════════════════════════════════════════════
 const BUFF_ICONS = {
   eject_efficiency: `<svg viewBox="0 0 24 24" fill="none" stroke="rgba(100,200,255,0.9)" stroke-width="1.5"><circle cx="12" cy="12" r="8" stroke-dasharray="3 2"/><circle cx="12" cy="12" r="3" fill="rgba(100,200,255,0.4)"/></svg>`,
   absorb_boost: `<svg viewBox="0 0 24 24" fill="none" stroke="rgba(100,200,255,0.9)" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5" fill="rgba(100,200,255,0.3)"/><circle cx="12" cy="12" r="2" fill="rgba(100,200,255,0.8)"/></svg>`,
@@ -690,9 +1108,8 @@ const BUFF_ICONS = {
   vampire_touch: `<svg viewBox="0 0 24 24" fill="none" stroke="rgba(200,100,255,0.9)" stroke-width="1.5"><path d="M12 4c-4 4-7 8-7 11a7 7 0 0014 0c0-3-3-7-7-11z" fill="rgba(200,100,255,0.2)"/><circle cx="12" cy="14" r="2" fill="rgba(255,100,150,0.6)"/></svg>`,
   time_warp: `<svg viewBox="0 0 24 24" fill="none" stroke="rgba(200,100,255,0.9)" stroke-width="1.5"><circle cx="8" cy="12" r="4"/><circle cx="16" cy="12" r="4"/><path d="M12 8c0 8 0 8 0 8" stroke-dasharray="2 1"/></svg>`,
   gravity_well: `<svg viewBox="0 0 24 24" fill="none" stroke="rgba(200,100,255,0.9)" stroke-width="1.5"><circle cx="12" cy="12" r="3" fill="rgba(200,100,255,0.5)"/><circle cx="12" cy="12" r="6" stroke-dasharray="2 2"/><circle cx="12" cy="12" r="9" stroke-dasharray="3 3" opacity="0.5"/><path d="M5 5l2 2M19 5l-2 2M5 19l2-2M19 19l-2-2" opacity="0.7"/></svg>`,
-  mass_converter: `<svg viewBox="0 0 24 24" fill="none" stroke="rgba(200,100,255,0.9)" stroke-width="1.5"><circle cx="12" cy="12" r="8"/><path d="M8 12h8M12 8v8" stroke-dasharray="0"/><circle cx="12" cy="12" r="3" fill="rgba(200,100,255,0.4)"/></svg>`,
+  mass_converter: `<svg viewBox="0 0 24 24" fill="none" stroke="rgba(200,100,255,0.9)" stroke-width="1.5"><circle cx="12" cy="12" r="8"/><path d="M8 12h8M12 8v8"/><circle cx="12" cy="12" r="3" fill="rgba(200,100,255,0.4)"/></svg>`,
   predator: `<svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,200,100,0.9)" stroke-width="1.5"><path d="M12 4l2 4h4l-3 3 1 5-4-2-4 2 1-5-3-3h4l2-4z" fill="rgba(255,200,100,0.3)"/><circle cx="12" cy="14" r="2" fill="rgba(255,200,100,0.6)"/></svg>`,
-  // 新增buff图标
   sticky_field: `<svg viewBox="0 0 24 24" fill="none" stroke="rgba(100,200,255,0.9)" stroke-width="1.5"><circle cx="12" cy="12" r="8" stroke-dasharray="4 2"/><path d="M8 10c2 4 6 4 8 0" stroke="rgba(100,200,255,0.6)"/><path d="M8 14c2 4 6 4 8 0" stroke="rgba(100,200,255,0.6)"/></svg>`,
   pursuit_inertia: `<svg viewBox="0 0 24 24" fill="none" stroke="rgba(150,180,255,0.9)" stroke-width="1.5"><circle cx="8" cy="12" r="4" fill="rgba(150,180,255,0.2)"/><path d="M14 12h6M17 9l3 3-3 3"/><path d="M14 8h4" opacity="0.5"/><path d="M14 16h4" opacity="0.5"/></svg>`,
   mass_stabilizer: `<svg viewBox="0 0 24 24" fill="none" stroke="rgba(150,180,255,0.9)" stroke-width="1.5"><rect x="6" y="6" width="12" height="12" rx="2" fill="rgba(150,180,255,0.15)"/><path d="M9 12h6M12 9v6"/></svg>`,
@@ -700,184 +1117,126 @@ const BUFF_ICONS = {
 };
 
 const ROGUE_EFFECTS = [
-  // Common (60% chance)
-  { id: 'eject_efficiency', name: '节能喷射', icon: 'eject_efficiency', rarity: 'common', desc: '喷射消耗质量-25%', 
-    apply: (p) => { p.ejectCostMult = (p.ejectCostMult||1) * 0.75; } },
-  { id: 'absorb_boost', name: '贪婪吞噬', icon: 'absorb_boost', rarity: 'common', desc: '吞噬效率+15%',
-    apply: (p) => { p.absorbMult = (p.absorbMult||1) * 1.15; } },
-  { id: 'speed_boost', name: '轻盈移动', icon: 'speed_boost', rarity: 'common', desc: '移动速度+15%',
-    apply: (p) => { p.speedMult = (p.speedMult||1) * 1.15; } },
-  { id: 'mass_growth', name: '缓慢生长', icon: 'mass_growth', rarity: 'common', desc: '每秒自动+1质量',
-    apply: (p) => { p.massGrowth = (p.massGrowth||0) + 1; } },
-  { id: 'friction_reduce', name: '惯性滑行', icon: 'friction_reduce', rarity: 'common', desc: '自身摩擦力-20%',
-    apply: (p) => { p.frictionMult = (p.frictionMult||1) * 0.8; } },
-  { id: 'sticky_field', name: '黏滞领域', icon: 'sticky_field', rarity: 'common', desc: '周围敌人减速15%',
-    apply: (p) => { p.stickyFieldRange = (p.stickyFieldRange||0) + 150; p.stickyFieldPower = (p.stickyFieldPower||0) + 0.15; } },
-  
-  // Rare (30% chance)
-  { id: 'eject_power', name: '强力喷射', icon: 'eject_power', rarity: 'rare', desc: '喷射推力+30%',
-    apply: (p) => { p.ejectPowerMult = (p.ejectPowerMult||1) * 1.3; } },
-  { id: 'zoom_expand', name: '视野扩展', icon: 'zoom_expand', rarity: 'rare', desc: '视野范围+20%',
-    apply: (p) => { p.zoomMult = (p.zoomMult||1) * 1.2; } },
-  { id: 'shield_temp', name: '缓冲护盾', icon: 'shield_temp', rarity: 'rare', desc: '被吞噬阈值+15%',
-    apply: (p) => { p.shieldBonus = (p.shieldBonus||0) + 0.15; } },
-  { id: 'growth_boost', name: '快速成长', icon: 'growth_boost', rarity: 'rare', desc: '吞噬后额外获得20%质量',
-    apply: (p) => { p.bonusAbsorb = (p.bonusAbsorb||0) + 0.2; } },
-  { id: 'comeback_king', name: '绝地反击', icon: 'comeback_king', rarity: 'rare', desc: '质量<100时移动+50%',
-    apply: (p) => { p.comebackBonus = true; } },
-  { id: 'pursuit_inertia', name: '追击惯性', icon: 'pursuit_inertia', rarity: 'rare', desc: '追击时速度+25%',
-    apply: (p) => { p.pursuitBonus = (p.pursuitBonus||0) + 0.25; } },
-  { id: 'mass_stabilizer', name: '质量稳定', icon: 'mass_stabilizer', rarity: 'rare', desc: '被吞噬速度-30%',
-    apply: (p) => { p.massStability = (p.massStability||0) + 0.3; } },
-  
-  // Epic (10% chance)
-  { id: 'vampire_touch', name: '吸血之触', icon: 'vampire_touch', rarity: 'epic', desc: '吞噬时恢复15%喷射质量',
-    apply: (p) => { p.vampireLevel = (p.vampireLevel||0) + 0.15; } },
-  { id: 'time_warp', name: '时间扭曲', icon: 'time_warp', rarity: 'epic', desc: '游戏速度-15%(仅对你有利)',
-    apply: (p) => { p.timeWarp = (p.timeWarp||0) + 0.15; } },
-  { id: 'gravity_well', name: '引力井', icon: 'gravity_well', rarity: 'epic', desc: '吸引周围小细胞',
-    apply: (p) => { p.gravityRange = (p.gravityRange||0) + 200; } },
-  { id: 'mass_converter', name: '质能转换', icon: 'mass_converter', rarity: 'epic', desc: '移动时缓慢获得质量',
-    apply: (p) => { p.motionMass = true; } },
-  { id: 'predator', name: '顶级掠食者', icon: 'predator', rarity: 'epic', desc: '对大鱼威慑+30%，吞噬范围+20%',
-    apply: (p) => { p.predatorLevel = (p.predatorLevel||0) + 1; } },
-  { id: 'enemy_friction', name: '泥沼领域', icon: 'enemy_friction', rarity: 'epic', desc: '视野内所有敌人摩擦力+50%',
-    apply: (p) => { p.enemyFrictionMult = (p.enemyFrictionMult||1) + 0.5; } },
+  // Common
+  { id:'eject_efficiency', name:'节能喷射', icon:'eject_efficiency', rarity:'common', desc:'喷射消耗质量-25%',
+    apply: p => { p.ejectCostMult = (p.ejectCostMult||1) * 0.75; } },
+  { id:'absorb_boost', name:'贪婪吞噬', icon:'absorb_boost', rarity:'common', desc:'吞噬效率+15%',
+    apply: p => { p.absorbMult = (p.absorbMult||1) * 1.15; } },
+  { id:'speed_boost', name:'轻盈移动', icon:'speed_boost', rarity:'common', desc:'移动速度+15%',
+    apply: p => { p.speedMult = (p.speedMult||1) * 1.15; } },
+  { id:'mass_growth', name:'缓慢生长', icon:'mass_growth', rarity:'common', desc:'每秒自动+1质量',
+    apply: p => { p.massGrowth = (p.massGrowth||0) + 1; } },
+  { id:'friction_reduce', name:'惯性滑行', icon:'friction_reduce', rarity:'common', desc:'自身摩擦力-20%',
+    apply: p => { p.frictionMult = (p.frictionMult||1) * 0.8; } },
+  { id:'sticky_field', name:'黏滞领域', icon:'sticky_field', rarity:'common', desc:'周围敌人减速15%',
+    apply: p => { p.stickyFieldRange = (p.stickyFieldRange||0) + 150; p.stickyFieldPower = (p.stickyFieldPower||0) + 0.15; } },
+  // Rare
+  { id:'eject_power', name:'强力喷射', icon:'eject_power', rarity:'rare', desc:'喷射推力+30%',
+    apply: p => { p.ejectPowerMult = (p.ejectPowerMult||1) * 1.3; } },
+  { id:'zoom_expand', name:'视野扩展', icon:'zoom_expand', rarity:'rare', desc:'视野范围+20%',
+    apply: p => { p.zoomMult = (p.zoomMult||1) * 1.2; } },
+  { id:'shield_temp', name:'缓冲护盾', icon:'shield_temp', rarity:'rare', desc:'被吞噬阈值+15%',
+    apply: p => { p.shieldBonus = (p.shieldBonus||0) + 0.15; } },
+  { id:'growth_boost', name:'快速成长', icon:'growth_boost', rarity:'rare', desc:'吞噬后额外获得20%质量',
+    apply: p => { p.bonusAbsorb = (p.bonusAbsorb||0) + 0.2; } },
+  { id:'comeback_king', name:'绝地反击', icon:'comeback_king', rarity:'rare', desc:'质量<100时移动+50%',
+    apply: p => { p.comebackBonus = true; } },
+  { id:'pursuit_inertia', name:'追击惯性', icon:'pursuit_inertia', rarity:'rare', desc:'追击时速度+25%',
+    apply: p => { p.pursuitBonus = (p.pursuitBonus||0) + 0.25; } },
+  { id:'mass_stabilizer', name:'质量稳定', icon:'mass_stabilizer', rarity:'rare', desc:'被吞噬速度-30%',
+    apply: p => { p.massStability = (p.massStability||0) + 0.3; } },
+  // Epic
+  { id:'vampire_touch', name:'吸血之触', icon:'vampire_touch', rarity:'epic', desc:'吞噬时恢复15%喷射质量',
+    apply: p => { p.vampireLevel = (p.vampireLevel||0) + 0.15; } },
+  { id:'time_warp', name:'时间扭曲', icon:'time_warp', rarity:'epic', desc:'游戏速度-15%(仅对你有利)',
+    apply: p => { p.timeWarp = (p.timeWarp||0) + 0.15; } },
+  { id:'gravity_well', name:'引力井', icon:'gravity_well', rarity:'epic', desc:'吸引周围小细胞',
+    apply: p => { p.gravityRange = (p.gravityRange||0) + 200; } },
+  { id:'mass_converter', name:'质能转换', icon:'mass_converter', rarity:'epic', desc:'移动时缓慢获得质量',
+    apply: p => { p.motionMass = true; } },
+  { id:'predator', name:'顶级掠食者', icon:'predator', rarity:'epic', desc:'对大鱼威慑+30%，吞噬范围+20%',
+    apply: p => { p.predatorLevel = (p.predatorLevel||0) + 1; } },
+  { id:'enemy_friction', name:'泥沼领域', icon:'enemy_friction', rarity:'epic', desc:'视野内所有敌人摩擦力+50%',
+    apply: p => { p.enemyFrictionMult = (p.enemyFrictionMult||1) + 0.5; } },
 ];
 
-const rogueTimerEl = document.getElementById('rogueTimer');
-const rogueModal = document.getElementById('rogueModal');
-const rogueCards = document.getElementById('rogueCards');
-const activeBuffsEl = document.getElementById('activeBuffs');
-const endlessModal = document.getElementById('endlessModal');
-const endlessMassEl = document.getElementById('endlessMass');
-const btnContinue = document.getElementById('btnContinue');
-const btnEndGame = document.getElementById('btnEndGame');
+// ─── Roguelike UI ───
+const rogueTimerEl   = document.getElementById('rogueTimer');
+const rogueModal     = document.getElementById('rogueModal');
+const rogueCards     = document.getElementById('rogueCards');
+const activeBuffsEl  = document.getElementById('activeBuffs');
+const endlessModal   = document.getElementById('endlessModal');
+const endlessMassEl  = document.getElementById('endlessMass');
+const btnContinue    = document.getElementById('btnContinue');
+const btnEndGame     = document.getElementById('btnEndGame');
+const overlay        = document.getElementById('overlay');
+const startBtn       = document.getElementById('startBtn');
+const massDisplay    = document.getElementById('massDisplay');
+const rankDisplay    = document.getElementById('rankDisplay');
+const levelDisplay   = document.getElementById('levelDisplay');
+const speedLabel     = document.getElementById('speedLabel');
+const zoomLabel      = document.getElementById('zoomLabel');
+const rendererBadge  = document.getElementById('rendererBadge');
 
-function showEndlessChoice() {
-  endlessChoicePending = true;
-  endlessMassEl.textContent = Math.floor(player.mass);
-  endlessModal.classList.add('show');
-}
+let rogueTimer = CFG.ROGUE_INTERVAL;
+let roguePaused = false;
+let activeBuffs = [];
 
-function hideEndlessChoice() {
-  endlessModal.classList.remove('show');
-}
-
-btnContinue.addEventListener('click', () => {
-  hideEndlessChoice();
-  // Trigger the endless mode spawn
-  checkWinLose();
-});
-
-btnEndGame.addEventListener('click', () => {
-  hideEndlessChoice();
-  gameOver = true;
-  gameWon = true;
-  showOverlay('你赢了！', true);
-});
-
-function getRarityWeight(rarity) {
-  if (rarity === 'epic') return 0.1;
-  if (rarity === 'rare') return 0.3;
-  return 0.6;
-}
-
-function pickRandomEffects(count) {
-  const result = [];
-  const pool = [...ROGUE_EFFECTS];
-  
-  // Weighted random
-  for (let i = 0; i < count && pool.length > 0; i++) {
-    const totalWeight = pool.reduce((sum, e) => sum + getRarityWeight(e.rarity), 0);
-    let random = Math.random() * totalWeight;
-    
+function getRarityWeight(r) { return r === 'epic' ? 0.1 : r === 'rare' ? 0.3 : 0.6; }
+function pickRandomEffects(n) {
+  const pool = [...ROGUE_EFFECTS], res = [];
+  for (let i = 0; i < n && pool.length; i++) {
+    const tw = pool.reduce((s, e) => s + getRarityWeight(e.rarity), 0);
+    let r = Math.random() * tw;
     for (let j = 0; j < pool.length; j++) {
-      random -= getRarityWeight(pool[j].rarity);
-      if (random <= 0) {
-        result.push(pool[j]);
-        pool.splice(j, 1);
-        break;
-      }
+      r -= getRarityWeight(pool[j].rarity);
+      if (r <= 0) { res.push(pool[j]); pool.splice(j, 1); break; }
     }
   }
-  return result;
+  return res;
 }
 
 function showRogueSelection() {
   roguePaused = true;
-  const oldTimeScale = timeScale;
+  const oldTS = timeScale;
   timeScale = 0;
-  
-  const effects = pickRandomEffects(3);
+  const efx = pickRandomEffects(3);
   rogueCards.innerHTML = '';
-  
-  effects.forEach(effect => {
+  efx.forEach(e => {
     const card = document.createElement('div');
-    card.className = `rogue-card rarity-${effect.rarity}`;
-    card.innerHTML = `
-      <div class="icon">${BUFF_ICONS[effect.icon] || ''}</div>
-      <div class="name">${effect.name}</div>
-      <div class="desc">${effect.desc}</div>
-    `;
+    card.className = `rogue-card rarity-${e.rarity}`;
+    card.innerHTML = `<div class="icon">${BUFF_ICONS[e.icon]||''}</div><div class="name">${e.name}</div><div class="desc">${e.desc}</div>`;
     card.addEventListener('click', () => {
-      applyEffect(effect);
+      applyEffect(e);
       rogueModal.classList.remove('show');
       roguePaused = false;
-      timeScale = oldTimeScale || 1;
-      rogueTimer = ROGUE_INTERVAL;
+      timeScale = oldTS || 1;
+      rogueTimer = CFG.ROGUE_INTERVAL;
       rogueTimerEl.classList.remove('ready');
     });
     rogueCards.appendChild(card);
   });
-  
   rogueModal.classList.add('show');
 }
 
-function applyEffect(effect) {
-  // Check if already have this buff
-  const existing = activeBuffs.find(b => b.id === effect.id);
-  if (existing) {
-    existing.stacks++;
-  } else {
-    activeBuffs.push({
-      id: effect.id,
-      name: effect.name,
-      icon: effect.icon,
-      stacks: 1,
-      effect: effect
-    });
-  }
-  
-  // Apply to player
-  if (player) {
-    effect.apply(player);
-  }
-  
+function applyEffect(e) {
+  const existing = activeBuffs.find(b => b.id === e.id);
+  if (existing) existing.stacks++; else activeBuffs.push({ id:e.id, name:e.name, icon:e.icon, stacks:1, effect:e });
+  if (player) e.apply(player);
   updateBuffDisplay();
-  
-  // Visual feedback
-  waveMsg = `获得: ${effect.name}`;
-  waveMsgTimer = 2;
+  waveMsg = `获得: ${e.name}`; waveMsgTimer = 2;
 }
-
 function updateBuffDisplay() {
   activeBuffsEl.innerHTML = '';
-  activeBuffs.forEach(buff => {
+  activeBuffs.forEach(b => {
     const el = document.createElement('div');
     el.className = 'buff-item';
-    el.innerHTML = `
-      <span class="buff-icon">${BUFF_ICONS[buff.icon] || ''}</span>
-      <span class="buff-name">${buff.name}</span>
-      ${buff.stacks > 1 ? `<span class="buff-stack">x${buff.stacks}</span>` : ''}
-    `;
+    el.innerHTML = `<span class="buff-icon">${BUFF_ICONS[b.icon]||''}</span><span class="buff-name">${b.name}</span>${b.stacks > 1 ? `<span class="buff-stack">x${b.stacks}</span>` : ''}`;
     activeBuffsEl.appendChild(el);
   });
 }
-
 function updateRogueTimer(dt) {
   if (!gameRunning || gameOver || roguePaused) return;
-  
   rogueTimer -= dt;
   if (rogueTimer <= 0) {
     rogueTimer = 0;
@@ -886,1385 +1245,687 @@ function updateRogueTimer(dt) {
     rogueTimerEl.style.pointerEvents = 'auto';
     rogueTimerEl.style.cursor = 'pointer';
     rogueTimerEl.onclick = () => {
-      if (rogueTimer <= 0) {
-        showRogueSelection();
-        rogueTimerEl.onclick = null;
-        rogueTimerEl.style.pointerEvents = 'none';
-      }
+      if (rogueTimer <= 0) { showRogueSelection(); rogueTimerEl.onclick = null; rogueTimerEl.style.pointerEvents = 'none'; }
     };
   } else {
     rogueTimerEl.textContent = `下波强化: ${Math.ceil(rogueTimer)}s`;
     rogueTimerEl.classList.remove('ready');
-    rogueTimerEl.style.pointerEvents = 'none';
-    rogueTimerEl.onclick = null;
+    rogueTimerEl.style.pointerEvents = 'none'; rogueTimerEl.onclick = null;
   }
 }
-// Wave configs: [cellCount, smallPct, medPct, largePct, hugePct, massMultiplier, aiAggression]
-const WAVE_CFG = [
-  { count:600, dist:[.70,.85,.93,.98], mRange:[8,30,80,200,500], mult:1, aiCd:1.6 },    // wave 1 - lots of small cells to eat
-  { count:450, dist:[.55,.75,.88,.95], mRange:[15,50,150,400,900], mult:1.1, aiCd:1.4 },  // wave 2
-  { count:320, dist:[.40,.62,.80,.92], mRange:[30,80,250,600,1300], mult:1.25, aiCd:1.2 },// wave 3
-  { count:220, dist:[.28,.50,.72,.87], mRange:[50,130,380,900,1800], mult:1.45, aiCd:1.0 },// wave 4
-  { count:160, dist:[.18,.40,.62,.82], mRange:[80,200,550,1200,2500], mult:1.7, aiCd:0.8 },// wave 5
-  { count:120, dist:[.12,.32,.55,.77], mRange:[120,300,800,1800,3800], mult:2.0, aiCd:0.6 },// wave 6
-  { count:90,  dist:[.08,.25,.48,.72], mRange:[180,450,1200,2800,5500], mult:2.3, aiCd:0.45 },// wave 7
-];
-let waveMsg = '';
-let waveMsgTimer = 0;
-let comebackTimer = 0; // Timer for comeback resource spawning
 
-// Super small particle spawning constants
-const PARTICLE_SPAWN_INTERVAL = 1; // seconds between spawns (more frequent)
-const PARTICLE_SPAWN_COUNT_MIN = 5;
-const PARTICLE_SPAWN_COUNT_MAX = 9;
-const PARTICLE_MIN_SPAWN_OFFSET = 100; // minimum distance from player radius
-const PARTICLE_MAX_SPAWN_RANGE = 400; // additional range beyond min offset
-const PARTICLE_MIN_MASS = 3;
-const PARTICLE_MASS_RANGE = 8; // 3-11 mass total
-const PARTICLE_VELOCITY_RANGE = 15;
+function showEndlessChoice() {
+  endlessChoicePending = true;
+  endlessMassEl.textContent = Math.floor(player.mass);
+  endlessModal.classList.add('show');
+}
+function hideEndlessChoice() { endlessModal.classList.remove('show'); }
+btnContinue.addEventListener('click', () => { hideEndlessChoice(); checkWinLose(); });
+btnEndGame.addEventListener('click', () => { hideEndlessChoice(); gameOver = true; gameWon = true; showOverlay('你赢了！', true); });
 
-let particleSpawnTimer = PARTICLE_SPAWN_INTERVAL; // Timer for continuous particle spawning
+// ═══════════════════════════════════════════════════════════
+//  § 9. Game State
+// ═══════════════════════════════════════════════════════════
+let cells = [], player = null, particles = [];
+let camera = { x:0, y:0, zoom:1, targetZoom:1 };
+let mouseX = 0, mouseY = 0;
+let gameRunning = false, gameOver = false, gameWon = false;
+let manualZoom = 1, timeScale = 1;
+let currentWave = 1;
+let waveMsg = '', waveMsgTimer = 0, comebackTimer = 0;
+let particleSpawnTimer = CFG.PARTICLE_SPAWN_INTERVAL;
+let endlessChoicePending = false;
 
-const speeds = [0.25,0,1,2.5];
+// Instance buffer (shared between renderers)
+const instArr = new Float32Array(CFG.MAX_INST * CFG.INST_FLOATS);
+
+// Per-frame cache — avoids repeated filter / sort
+const frameCache = {
+  alive: [],       // alive cells (reused array)
+  aliveCount: 0,
+  playerRank: 0,
+  dirty: true,
+};
+function updateFrameCache() {
+  let cnt = 0;
+  const arr = frameCache.alive;
+  for (let i = 0; i < cells.length; i++) {
+    const c = cells[i];
+    if (c.alive && c.mass > 0) arr[cnt++] = c;
+  }
+  arr.length = cnt;
+  frameCache.aliveCount = cnt;
+  // Compute rank without full sort
+  if (player && player.alive) {
+    let rank = 1;
+    const pm = player.mass;
+    for (let i = 0; i < cnt; i++) if (arr[i].mass > pm) rank++;
+    frameCache.playerRank = rank;
+  }
+  frameCache.dirty = false;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  § 10. Physics & Collisions
+// ═══════════════════════════════════════════════════════════
+const collisionSet = new Set();
+
+function updateParticles(dt) {
+  const dts = Math.max(0, Math.min(dt, 0.1));
+  let w = 0;
+  for (let i = 0; i < particles.length; i++) {
+    const p = particles[i]; if (!p) continue;
+    p.x += p.vx * dts; p.y += p.vy * dts;
+    p.vx *= 0.97; p.vy *= 0.97; p.life -= dts * 0.35;
+    if (p.life > 0 && isFinite(p.x) && isFinite(p.y)) particles[w++] = p;
+  }
+  particles.length = w;
+}
+
+function checkCollisions() {
+  buildSpatialGrid(cells);
+  collisionSet.clear();
+  for (let g = 0; g < GRID_TOTAL; g++) {
+    const ids = spatialGrid[g]; if (!ids || ids.length < 2) continue;
+    const n = ids.length;
+    for (let a = 0; a < n; a++) {
+      const i = ids[a], c1 = cells[i];
+      if (!c1 || !c1.alive || c1.mass <= 0) continue;
+      for (let b = a + 1; b < n; b++) {
+        const j = ids[b], c2 = cells[j];
+        if (!c2 || !c2.alive || c2.mass <= 0) continue;
+        const pk = i < j ? (i << 16) | j : (j << 16) | i;
+        if (collisionSet.has(pk)) continue;
+        collisionSet.add(pk);
+        const dx = c2.x-c1.x, dy = c2.y-c1.y;
+        const dSq = dx*dx+dy*dy;
+        if (dSq < 0.0001) continue;
+        const minD = c1.radius + c2.radius;
+        if (dSq >= minD*minD) continue;
+        const m1 = c1.isPlayer ? c1.effectiveMass : c1.mass;
+        const m2 = c2.isPlayer ? c2.effectiveMass : c2.mass;
+        if (m1 <= 0 || m2 <= 0) continue;
+        const ratio = m1 > m2 ? m1/m2 : m2/m1;
+        if (ratio < 1.2) continue;
+        const big = m1 > m2 ? c1 : c2, smol = m1 > m2 ? c2 : c1;
+        if (big.mass <= 0 || smol.mass <= 0) continue;
+        const cd = Math.sqrt(dSq);
+        const mr = big.mass / smol.mass;
+        let aspd = Math.min(1, Math.max(0.08, (mr - 1) / 1.5));
+        if (smol.isPlayer && smol.massStability > 0) aspd *= (1 - smol.massStability);
+        if (cd < big.radius) {
+          let ar = big.isPlayer ? (big.absorbMult||0.95) : 0.95;
+          ar += big.isPlayer ? (big.bonusAbsorb||0) : 0;
+          if (mr >= 3) {
+            const tr = smol.mass * Math.min(0.99, Math.max(0, ar));
+            big.mass += tr;
+            if (big.isPlayer && big.vampireLevel > 0) big.mass += smol.mass * big.vampireLevel * 0.1;
+            if (big.mass > 0.001) { const rat = Math.min(1, smol.mass/big.mass); big.vx = big.vx*(1-rat)+smol.vx*rat; big.vy = big.vy*(1-rat)+smol.vy*rat; }
+            smol.alive = false;
+          } else {
+            const dr = aspd * 0.2, tr = smol.mass * dr;
+            if (tr > 0.01) {
+              big.mass += tr * ar; smol.mass -= tr;
+              if (big.isPlayer && big.vampireLevel > 0) big.mass += tr * big.vampireLevel * 0.1;
+              if (big.mass > 0.001) { const rat = Math.min(1, tr/big.mass); big.vx = big.vx*(1-rat)+smol.vx*rat; big.vy = big.vy*(1-rat)+smol.vy*rat; }
+              if (smol.mass < 1) smol.alive = false;
+            }
+          }
+        } else {
+          const or = (minD - cd) / smol.radius;
+          if (or > 0.05) {
+            const dr = aspd * 0.15 * Math.min(1, or);
+            const tr = smol.mass * dr;
+            if (tr > 0.01) { big.mass += tr * 0.9; smol.mass -= tr; if (smol.mass < 1) smol.alive = false; }
+          }
+        }
+      }
+    }
+  }
+  // Particle collisions
+  let pw = 0;
+  for (let i = 0; i < particles.length; i++) {
+    const p = particles[i];
+    if (!p || p.life <= 0) continue;
+    const gi = getGridIdx(p.x, p.y);
+    if (gi < 0 || gi >= GRID_TOTAL) { particles[pw++] = p; continue; }
+    const nearby = spatialGrid[gi];
+    let absorbed = false;
+    if (nearby && nearby.length > 0) {
+      const lim = Math.min(nearby.length, 15);
+      for (let k = 0; k < lim; k++) {
+        const c = cells[nearby[k]];
+        if (!c || !c.alive || c.mass <= 0) continue;
+        const dx = c.x-p.x, dy = c.y-p.y, r = c.radius * 0.7;
+        if (dx*dx+dy*dy < r*r) {
+          let val = p.mass * 0.5;
+          if (p.owner && p.owner.vampireLevel > 0) val *= 1.15;
+          c.mass += val; absorbed = true; break;
+        }
+      }
+    }
+    if (!absorbed) particles[pw++] = p;
+  }
+  particles.length = pw;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  § 11. Game Logic
+// ═══════════════════════════════════════════════════════════
+function spawnCells() {
+  cells = []; particles.length = 0; particlePoolIdx = 0;
+  endlessChoicePending = false; hideEndlessChoice();
+  currentWave = 1;
+  rogueTimer = CFG.ROGUE_INTERVAL;
+  activeBuffs = []; updateBuffDisplay();
+  player = new Cell(0, 0, 300, true);
+  cells.push(player);
+  // Starter food
+  const sc = 12 + Math.floor(Math.random() * 8);
+  for (let i = 0; i < sc; i++) {
+    const a = Math.random()*Math.PI*2, d = 80+Math.random()*150;
+    const c = new Cell(Math.cos(a)*d, Math.sin(a)*d, 5+Math.random()*15);
+    c.vx = (Math.random()-.5)*10; c.vy = (Math.random()-.5)*10;
+    cells.push(c);
+  }
+  spawnWaveCells(WAVE_CFG[0]);
+}
+
+function spawnWaveCells(cfg) {
+  const pr = player ? player.radius : 50;
+  for (let i = 0; i < cfg.count; i++) {
+    const a = Math.random()*Math.PI*2;
+    let minD, d;
+    if (currentWave === 1) {
+      if (Math.random() < 0.4) { minD = Math.max(150, pr*2); d = minD + Math.random()*300; }
+      else { minD = Math.max(350, pr*3); d = minD + Math.random()*(CFG.WORLD_R - minD - 200); }
+    } else { minD = Math.max(400, pr*3); d = minD + Math.random()*(CFG.WORLD_R - minD - 200); }
+    let mass; const r = Math.random();
+    const [d1,d2,d3,d4] = cfg.dist, [m1,m2,m3,m4,m5] = cfg.mRange;
+    if (r<d1) mass = 3+Math.random()*m1;
+    else if (r<d2) mass = m1+Math.random()*m2;
+    else if (r<d3) mass = m2+Math.random()*m3;
+    else if (r<d4) mass = m3+Math.random()*m4;
+    else mass = m4+Math.random()*m5;
+    mass *= cfg.mult;
+    const c = new Cell(Math.cos(a)*d, Math.sin(a)*d, mass);
+    c.vx = (Math.random()-.5)*30; c.vy = (Math.random()-.5)*30;
+    cells.push(c);
+  }
+}
+
+function checkWinLose() {
+  if (!player.alive) { gameOver = true; gameWon = false; showOverlay('你被吞噬了！', false); return; }
+  const alive = frameCache.alive;
+  let dominantCount = 0;
+  for (let i = 0; i < alive.length; i++) {
+    if (!alive[i].isPlayer && alive[i].mass >= player.effectiveMass * 0.5) dominantCount++;
+  }
+  const npcCount = alive.length - 1; // minus player
+  if (npcCount > 0 && dominantCount === 0) {
+    if (currentWave >= CFG.MAX_WAVE && !endlessChoicePending) { showEndlessChoice(); return; }
+    if (currentWave >= CFG.MAX_WAVE && endlessChoicePending) {
+      endlessChoicePending = false;
+      waveMsg = '⚠ 无尽模式 — 更强的敌人出现！'; waveMsgTimer = 4;
+      const ecfg = {
+        count: 70, dist:[0.05,0.15,0.35,0.6],
+        mRange: [200+currentWave*50, 500+currentWave*100, 1500+currentWave*300, 3500+currentWave*500, 6000+currentWave*1000],
+        mult: 2.3 + (currentWave - CFG.MAX_WAVE) * 0.3, aiCd: 0.4,
+      };
+      currentWave++; spawnWaveCells(ecfg); return;
+    }
+    currentWave++;
+    waveMsg = `⚠ 阶段 ${currentWave} — 新的威胁出现！`; waveMsgTimer = 3;
+    spawnWaveCells(WAVE_CFG[currentWave-1]);
+  }
+}
+
+function checkComebackResources(dt) {
+  if (!player || !player.alive) return;
+  comebackTimer -= dt; if (comebackTimer > 0) return;
+  const alive = frameCache.alive;
+  let larger=0, eatable=0;
+  for (let i = 0; i < alive.length; i++) {
+    if (alive[i].isPlayer) continue;
+    if (alive[i].mass > player.effectiveMass*1.2) larger++;
+    if (alive[i].mass < player.effectiveMass*0.8) eatable++;
+  }
+  if (player.effectiveMass < 200 && eatable < 8 && larger > 5) {
+    comebackTimer = 5;
+    const n = 8 + Math.floor(Math.random()*6);
+    for (let i = 0; i < n; i++) {
+      const a = Math.random()*Math.PI*2, d = 100+Math.random()*250;
+      const c = new Cell(player.x+Math.cos(a)*d, player.y+Math.sin(a)*d, 5+Math.random()*15);
+      c.vx = (Math.random()-.5)*20; c.vy = (Math.random()-.5)*20;
+      cells.push(c);
+    }
+  } else comebackTimer = 3;
+}
+
+function spawnSmallParticles(dt) {
+  if (!player || !player.alive) return;
+  particleSpawnTimer -= dt; if (particleSpawnTimer > 0) return;
+  particleSpawnTimer = CFG.PARTICLE_SPAWN_INTERVAL;
+  const n = CFG.PARTICLE_SPAWN_MIN + Math.floor(Math.random()*(CFG.PARTICLE_SPAWN_MAX - CFG.PARTICLE_SPAWN_MIN + 1));
+  for (let i = 0; i < n; i++) {
+    const a = Math.random()*Math.PI*2;
+    const minD = massToRadius(player.effectiveMass)*4 + CFG.PARTICLE_MIN_OFFSET;
+    const d = minD + Math.random()*CFG.PARTICLE_MAX_RANGE;
+    const c = new Cell(player.x+Math.cos(a)*d, player.y+Math.sin(a)*d, CFG.PARTICLE_MIN_MASS+Math.random()*CFG.PARTICLE_MASS_RANGE);
+    c.vx = (Math.random()-.5)*CFG.PARTICLE_VEL_RANGE; c.vy = (Math.random()-.5)*CFG.PARTICLE_VEL_RANGE;
+    cells.push(c);
+  }
+}
+
+function showOverlay(msg, won) {
+  overlay.classList.remove('hidden');
+  overlay.querySelector('h1').textContent = msg;
+  overlay.querySelector('p').textContent = won ? `你通过了全部 ${CFG.MAX_WAVE} 个阶段！` : '你的细胞已被吸收...';
+  overlay.querySelectorAll('p')[1].textContent = won ? '最终质量: '+Math.floor(player.mass) : '';
+  overlay.querySelectorAll('p')[2].textContent = '';
+  overlay.querySelector('.sub').textContent = '';
+  startBtn.textContent = '再来一局';
+}
+
+// ═══════════════════════════════════════════════════════════
+//  § 12. Instance Builder (view-frustum culled)
+// ═══════════════════════════════════════════════════════════
+function buildInstances() {
+  let idx = 0, cnt = 0;
+  const arr = instArr;
+  function push(x,y,r,cr,cg,cb,ca,t) {
+    if (cnt >= CFG.MAX_INST) return;
+    if (!isFinite(x) || !isFinite(y) || r <= 0) return;
+    arr[idx]=x; arr[idx+1]=y; arr[idx+2]=r;
+    arr[idx+3]=cr; arr[idx+4]=cg; arr[idx+5]=cb; arr[idx+6]=ca;
+    arr[idx+7]=t; idx += 8; cnt++;
+  }
+
+  // View frustum culling bounds
+  const halfW = W / (2 * camera.zoom), halfH = H / (2 * camera.zoom);
+  const vl = camera.x - halfW, vr = camera.x + halfW;
+  const vt = camera.y - halfH, vb = camera.y + halfH;
+
+  const alive = frameCache.alive;
+
+  // Build visible sorted list (big→small for correct layering)
+  // Use insertion into a temp array sorted by mass desc
+  const visible = [];
+  for (let i = 0; i < alive.length; i++) {
+    const c = alive[i];
+    const r = c.radius * 1.4; // account for glow
+    if (c.x + r < vl || c.x - r > vr || c.y + r < vt || c.y - r > vb) continue;
+    visible.push(c);
+  }
+  visible.sort((a, b) => b.mass - a.mass);
+
+  // 1. Glows
+  for (let i = 0; i < visible.length; i++) {
+    const c = visible[i];
+    const r = c.radius * (1 + Math.sin(c.pulse) * 0.02);
+    let rr,gg,bb,alpha;
+    if (c.isPlayer) {
+      rr=0.3;gg=0.7;bb=1;alpha=0.95;
+      push(c.x,c.y,r*1.15,rr*.4,gg*.4,bb*.4,0.25,1);
+    } else if (player && player.alive) {
+      const pm = player.effectiveMass, mr = c.mass / pm;
+      if (c.mass < pm*0.95) { const int=Math.max(0.2,Math.min(1,1-mr*0.9)); rr=0.1;gg=int;bb=0.2;alpha=0.7; }
+      else if (c.mass > pm*1.05) { const int=Math.max(0.3,Math.min(1,(mr-1)*0.6)); rr=int;gg=0.1;bb=0.1;alpha=0.75; }
+      else { rr=0.9;gg=0.8;bb=0.2;alpha=0.6; }
+    } else { rr=c.rgb[0]*0.7;gg=c.rgb[1]*0.7;bb=c.rgb[2]*0.7;alpha=0.5; }
+    push(c.x,c.y,r,rr,gg,bb,alpha,1);
+  }
+
+  // 2. Ring indicators
+  if (player && player.alive) {
+    const pm = player.effectiveMass;
+    for (let i = 0; i < visible.length; i++) {
+      const c = visible[i];
+      if (c === player || c.radius < 3) continue;
+      let rr,gg,bb;
+      const mr = c.mass / pm;
+      if (c.mass < pm*0.95) { const int=Math.max(0.15,Math.min(1,1-mr*0.95)); rr=0;gg=int;bb=0; }
+      else if (c.mass > pm*1.05) { const int=Math.max(0.2,Math.min(1,(mr-1)*0.65)); rr=int;gg=0;bb=0; }
+      else { rr=1;gg=1;bb=0.4; }
+      push(c.x,c.y,c.radius,rr,gg,bb,0.25,2);
+    }
+  }
+
+  // 3. Particles
+  for (let i = 0; i < particles.length; i++) {
+    const p = particles[i];
+    if (p.life <= 0) continue;
+    const r = p.radius * p.life;
+    if (r < 0.5) continue;
+    // Frustum cull particles too
+    if (p.x + r*3 < vl || p.x - r*3 > vr || p.y + r*3 < vt || p.y - r*3 > vb) continue;
+    push(p.x,p.y,r*3, p.rgb[0],p.rgb[1],p.rgb[2], p.life*0.1, 3);
+    push(p.x,p.y,r*1.5, p.rgb[0],p.rgb[1],p.rgb[2], p.life*0.3, 3);
+    push(p.x,p.y,r*0.6, p.rgb[0]*1.2,p.rgb[1]*1.2,p.rgb[2]*1.2, p.life*0.8, 3);
+  }
+
+  // 4. Bodies
+  const time = performance.now() / 1000;
+  for (let i = 0; i < visible.length; i++) {
+    const c = visible[i];
+    const pulse = Math.sin(c.pulse + time * 2) * 0.02;
+    const r = c.radius * (1 + pulse);
+    let rr,gg,bb,alpha;
+    if (c.isPlayer) { rr=0.4;gg=0.75;bb=1;alpha=0.95; }
+    else if (player && player.alive) {
+      const pm = player.effectiveMass, mr = c.mass / pm;
+      if (c.mass < pm*0.95) { const int=Math.max(0.25,Math.min(1,1-mr*0.9)); rr=0.1;gg=int;bb=0.25;alpha=0.9; }
+      else if (c.mass > pm*1.05) { const int=Math.max(0.35,Math.min(1,(mr-1)*0.55)); rr=int;gg=0.15;bb=0.15;alpha=0.9; }
+      else { rr=1;gg=0.9;bb=0.2;alpha=0.85; }
+    } else { rr=c.rgb[0];gg=c.rgb[1];bb=c.rgb[2];alpha=0.82; }
+    push(c.x,c.y,r,rr,gg,bb,alpha,0);
+  }
+  return cnt;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  § 13. Camera & UI
+// ═══════════════════════════════════════════════════════════
+function updateCamera(dt) {
+  if (!player || !player.alive) return;
+  if (!isFinite(player.x) || !isFinite(player.y)) { player.x = 0; player.y = 0; }
+  if (!isFinite(player.vx) || !isFinite(player.vy)) { player.vx = 0; player.vy = 0; }
+  const ps = 1 - Math.pow(0.02, Math.max(0.001, dt));
+  const tx = player.x + player.vx * 0.15;
+  const ty = player.y + player.vy * 0.15;
+  camera.x += (tx - camera.x) * ps;
+  camera.y += (ty - camera.y) * ps;
+  const r = Math.max(1, player.radius);
+  let az = Math.max(0.12, Math.min(1.5, 40 / r));
+  if (player.zoomMult && isFinite(player.zoomMult)) az *= player.zoomMult;
+  camera.targetZoom = Math.max(0.04, Math.min(4, az * manualZoom));
+  const zs = 1 - Math.pow(0.03, Math.max(0.001, dt));
+  camera.zoom += (camera.targetZoom - camera.zoom) * zs;
+  if (!isFinite(camera.x)) camera.x = 0;
+  if (!isFinite(camera.y)) camera.y = 0;
+  if (!isFinite(camera.zoom) || camera.zoom <= 0) camera.zoom = 0.1;
+}
+
+// UI state cache — avoid unnecessary DOM writes
+let lastMassText = '', lastLevelText = '', lastRankText = '';
+function updateUI() {
+  if (!player) return;
+  const mt = '质量: ' + Math.floor(player.mass);
+  if (mt !== lastMassText) { massDisplay.textContent = mt; lastMassText = mt; }
+  const lt = currentWave > CFG.MAX_WAVE ? '阶段 ∞ (无尽)' : `阶段 ${currentWave}/${CFG.MAX_WAVE}`;
+  if (lt !== lastLevelText) { levelDisplay.textContent = lt; lastLevelText = lt; }
+  const rt = `排名: ${frameCache.playerRank}/${frameCache.aliveCount}`;
+  if (rt !== lastRankText) { rankDisplay.textContent = rt; lastRankText = rt; }
+
+  // Velocity display
+  const spd = Math.sqrt(player.vx*player.vx + player.vy*player.vy);
+  const pct = Math.min(100, Math.max(0, spd / 200 * 100));
+  const svEl = document.getElementById('speedValue');
+  const sfEl = document.getElementById('speedFill');
+  const arEl = document.querySelector('#velocityArrow svg');
+  if (svEl) svEl.textContent = isFinite(spd) ? spd.toFixed(1) : '0.0';
+  if (sfEl) sfEl.style.width = pct + '%';
+  if (spd > 1 && arEl) {
+    const ang = Math.atan2(player.vy, player.vx) * (180/Math.PI) + 90;
+    if (isFinite(ang)) arEl.style.transform = `rotate(${ang}deg)`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  § 14. Cursor Drawing (2D overlay)
+// ═══════════════════════════════════════════════════════════
+function drawCursor() {
+  olCtx.clearRect(0, 0, W, H);
+  if (!gameRunning || gameOver || !player || !player.alive) return;
+  if (!isFinite(camera.zoom) || camera.zoom <= 0) return;
+  const dx = (mouseX-W/2)/camera.zoom + camera.x - player.x;
+  const dy = (mouseY-H/2)/camera.zoom + camera.y - player.y;
+  const d = Math.sqrt(dx*dx+dy*dy);
+  if (d < 0.001) return;
+  const nx = dx/d, ny = dy/d, pr = player.radius;
+
+  // Trajectory hint
+  const x1 = W/2 + (player.x - nx*pr*1.2 - camera.x)*camera.zoom;
+  const y1 = H/2 + (player.y - ny*pr*1.2 - camera.y)*camera.zoom;
+  const x2 = W/2 + (player.x - nx*pr*4   - camera.x)*camera.zoom;
+  const y2 = H/2 + (player.y - ny*pr*4   - camera.y)*camera.zoom;
+  if (isFinite(x1) && isFinite(y1) && isFinite(x2) && isFinite(y2)) {
+    const grad = olCtx.createLinearGradient(x1,y1,x2,y2);
+    grad.addColorStop(0,'rgba(100,200,255,0.4)'); grad.addColorStop(1,'rgba(100,200,255,0)');
+    olCtx.strokeStyle = grad; olCtx.lineWidth = 3; olCtx.lineCap = 'round';
+    olCtx.beginPath(); olCtx.moveTo(x1,y1); olCtx.lineTo(x2,y2); olCtx.stroke();
+    const as = 10, ag = Math.atan2(y2-y1, x2-x1);
+    olCtx.fillStyle = 'rgba(100,200,255,0.5)';
+    olCtx.beginPath(); olCtx.moveTo(x2,y2);
+    olCtx.lineTo(x2-as*Math.cos(ag-0.5), y2-as*Math.sin(ag-0.5));
+    olCtx.lineTo(x2-as*Math.cos(ag+0.5), y2-as*Math.sin(ag+0.5));
+    olCtx.closePath(); olCtx.fill();
+  }
+  // Crosshair glow
+  const rg = olCtx.createRadialGradient(mouseX,mouseY,0,mouseX,mouseY,20);
+  rg.addColorStop(0,'rgba(100,200,255,0.2)'); rg.addColorStop(1,'rgba(100,200,255,0)');
+  olCtx.fillStyle = rg; olCtx.beginPath(); olCtx.arc(mouseX,mouseY,20,0,Math.PI*2); olCtx.fill();
+  olCtx.strokeStyle = 'rgba(150,220,255,0.6)'; olCtx.lineWidth = 1.5; olCtx.lineCap = 'round';
+  olCtx.beginPath();
+  olCtx.moveTo(mouseX-12,mouseY); olCtx.lineTo(mouseX+12,mouseY);
+  olCtx.moveTo(mouseX,mouseY-12); olCtx.lineTo(mouseX,mouseY+12);
+  olCtx.stroke();
+  olCtx.fillStyle = 'rgba(150,220,255,0.8)'; olCtx.beginPath(); olCtx.arc(mouseX,mouseY,3,0,Math.PI*2); olCtx.fill();
+  olCtx.strokeStyle = 'rgba(150,220,255,0.3)'; olCtx.lineWidth = 1;
+  olCtx.beginPath(); olCtx.arc(mouseX,mouseY,8,0,Math.PI*2); olCtx.stroke();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  § 15. Main Loop
+// ═══════════════════════════════════════════════════════════
+let lastTime = 0, frameCount = 0;
+let aiAccum = 0, uiAccum = 0;
+const AI_DT = 1 / CFG.AI_UPDATE_HZ;
+const UI_DT = 1 / CFG.UI_UPDATE_HZ;
+
+function loop(time) {
+  requestAnimationFrame(loop);
+  const rawDt = Math.min((time - lastTime) / 1000, 0.05);
+  lastTime = time;
+  const dt = (gameRunning && !gameOver) ? rawDt * timeScale : 0;
+  frameCount++;
+
+  if (gameRunning && !gameOver) {
+    // AI throttle
+    aiAccum += rawDt;
+    const doAI = aiAccum >= AI_DT;
+    if (doAI) aiAccum -= AI_DT;
+
+    // Update cells
+    for (let i = 0; i < cells.length; i++) {
+      const c = cells[i];
+      if (!c.alive) continue;
+      c.update(dt, cells, camera);
+      if (doAI) c.aiUpdate(AI_DT, cells);
+    }
+
+    updateParticles(dt);
+    checkCollisions();
+    updateCamera(rawDt);
+
+    // Dead cell compaction (every 120 frames)
+    if (frameCount % 120 === 0) {
+      let w = 0;
+      for (let i = 0; i < cells.length; i++) if (cells[i].alive) cells[w++] = cells[i];
+      cells.length = w;
+    }
+
+    // Frame cache (used by UI, winCheck, buildInstances)
+    updateFrameCache();
+
+    // Throttled UI updates
+    uiAccum += rawDt;
+    if (uiAccum >= UI_DT) { updateUI(); zoomLabel.textContent = Math.round(camera.zoom*100)+'%'; uiAccum = 0; }
+
+    checkWinLose();
+    checkComebackResources(rawDt);
+    spawnSmallParticles(rawDt);
+    updateRogueTimer(rawDt);
+    if (waveMsgTimer > 0) waveMsgTimer -= rawDt;
+  }
+
+  // Render
+  const instCount = buildInstances();
+  renderer.render(W, H, camera, CFG.WORLD_R, performance.now()/1000, instArr, instCount);
+
+  drawCursor();
+
+  // Wave message overlay
+  if (waveMsgTimer > 0) {
+    const a = Math.min(1, waveMsgTimer);
+    olCtx.save();
+    olCtx.font = 'bold 28px Helvetica Neue';
+    olCtx.textAlign = 'center';
+    olCtx.fillStyle = `rgba(255,200,80,${a})`;
+    olCtx.fillText(waveMsg, W/2, H*0.18);
+    olCtx.restore();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  § 16. Input Handling
+// ═══════════════════════════════════════════════════════════
+const speeds = [0.25, 0, 1, 2.5];
 const speedBtns = [
   document.getElementById('btnSlow'),
   document.getElementById('btnPause'),
   document.getElementById('btnNormal'),
   document.getElementById('btnFast'),
 ];
-function setSpeed(i){ timeScale=speeds[i]; speedBtns.forEach((b,j)=>b.classList.toggle('active',j===i)); speedLabel.textContent=timeScale===0?'暂停':timeScale+'x'; }
-speedBtns.forEach((b,i)=>b.addEventListener('click',()=>setSpeed(i)));
+function setSpeed(i) {
+  timeScale = speeds[i];
+  speedBtns.forEach((b,j) => b.classList.toggle('active', j===i));
+  speedLabel.textContent = timeScale === 0 ? '暂停' : timeScale + 'x';
+}
+speedBtns.forEach((b,i) => b.addEventListener('click', () => setSpeed(i)));
+document.getElementById('btnZoomIn').addEventListener('click', () => { manualZoom = Math.min(5, manualZoom*1.4); });
+document.getElementById('btnZoomOut').addEventListener('click', () => { manualZoom = Math.max(0.08, manualZoom/1.4); });
 
-const zoomLabel = document.getElementById('zoomLabel');
-document.getElementById('btnZoomIn').addEventListener('click',()=>{ manualZoom=Math.min(5,manualZoom*1.4); });
-document.getElementById('btnZoomOut').addEventListener('click',()=>{ manualZoom=Math.max(0.08,manualZoom/1.4); });
-function updateZoomLabel(){ zoomLabel.textContent=Math.round(camera.zoom*100)+'%'; }
-
-function massToRadius(m){ return Math.sqrt(m/Math.PI); }
-
-class Cell {
-  constructor(x,y,mass,isPlayer=false){
-    this.x=x;this.y=y;this.vx=0;this.vy=0;this.mass=mass;this.isPlayer=isPlayer;
-    this.alive=true;
-    this.hue=isPlayer?200:Math.random()*360;
-    this.sat=isPlayer?70:40+Math.random()*30;
-    this.lit=isPlayer?55:35+Math.random()*25;
-    this.pulse=Math.random()*Math.PI*2;
-    this.aiTimer=Math.random()*2;
-    this.rgb=hsl2rgb(this.hue,this.sat,this.lit);
-    this.rgbB=hsl2rgb(this.hue,this.sat,Math.min(100,this.lit+15));
-    // Rogue effect properties
-    this.ejectCostMult = 1;
-    this.absorbMult = 1;
-    this.speedMult = 1;
-    this.massGrowth = 0;
-    this.frictionMult = 1;
-    this.ejectPowerMult = 1;
-    this.zoomMult = 1;
-    this.shieldBonus = 0;
-    this.bonusAbsorb = 0;
-    this.comebackBonus = false;
-    this.vampireLevel = 0;
-    this.timeWarp = 0;
-    this.gravityRange = 0;
-    this.motionMass = false;
-    this.predatorLevel = 0;
-    this.lastMotionMass = 0;
-    // New buff properties
-    this.stickyFieldRange = 0;
-    this.stickyFieldPower = 0;
-    this.pursuitBonus = 0;
-    this.massStability = 0;
-    this.enemyFrictionMult = 1;
-    
-    // AI Personality traits (only for NPCs)
-    if (!isPlayer) {
-      // Personality type: 0=aggressive, 1=defensive, 2=lazy, 3=explorer, 4=erratic
-      this.aiType = Math.floor(Math.random() * 5);
-      // Speed multiplier (0.3 to 1.2)
-      this.aiSpeedMult = 0.3 + Math.random() * 0.9;
-      // Vision range multiplier (0.5 to 1.5)
-      this.aiVisionMult = 0.5 + Math.random();
-      // Decision reaction time (0.5 to 2.0)
-      this.aiReactionMult = 0.5 + Math.random() * 1.5;
-      // Aggression level (how likely to chase vs flee)
-      this.aiAggression = Math.random();
-      // Error rate (random movement mistakes)
-      this.aiErrorRate = Math.random() * 0.3;
-    }
-  }
-  get radius(){ return massToRadius(this.mass); }
-  get effectiveMass() {
-    // Shield makes you appear larger to others
-    return this.mass * (1 + this.shieldBonus);
-  }
-
-  update(dt){
-    // Apply speed multiplier and friction
-    let actualDt = dt;
-    if (this.isPlayer && this.timeWarp > 0) {
-      // Player experiences slower time
-      actualDt = dt * (1 - this.timeWarp * 0.5);
-    }
-    
-    let speedMult = this.speedMult;
-    // Comeback bonus: faster when small
-    if (this.isPlayer && this.comebackBonus && this.mass < 100) {
-      speedMult *= 1.5;
-    }
-    
-    // Pursuit bonus: faster when chasing smaller cells
-    if (this.isPlayer && this.pursuitBonus > 0) {
-      const speed = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
-      if (speed > 10) {
-        const dirX = this.vx / speed, dirY = this.vy / speed;
-        for (const c of cells) {
-          if (c === this || !c.alive || c.mass >= this.mass * 0.9) continue;
-          const dx = c.x - this.x, dy = c.y - this.y;
-          const dist = Math.sqrt(dx*dx + dy*dy);
-          if (dist < 300) {
-            const dot = (dx/dist) * dirX + (dy/dist) * dirY;
-            if (dot > 0.7) { // Moving towards a smaller cell
-              speedMult *= (1 + this.pursuitBonus);
-              break;
-            }
-          }
-        }
-      }
-    }
-    
-    // AI personality affects movement speed
-    if (!this.isPlayer && this.aiSpeedMult) {
-      speedMult *= this.aiSpeedMult;
-    }
-    
-    this.x += this.vx * actualDt * speedMult;
-    this.y += this.vy * actualDt * speedMult;
-    
-    // No friction - pure momentum conservation
-    // Speed only changes by ejection or collision
-    
-    // Soft speed cap (gentle limiting, not hard cap)
-    const speedLimit = this.isPlayer ? 400 : 300;
-    const currentSpeed = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
-    if (currentSpeed > speedLimit) {
-      // Gentle drag only when way over limit
-      const drag = 0.995;
-      this.vx *= drag;
-      this.vy *= drag;
-    }
-    
-    // Mass growth
-    if (this.isPlayer && this.massGrowth > 0) {
-      this.mass += this.massGrowth * dt;
-    }
-    
-    // Motion mass: gain mass when moving fast
-    if (this.isPlayer && this.motionMass) {
-      const speed = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
-      this.lastMotionMass += speed * dt * 0.01;
-      if (this.lastMotionMass >= 1) {
-        this.mass += Math.floor(this.lastMotionMass);
-        this.lastMotionMass %= 1;
-      }
-    }
-    
-    // Gravity well: attract smaller cells
-    if (this.isPlayer && this.gravityRange > 0) {
-      for (const c of cells) {
-        if (c === this || !c.alive || c.mass >= this.mass * 0.5) continue;
-        const dx = this.x - c.x, dy = this.y - c.y;
-        const dist = Math.sqrt(dx*dx + dy*dy);
-        if (dist < this.gravityRange && dist > 10) {
-          const force = (1 - dist / this.gravityRange) * 50 * dt;
-          c.vx += (dx / dist) * force;
-          c.vy += (dy / dist) * force;
-        }
-      }
-    }
-    
-    // Sticky field: slow nearby enemies
-    if (this.isPlayer && this.stickyFieldRange > 0) {
-      for (const c of cells) {
-        if (c === this || !c.alive) continue;
-        const dx = this.x - c.x, dy = this.y - c.y;
-        const dist = Math.sqrt(dx*dx + dy*dy);
-        if (dist < this.stickyFieldRange) {
-          const slowFactor = 1 - this.stickyFieldPower * (1 - dist / this.stickyFieldRange);
-          c.vx *= slowFactor;
-          c.vy *= slowFactor;
-        }
-      }
-    }
-    
-    // Enemy friction field: slow all enemies in vision
-    if (this.isPlayer && this.enemyFrictionMult > 1) {
-      const viewDist = Math.max(W, H) / (camera.zoom || 1);
-      for (const c of cells) {
-        if (c === this || !c.alive) continue;
-        const dx = this.x - c.x, dy = this.y - c.y;
-        const dist = Math.sqrt(dx*dx + dy*dy);
-        if (dist < viewDist) {
-          const frictionFactor = Math.pow(0.98, this.enemyFrictionMult - 1);
-          c.vx *= frictionFactor;
-          c.vy *= frictionFactor;
-        }
-      }
-    }
-    
-    // Soft boundary - gradually push back instead of hard bounce
-    const r = this.radius;
-    const d = Math.sqrt(this.x * this.x + this.y * this.y);
-    if (d + r > WORLD_R) {
-      const nx = this.x / d;
-      const ny = this.y / d;
-      const overlap = d + r - WORLD_R;
-      
-      // Soft push back (stronger as you go further out)
-      const pushStrength = overlap * 2;
-      this.x -= nx * pushStrength;
-      this.y -= ny * pushStrength;
-      
-      // Dampen velocity going outward (not bounce)
-      const dot = this.vx * nx + this.vy * ny;
-      if (dot > 0) {
-        this.vx -= nx * dot * 0.3;
-        this.vy -= ny * dot * 0.3;
-      }
-    }
-    this.pulse+=dt*2;
-  }
-
-  aiUpdate(dt,all){
-    if(this.isPlayer||!this.alive)return;
-    this.aiTimer-=dt; if(this.aiTimer>0)return;
-    const cfg=WAVE_CFG[Math.min(currentWave-1,MAX_WAVE-1)];
-    
-    // Apply personality-based reaction time
-    const reactionDelay = cfg.aiCd * this.aiReactionMult;
-    this.aiTimer = 0.3 + Math.random() * reactionDelay;
-    
-    // Lazy AI acts less frequently
-    if (this.aiType === 2 && Math.random() > 0.6) return;
-    
-    // Erratic AI sometimes does random things
-    if (this.aiType === 4 && Math.random() < 0.3) {
-      // Random ejection
-      const randomAngle = Math.random() * Math.PI * 2;
-      this.ejectMass(
-        this.x + Math.cos(randomAngle) * 100,
-        this.y + Math.sin(randomAngle) * 100
-      );
-      return;
-    }
-    
-    let ns=null,nl=null,ds=1/0,dl=1/0;
-    
-    // Predator effect: AI is more afraid of player
-    let fearMult = 1;
-    if (player && player.predatorLevel > 0) {
-      fearMult = 1 + player.predatorLevel * 0.3;
-    }
-    
-    // Modify fear based on personality
-    if (this.aiType === 0) fearMult *= 0.7; // Aggressive = less fear
-    if (this.aiType === 1) fearMult *= 1.5; // Defensive = more fear
-    
-    // AI vision range based on personality
-    const visionRange = this.radius * 25 * this.aiVisionMult;
-    const visionRangeSq = visionRange * visionRange;
-    
-    for(const c of all){
-      if(c===this||!c.alive)continue;
-      const dx=c.x-this.x, dy=c.y-this.y;
-      const distSq = dx*dx+dy*dy;
-      if(distSq > visionRangeSq) continue;
-      
-      const d = Math.sqrt(distSq);
-      const targetMass = c.isPlayer ? c.effectiveMass : c.mass;
-      
-      // Aggression affects what targets are considered
-      let canEatThreshold = 0.8;
-      let dangerousThreshold = 1.3;
-      
-      if (this.aiType === 0) {
-        // Aggressive: more willing to chase slightly larger targets
-        canEatThreshold = 1.0;
-        dangerousThreshold = 1.5;
-      } else if (this.aiType === 1) {
-        // Defensive: more cautious
-        canEatThreshold = 0.6;
-        dangerousThreshold = 1.1;
-      } else if (this.aiType === 3) {
-        // Explorer: prefers smaller, safer targets from farther away
-        canEatThreshold = 0.5;
-      }
-      
-      if(targetMass < this.mass * canEatThreshold && d < ds){ds=d;ns=c;}
-      if(targetMass > this.mass * dangerousThreshold * fearMult && d < dl){dl=d;nl=c;}
-    }
-    
-    // Apply decision with possible error
-    let targetX = null, targetY = null;
-    
-    if(nl && dl < this.radius * 8){
-      // Flee from larger
-      const dx = this.x - nl.x;
-      const dy = this.y - nl.y;
-      const d = Math.sqrt(dx*dx + dy*dy) || 1;
-      targetX = this.x - dx/d * 100;
-      targetY = this.y - dy/d * 100;
-    }else if(ns && ds < this.radius * 12){
-      // Chase smaller
-      targetX = this.x - (ns.x - this.x);
-      targetY = this.y - (ns.y - this.y);
-    }
-    
-    if (targetX !== null) {
-      // Add error for erratic personality
-      if (this.aiErrorRate > 0) {
-        targetX += (Math.random() - 0.5) * this.aiErrorRate * 100;
-        targetY += (Math.random() - 0.5) * this.aiErrorRate * 100;
-      }
-      this.ejectMass(targetX, targetY);
-    }
-  }
-
-  ejectMass(tx, ty, distanceFactor = 1){
-    const minMass = this.isPlayer ? 6 : 10;
-    if(this.mass < minMass) return;
-    
-    const dx = tx - this.x, dy = ty - this.y;
-    const d = Math.sqrt(dx*dx + dy*dy) || 1;
-    const nx = dx / d, ny = dy / d;
-    
-    // Distance-based eject mass: further = more mass ejected
-    // Base mass scaled by distanceFactor (0.5 to 2.0 range)
-    const baseEjectMass = 3 * (this.ejectCostMult || 1);
-    const minEject = baseEjectMass * 0.5;
-    const maxEject = Math.min(this.mass * 0.05, baseEjectMass * 3); // Cap at 5% mass
-    
-    // Smooth curve: closer = less mass, further = more mass
-    let em = minEject + (maxEject - minEject) * Math.min(1, distanceFactor);
-    em = Math.min(em, this.mass * 0.05); // Hard cap at 5%
-    
-    this.mass -= em;
-    
-    // Physics: momentum conservation
-    // Impulse = ejected_mass * eject_velocity
-    // Larger ejection = proportionally more thrust (Newton's 3rd law)
-    const ejectVelocity = 350; // Constant ejection speed relative to player
-    const playerMassFactor = Math.min(1, 80 / this.mass); // Larger player gets less acceleration
-    
-    // Apply speed cap
-    const maxSpeed = 180;
-    const currentSpeed = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
-    const speedFactor = currentSpeed > maxSpeed ? 0.5 : 1;
-    
-    // Thrust proportional to ejected mass (momentum = m * v)
-    const impulse = em * ejectVelocity * (this.ejectPowerMult || 1) * playerMassFactor * speedFactor;
-    
-    this.vx -= nx * impulse / this.mass;
-    this.vy -= ny * impulse / this.mass;
-    
-    // Chance to spawn a small cell instead of just a particle
-    const SPAWN_CELL_CHANCE = 0.2; // 20% chance
-    if (this.isPlayer && Math.random() < SPAWN_CELL_CHANCE) {
-      // Spawn as a small cell that can be eaten later
-      const c = new Cell(
-        this.x + nx * this.radius,
-        this.y + ny * this.radius,
-        em * 0.8, // 80% efficiency conversion
-        false
-      );
-      c.vx = this.vx + nx * 350;
-      c.vy = this.vy + ny * 350;
-      c.hue = 200; // Blue-ish for player eject
-      c.sat = 50;
-      c.lit = 60;
-      c.rgb = hsl2rgb(c.hue, c.sat, c.lit);
-      c.rgbB = hsl2rgb(c.hue, c.sat, Math.min(100, c.lit + 15));
-      cells.push(c);
-    } else {
-      // Visual particle from pool
-      const particleRadius = Math.max(3, massToRadius(em) * 1.5);
-      const p = getParticle();
-      p.x = this.x + nx * this.radius;
-      p.y = this.y + ny * this.radius;
-      p.vx = this.vx + nx * 400;
-      p.vy = this.vy + ny * 400;
-      p.mass = em;
-      p.radius = particleRadius;
-      p.life = 0.8;
-      p.rgb = this.isPlayer ? [0.5, 0.75, 1] : this.rgbB;
-      p.owner = this.isPlayer ? this : null;
-      particles.push(p);
-    }
-  }
+function calcEjectParams(clientX, clientY) {
+  const tx = (clientX - W/2) / camera.zoom + camera.x;
+  const ty = (clientY - H/2) / camera.zoom + camera.y;
+  const dx = tx - player.x, dy = ty - player.y;
+  const dist = Math.sqrt(dx*dx+dy*dy);
+  const ref = Math.max(50, player.radius*2);
+  return { tx, ty, df: Math.min(1, Math.max(0, (dist - ref*0.5) / (ref*4))) };
 }
 
-function spawnCells(){
-  // Initialize pools on first call
-  if (!spatialGrid.length) initSpatialGrid();
-  if (!particlePool.length) initParticlePool();
-  
-  cells=[]; 
-  particles.length = 0; // Clear without reallocating
-  particlePoolIndex = 0;
-  endlessChoicePending = false;
-  hideEndlessChoice();
-  
-  currentWave=1;
-  rogueTimer = ROGUE_INTERVAL;
-  activeBuffs = [];
-  updateBuffDisplay();
-  player=new Cell(0,0,300,true); 
-  cells.push(player);
-  
-  // Spawn starter food around player (immediate gratification)
-  const starterCount = 12 + Math.floor(Math.random() * 8); // 12-20 cells
-  for (let i = 0; i < starterCount; i++) {
-    const a = Math.random() * Math.PI * 2;
-    const d = 80 + Math.random() * 150; // Close to player (80-230 distance)
-    const mass = 5 + Math.random() * 15; // Small mass (5-20)
-    const c = new Cell(Math.cos(a) * d, Math.sin(a) * d, mass);
-    c.vx = (Math.random() - 0.5) * 10; // Slow movement
-    c.vy = (Math.random() - 0.5) * 10;
-    cells.push(c);
-  }
-  
-  spawnWaveCells(WAVE_CFG[0]);
+function onMove(e) { mouseX = e.clientX; mouseY = e.clientY; }
+canvas.addEventListener('mousemove', onMove);
+olCanvas.addEventListener('mousemove', onMove);
+
+function onDown(e) {
+  if (!gameRunning || gameOver || !player || !player.alive || timeScale === 0) return;
+  const { tx, ty, df } = calcEjectParams(e.clientX, e.clientY);
+  player.ejectMass(tx, ty, df);
 }
+canvas.addEventListener('mousedown', onDown);
+olCanvas.addEventListener('mousedown', onDown);
 
-function spawnWaveCells(cfg){
-  const playerRadius = player ? player.radius : 50;
-  for(let i=0;i<cfg.count;i++){
-    const a=Math.random()*Math.PI*2;
-    // Spawn resources closer for wave 1, normal for others
-    let minDist, d;
-    if(currentWave===1){
-      // Wave 1: spawn resources closer, some very close
-      const closeChance=0.4; // 40% spawn close
-      if(Math.random()<closeChance){
-        minDist=Math.max(150, playerRadius*2);
-        d=minDist+Math.random()*300;
-      }else{
-        minDist=Math.max(350, playerRadius*3);
-        d=minDist+Math.random()*(WORLD_R-minDist-200);
-      }
-    }else{
-      minDist=Math.max(400, playerRadius*3);
-      d=minDist+Math.random()*(WORLD_R-minDist-200);
-    }
-    let mass; const r=Math.random();
-    const [d1,d2,d3,d4]=cfg.dist;
-    const [m1,m2,m3,m4,m5]=cfg.mRange;
-    if(r<d1)mass=3+Math.random()*m1;
-    else if(r<d2)mass=m1+Math.random()*m2;
-    else if(r<d3)mass=m2+Math.random()*m3;
-    else if(r<d4)mass=m3+Math.random()*m4;
-    else mass=m4+Math.random()*m5;
-    mass*=cfg.mult;
-    const c=new Cell(Math.cos(a)*d,Math.sin(a)*d,mass);
-    c.vx=(Math.random()-.5)*30; c.vy=(Math.random()-.5)*30;
-    cells.push(c);
-  }
-}
+let mouseDown = false;
+function md() { mouseDown = true; }
+function mu() { mouseDown = false; }
+canvas.addEventListener('mousedown', md); olCanvas.addEventListener('mousedown', md);
+canvas.addEventListener('mouseup', mu);   olCanvas.addEventListener('mouseup', mu);
+canvas.addEventListener('mouseleave', mu); olCanvas.addEventListener('mouseleave', mu);
 
-// ═══════════════════════════════════════════════════
-//  Spatial Grid for Collision Optimization
-// ═══════════════════════════════════════════════════
-const GRID_SIZE = 200; // Slightly larger cells for better performance
-const GRID_DIM = Math.ceil((WORLD_R * 2) / GRID_SIZE) + 2; // +2 for padding
-
-// Pre-allocate grid arrays for better performance
-let spatialGrid = [];
-let gridUsed = new Uint8Array(GRID_DIM * GRID_DIM);
-let gridCells = []; // Reusable array for cell indices
-
-function initSpatialGrid() {
-  spatialGrid = new Array(GRID_DIM * GRID_DIM);
-  for (let i = 0; i < spatialGrid.length; i++) {
-    spatialGrid[i] = [];
-  }
-}
-
-function getGridIndex(x, y) {
-  const gx = Math.floor((x + WORLD_R) / GRID_SIZE);
-  const gy = Math.floor((y + WORLD_R) / GRID_SIZE);
-  return gy * GRID_DIM + gx;
-}
-
-function buildSpatialGrid() {
-  // Clear only used grid cells
-  for (let i = 0; i < gridUsed.length; i++) {
-    if (gridUsed[i]) {
-      spatialGrid[i].length = 0;
-      gridUsed[i] = 0;
-    }
-  }
-  
-  // Insert cells into grid
-  for (let i = 0; i < cells.length; i++) {
-    const c = cells[i];
-    if (!c.alive) continue;
-    
-    const minGx = Math.floor((c.x - c.radius + WORLD_R) / GRID_SIZE);
-    const maxGx = Math.floor((c.x + c.radius + WORLD_R) / GRID_SIZE);
-    const minGy = Math.floor((c.y - c.radius + WORLD_R) / GRID_SIZE);
-    const maxGy = Math.floor((c.y + c.radius + WORLD_R) / GRID_SIZE);
-    
-    for (let gx = minGx; gx <= maxGx; gx++) {
-      for (let gy = minGy; gy <= maxGy; gy++) {
-        const idx = gy * GRID_DIM + gx;
-        if (idx >= 0 && idx < spatialGrid.length) {
-          spatialGrid[idx].push(i);
-          gridUsed[idx] = 1;
-        }
-      }
-    }
-  }
-  
-  return spatialGrid;
-}
-
-// Reusable Set for collision tracking to avoid allocations
-let collisionSet = new Set();
-
-function checkCollisions(){
-  const grid = buildSpatialGrid();
-  collisionSet.clear();
-  
-  // Cell-to-cell collisions
-  const gridLen = Math.min(grid.length, GRID_DIM * GRID_DIM);
-  for (let g = 0; g < gridLen; g++) {
-    const indices = grid[g];
-    if (!indices || indices.length < 2) continue;
-    
-    // Check all pairs in this grid cell
-    const cellCount = indices.length;
-    
-    for (let a = 0; a < cellCount; a++) {
-      const i = indices[a];
-      const c1 = cells[i];
-      if (!c1 || !c1.alive || c1.mass <= 0) continue;
-      
-      for (let b = a + 1; b < cellCount; b++) {
-        const j = indices[b];
-        const c2 = cells[j];
-        if (!c2 || !c2.alive || c2.mass <= 0) continue;
-        
-        const pairKey = i < j ? i * 10000 + j : j * 10000 + i;
-        if (collisionSet.has(pairKey)) continue;
-        collisionSet.add(pairKey);
-        
-        const dx = c2.x - c1.x;
-        const dy = c2.y - c1.y;
-        const distSq = dx * dx + dy * dy;
-        
-        // Skip if same position
-        if (distSq < 0.0001) continue;
-        
-        const minDist = c1.radius + c2.radius;
-        if (distSq >= minDist * minDist) continue;
-        
-        const m1 = c1.isPlayer ? c1.effectiveMass : c1.mass;
-        const m2 = c2.isPlayer ? c2.effectiveMass : c2.mass;
-        if (m1 <= 0 || m2 <= 0) continue;
-        
-        // Mass ratio check (need 20% advantage to eat)
-        const ratio = m1 > m2 ? m1 / m2 : m2 / m1;
-        if (ratio < 1.2) continue;
-        
-        const big = m1 > m2 ? c1 : c2;
-        const smol = m1 > m2 ? c2 : c1;
-        
-        if (big.mass <= 0 || smol.mass <= 0) continue;
-        
-        const centerDist = Math.sqrt(distSq);
-        
-        // Calculate mass ratio for absorption speed
-        // ratio >= 1.2 (already checked), higher ratio = faster absorption
-        const massRatio = big.mass / smol.mass;
-        // Absorption speed factor: 1.2->0.3, 2.0->0.7, 3.0+->1.0 (instant)
-        let absorbSpeed = Math.min(1, Math.max(0.08, (massRatio - 1.0) / 1.5));
-        
-        // Mass stability: reduce absorption speed when player is being absorbed
-        if (smol.isPlayer && smol.massStability > 0) {
-          absorbSpeed *= (1 - smol.massStability);
-        }
-        
-        // Osmos-style absorption: full containment = eat, partial = gradual drain
-        if (centerDist < big.radius) {
-          // Complete overlap - consume based on mass ratio
-          let absorbRate = big.isPlayer ? (big.absorbMult || 0.95) : 0.95;
-          absorbRate += big.isPlayer ? (big.bonusAbsorb || 0) : 0;
-          
-          // If mass ratio is high enough, instant consume
-          if (massRatio >= 3.0) {
-            // Big difference - instant consume
-            const transfer = smol.mass * Math.min(0.99, Math.max(0, absorbRate));
-            big.mass += transfer;
-            
-            if (big.isPlayer && big.vampireLevel > 0) {
-              big.mass += smol.mass * big.vampireLevel * 0.1;
-            }
-            
-            // Momentum transfer
-            if (big.mass > 0.001) {
-              const rat = Math.min(1, smol.mass / big.mass);
-              big.vx = big.vx * (1 - rat) + smol.vx * rat;
-              big.vy = big.vy * (1 - rat) + smol.vy * rat;
-            }
-            
-            smol.alive = false;
-          } else {
-            // Similar size - gradual consume even when fully contained
-            const drainRate = absorbSpeed * 0.2; // 1.6% to 20% per frame
-            const transfer = smol.mass * drainRate;
-            if (transfer > 0.01) {
-              big.mass += transfer * absorbRate;
-              smol.mass -= transfer;
-              
-              if (big.isPlayer && big.vampireLevel > 0) {
-                big.mass += transfer * big.vampireLevel * 0.1;
-              }
-              
-              // Momentum transfer
-              if (big.mass > 0.001) {
-                const rat = Math.min(1, transfer / big.mass);
-                big.vx = big.vx * (1 - rat) + smol.vx * rat;
-                big.vy = big.vy * (1 - rat) + smol.vy * rat;
-              }
-              
-              if (smol.mass < 1) smol.alive = false;
-            }
-          }
-        } else {
-          // Partial overlap - gradual drain based on overlap and mass ratio
-          const overlapRatio = (minDist - centerDist) / smol.radius;
-          if (overlapRatio > 0.05) { // Lower threshold for contact
-            // Drain rate depends on: overlap amount AND mass ratio
-            const drainRate = absorbSpeed * 0.15 * Math.min(1, overlapRatio);
-            const transfer = smol.mass * drainRate;
-            if (transfer > 0.01) {
-              big.mass += transfer * 0.9;
-              smol.mass -= transfer;
-              if (smol.mass < 1) smol.alive = false;
-            }
-          }
-        }
-      }
-    }
-  }
-  
-  // Particle collisions with swap-and-pop
-  let writeIdx = 0;
-  for (let i = 0; i < particles.length; i++) {
-    const p = particles[i];
-    if (!p || p.life <= 0) continue;
-    
-    const gIdx = getGridIndex(p.x, p.y);
-    if (gIdx < 0 || gIdx >= gridLen) {
-      particles[writeIdx++] = p;
-      continue;
-    }
-    
-    const nearby = grid[gIdx];
-    let absorbed = false;
-    
-    if (nearby && nearby.length > 0) {
-      const checkLimit = Math.min(nearby.length, 15);
-      for (let k = 0; k < checkLimit; k++) {
-        const idx = nearby[k];
-        const c = cells[idx];
-        if (!c || !c.alive || c.mass <= 0) continue;
-        
-        const dx = c.x - p.x;
-        const dy = c.y - p.y;
-        const r = c.radius * 0.7;
-        if (dx * dx + dy * dy < r * r) {
-          let val = p.mass * 0.5;
-          if (val > 0 && p.owner && p.owner.vampireLevel > 0) {
-            val *= 1.15;
-          }
-          c.mass += val;
-          absorbed = true;
-          break;
-        }
-      }
-    }
-    
-    if (!absorbed) {
-      particles[writeIdx++] = p;
-    }
-  }
-  particles.length = writeIdx;
-}
-
-// Particle pool for better performance
-const PARTICLE_POOL_SIZE = 1500;
-let particlePool = [];
-let particlePoolIndex = 0;
-let particleGeneration = 0; // Global generation counter
-
-function initParticlePool() {
-  particlePool = new Array(PARTICLE_POOL_SIZE);
-  for (let i = 0; i < PARTICLE_POOL_SIZE; i++) {
-    particlePool[i] = { x: 0, y: 0, vx: 0, vy: 0, mass: 0, radius: 0, life: 0, rgb: null, owner: null, _gen: 0 };
-  }
-  particlePoolIndex = 0;
-}
-
-function getParticle() {
-  particleGeneration++;
-  const p = particlePool[particlePoolIndex];
-  particlePoolIndex = (particlePoolIndex + 1) % PARTICLE_POOL_SIZE;
-  p._gen = particleGeneration;
-  // Reset all properties to avoid stale data
-  p.life = 0;
-  p.owner = null;
-  return p;
-}
-
-function updateParticles(dt){
-  const dtSafe = Math.max(0, Math.min(dt, 0.1)); // Clamp dt
-  let writeIdx = 0;
-  for (let i = 0; i < particles.length; i++) {
-    const p = particles[i];
-    if (!p) continue;
-    
-    p.x += p.vx * dtSafe;
-    p.y += p.vy * dtSafe;
-    p.vx *= 0.97;
-    p.vy *= 0.97;
-    p.life -= dtSafe * 0.35;
-    
-    if (p.life > 0 && isFinite(p.x) && isFinite(p.y)) {
-      particles[writeIdx++] = p;
-    }
-  }
-  particles.length = writeIdx;
-}
-
-function updateCamera(dt){
-  if(!player||!player.alive)return;
-  
-  // Validate player position and velocity
-  if (!isFinite(player.x) || !isFinite(player.y)) {
-    player.x = 0; player.y = 0;
-  }
-  if (!isFinite(player.vx) || !isFinite(player.vy)) {
-    player.vx = 0; player.vy = 0;
-  }
-  
-  // Position smoothing with velocity prediction (feels more responsive)
-  const posSmooth = 1 - Math.pow(0.02, Math.max(0.001, dt));
-  const velFactor = 0.15; // Look ahead based on velocity
-  const targetX = player.x + player.vx * velFactor;
-  const targetY = player.y + player.vy * velFactor;
-  
-  camera.x += (targetX - camera.x) * posSmooth;
-  camera.y += (targetY - camera.y) * posSmooth;
-  
-  // Zoom based on player size with smooth transition
-  const radius = Math.max(1, player.radius);
-  let az = Math.max(0.12, Math.min(1.5, 40 / radius));
-  if (player.zoomMult && isFinite(player.zoomMult)) az *= player.zoomMult;
-  
-  camera.targetZoom = Math.max(0.04, Math.min(4, az * manualZoom));
-  const zoomSmooth = 1 - Math.pow(0.03, Math.max(0.001, dt));
-  camera.zoom += (camera.targetZoom - camera.zoom) * zoomSmooth;
-  
-  // Validate camera
-  if (!isFinite(camera.x)) camera.x = 0;
-  if (!isFinite(camera.y)) camera.y = 0;
-  if (!isFinite(camera.zoom) || camera.zoom <= 0) camera.zoom = 0.1;
-}
-
-const levelDisplay = document.getElementById('levelDisplay');
-
-function updateUI(){
-  if(!player)return;
-  massDisplay.textContent='质量: '+Math.floor(player.mass);
-  // Show endless mode indicator after max wave
-  if (currentWave > MAX_WAVE) {
-    levelDisplay.textContent='阶段 ∞ (无尽)';
-  } else {
-    levelDisplay.textContent='阶段 '+currentWave+'/'+MAX_WAVE;
-  }
-  const alive=cells.filter(c=>c.alive);
-  alive.sort((a,b)=>b.mass-a.mass);
-  const rank = alive.indexOf(player) + 1;
-  rankDisplay.textContent='排名: '+rank+'/'+alive.length;
-  
-  // Update velocity display with safety checks
-  const speed = Math.sqrt(player.vx*player.vx + player.vy*player.vy);
-  const maxSpeed = 200; // Reference max speed for bar
-  const speedPercent = Math.min(100, Math.max(0, (speed / maxSpeed) * 100));
-  
-  const speedValueEl = document.getElementById('speedValue');
-  const speedFillEl = document.getElementById('speedFill');
-  const arrowSvg = document.querySelector('#velocityArrow svg');
-  
-  if (speedValueEl) speedValueEl.textContent = isFinite(speed) ? speed.toFixed(1) : '0.0';
-  if (speedFillEl) speedFillEl.style.width = speedPercent + '%';
-  
-  // Update direction arrow
-  if (speed > 1 && arrowSvg) {
-    const angle = Math.atan2(player.vy, player.vx) * (180 / Math.PI) + 90;
-    if (isFinite(angle)) {
-      arrowSvg.style.transform = `rotate(${angle}deg)`;
-    }
-  }
-}
-
-let endlessChoicePending = false;
-
-function checkWinLose(){
-  if(!player.alive){ gameOver=true;gameWon=false;showOverlay('你被吞噬了！',false);return; }
-  // Check wave clear: all remaining NPCs smaller than player
-  const alive=cells.filter(c=>c.alive&&!c.isPlayer);
-  const dominantCount=alive.filter(c=>c.mass>=player.effectiveMass*.5).length;
-  if(alive.length>0 && dominantCount===0){
-    // Wave cleared!
-    if(currentWave>=MAX_WAVE && !endlessChoicePending){
-      // Show choice modal instead of auto-continuing
-      showEndlessChoice();
-      return;
-    }
-    if (currentWave >= MAX_WAVE && endlessChoicePending) {
-      // User chose to continue - endless mode
-      endlessChoicePending = false;
-      waveMsg='⚠ 无尽模式 — 更强的敌人出现！';
-      waveMsgTimer=4;
-      const endlessCfg = {
-        count: 70,
-        dist: [0.05, 0.15, 0.35, 0.6],
-        mRange: [200 + currentWave * 50, 500 + currentWave * 100, 1500 + currentWave * 300, 3500 + currentWave * 500, 6000 + currentWave * 1000],
-        mult: 2.3 + (currentWave - MAX_WAVE) * 0.3,
-        aiCd: 0.4
-      };
-      currentWave++;
-      spawnWaveCells(endlessCfg);
-      return;
-    }
-    // Next wave
-    currentWave++;
-    const cfg=WAVE_CFG[currentWave-1];
-    waveMsg='⚠ 阶段 '+currentWave+' — 新的威胁出现！';
-    waveMsgTimer=3;
-    spawnWaveCells(cfg);
-  }
-}
-
-function checkAndSpawnComebackResources(dt){
-  if(!player||!player.alive)return;
-  comebackTimer-=dt;
-  if(comebackTimer>0)return;
-  
-  // Check if player is struggling: low mass and many larger threats
-  const alive=cells.filter(c=>c.alive&&!c.isPlayer);
-  const largerCells=alive.filter(c=>c.mass>player.effectiveMass*1.2);
-  const eatableCells=alive.filter(c=>c.mass<player.effectiveMass*0.8);
-  
-  // Spawn comeback resources if: player is small AND few eatable cells nearby AND many threats
-  if(player.effectiveMass<200 && eatableCells.length<8 && largerCells.length>5){
-    comebackTimer=5; // Wait 5 seconds before next check if triggered
-    // Spawn 8-13 small resources near player
-    const spawnCount=8+Math.floor(Math.random()*6);
-    for(let i=0;i<spawnCount;i++){
-      const a=Math.random()*Math.PI*2;
-      const d=100+Math.random()*250; // Spawn close to player
-      const mass=5+Math.random()*15; // Small mass 5-20
-      const c=new Cell(player.x+Math.cos(a)*d,player.y+Math.sin(a)*d,mass);
-      c.vx=(Math.random()-.5)*20;
-      c.vy=(Math.random()-.5)*20;
-      cells.push(c);
-    }
-  }else{
-    comebackTimer=3; // Check more frequently if not triggered
-  }
-}
-
-function spawnSuperSmallParticles(dt){
-  if(!player||!player.alive)return;
-  particleSpawnTimer-=dt;
-  if(particleSpawnTimer>0)return;
-  
-  // Spawn super small particles at regular intervals
-  particleSpawnTimer=PARTICLE_SPAWN_INTERVAL;
-  const countRange=PARTICLE_SPAWN_COUNT_MAX-PARTICLE_SPAWN_COUNT_MIN+1;
-  const spawnCount=PARTICLE_SPAWN_COUNT_MIN+Math.floor(Math.random()*countRange);
-  
-  for(let i=0;i<spawnCount;i++){
-    const a=Math.random()*Math.PI*2;
-    // Spawn within visible range around player but not too close
-    const minDist=massToRadius(player.effectiveMass)*4+PARTICLE_MIN_SPAWN_OFFSET;
-    const maxDist=minDist+PARTICLE_MAX_SPAWN_RANGE;
-    const d=minDist+Math.random()*(maxDist-minDist);
-    const mass=PARTICLE_MIN_MASS+Math.random()*PARTICLE_MASS_RANGE;
-    const c=new Cell(player.x+Math.cos(a)*d,player.y+Math.sin(a)*d,mass);
-    // Give them slight random movement
-    c.vx=(Math.random()-.5)*PARTICLE_VELOCITY_RANGE;
-    c.vy=(Math.random()-.5)*PARTICLE_VELOCITY_RANGE;
-    cells.push(c);
-  }
-}
-
-function showOverlay(msg,won){
-  overlay.classList.remove('hidden');
-  overlay.querySelector('h1').textContent=msg;
-  overlay.querySelector('p').textContent=won?'你通过了全部 '+MAX_WAVE+' 个阶段！':'你的细胞已被吸收...';
-  overlay.querySelectorAll('p')[1].textContent=won?'最终质量: '+Math.floor(player.mass):'';
-  overlay.querySelectorAll('p')[2].textContent='';
-  overlay.querySelector('.sub').textContent='';
-  startBtn.textContent='再来一局';
-}
-
-// ═══════════════════════════════════════════════════
-//  WebGL Render
-// ═══════════════════════════════════════════════════
-function buildInstances(){
-  let idx=0, cnt=0;
-  function push(x,y,r,cr,cg,cb,ca,t){
-    if(cnt>=MAX_INST)return;
-    if (!isFinite(x) || !isFinite(y) || !isFinite(r)) return;
-    if (r <= 0) return;
-    instArr[idx++]=x;instArr[idx++]=y;instArr[idx++]=r;
-    instArr[idx++]=cr;instArr[idx++]=cg;instArr[idx++]=cb;instArr[idx++]=ca;
-    instArr[idx++]=t; cnt++;
-  }
-
-  const alive=cells.filter(c=>c.alive && c.mass > 0 && isFinite(c.x) && isFinite(c.y));
-  alive.sort((a,b)=>b.mass-a.mass); // big first → small on top
-
-  // 1. Glows (outer glow layer)
-  for(const c of alive){
-    const r=c.radius*(1+Math.sin(c.pulse)*.02);
-    let rr,gg,bb,alpha;
-    
-    if(c.isPlayer){
-      // Player gets bright cyan-blue glow
-      rr=0.3; gg=0.7; bb=1.0;
-      alpha=0.95;
-      // Extra outer glow for player (subtle)
-      push(c.x,c.y,r*1.15, rr*0.4,gg*0.4,bb*0.4, 0.25, 1);
-    }else if(player&&player.alive){
-      // Enemy cells: color based on whether player can eat them (use effective mass)
-      const playerMass = player.effectiveMass;
-      const massRatio = c.mass / playerMass;
-      if(c.mass<playerMass*.95){
-        // Eatable - green glow
-        const intensity = Math.max(0.2, Math.min(1, 1 - massRatio * 0.9));
-        rr=0.1; gg=intensity; bb=0.2;
-        alpha=0.7;
-      }
-      else if(c.mass>playerMass*1.05){
-        // Dangerous - red glow
-        const intensity = Math.max(0.3, Math.min(1, (massRatio - 1) * 0.6));
-        rr=intensity; gg=0.1; bb=0.1;
-        alpha=0.75;
-      }
-      else{
-        // Similar size - yellow glow
-        rr=0.9; gg=0.8; bb=0.2;
-        alpha=0.6;
-      }
-    }else{
-      // No player or player dead, use original color muted
-      rr=c.rgb[0]*0.7; gg=c.rgb[1]*0.7; bb=c.rgb[2]*0.7;
-      alpha=0.5;
-    }
-    push(c.x,c.y,r, rr,gg,bb, alpha, 1);
-  }
-
-  // 2. Ring indicators
-  if(player&&player.alive){
-    const playerMass = player.effectiveMass;
-    for(const c of alive){
-      if(c===player)continue;
-      if(c.radius<3)continue;
-      let rr,gg,bb;
-      const massRatio = c.mass / playerMass;
-      if(c.mass<playerMass*.95){
-        // Eatable - green color with intensity based on size difference
-        const intensity = Math.max(0.15, Math.min(1, 1 - massRatio * 0.95));
-        rr=0; gg=intensity; bb=0;
-      }
-      else if(c.mass>playerMass*1.05){
-        // Dangerous - red color with intensity based on size difference
-        const intensity = Math.max(0.2, Math.min(1, (massRatio - 1) * 0.65));
-        rr=intensity; gg=0; bb=0;
-      }
-      else{rr=1;gg=1;bb=.4;}
-      push(c.x,c.y,c.radius, rr,gg,bb,.25, 2);
-    }
-  }
-
-  // 3. Particles with enhanced glow
-  for(const p of particles){
-    const life = p.life;
-    if (life <= 0) continue;
-    const r = p.radius * life;
-    if (r < 0.5) continue;
-    
-    // Multi-layer glow for particles
-    push(p.x, p.y, r * 3.0, p.rgb[0], p.rgb[1], p.rgb[2], life * 0.1, 3);
-    push(p.x, p.y, r * 1.5, p.rgb[0], p.rgb[1], p.rgb[2], life * 0.3, 3);
-    push(p.x, p.y, r * 0.6, p.rgb[0] * 1.2, p.rgb[1] * 1.2, p.rgb[2] * 1.2, life * 0.8, 3);
-  }
-
-  // 4. Bodies (on top)
-  const time = performance.now() / 1000;
-  for(const c of alive){
-    const pulse = Math.sin(c.pulse + time * 2) * 0.02;
-    const r=c.radius*(1+pulse);
-    let rr,gg,bb,alpha;
-    
-    if(c.isPlayer){
-      // Player - bright cyan with slight pulse
-      rr=0.4; gg=0.75; bb=1.0;
-      alpha=0.95;
-    }else if(player&&player.alive){
-      // Enemy cells: color based on whether player can eat them (use effective mass)
-      const playerMass = player.effectiveMass;
-      const massRatio = c.mass / playerMass;
-      if(c.mass<playerMass*.95){
-        // Eatable - vibrant green
-        const intensity = Math.max(0.25, Math.min(1, 1 - massRatio * 0.9));
-        rr=0.1; gg=intensity; bb=0.25;
-        alpha=0.9;
-      }
-      else if(c.mass>playerMass*1.05){
-        // Dangerous - vibrant red
-        const intensity = Math.max(0.35, Math.min(1, (massRatio - 1) * 0.55));
-        rr=intensity; gg=0.15; bb=0.15;
-        alpha=0.9;
-      }
-      else{
-        // Similar size - bright yellow
-        rr=1.0; gg=0.9; bb=0.2;
-        alpha=0.85;
-      }
-    }else{
-      // No player or player dead, use original color
-      rr=c.rgb[0]; gg=c.rgb[1]; bb=c.rgb[2];
-      alpha=0.82;
-    }
-    push(c.x,c.y,r, rr,gg,bb, alpha, 0);
-  }
-
-  return cnt;
-}
-
-function drawCursor(){
-  olCtx.clearRect(0,0,W,H);
-  if(!gameRunning||gameOver||!player||!player.alive)return;
-  if(!isFinite(camera.zoom) || camera.zoom <= 0) return;
-
-  const dx=(mouseX-W/2)/camera.zoom+camera.x-player.x;
-  const dy=(mouseY-H/2)/camera.zoom+camera.y-player.y;
-  const d=Math.sqrt(dx*dx+dy*dy);
-  if (d < 0.001) return;
-  
-  const nx=dx/d;
-  const ny=dy/d;
-  const pr=player.radius;
-
-  // Enhanced trajectory hint with gradient
-  const x1=W/2+(player.x-nx*pr*1.2-camera.x)*camera.zoom;
-  const y1=H/2+(player.y-ny*pr*1.2-camera.y)*camera.zoom;
-  const x2=W/2+(player.x-nx*pr*4-camera.x)*camera.zoom;
-  const y2=H/2+(player.y-ny*pr*4-camera.y)*camera.zoom;
-  
-  if (isFinite(x1) && isFinite(y1) && isFinite(x2) && isFinite(y2)) {
-    // Create gradient for trajectory
-    const grad = olCtx.createLinearGradient(x1, y1, x2, y2);
-    grad.addColorStop(0, 'rgba(100,200,255,0.4)');
-    grad.addColorStop(1, 'rgba(100,200,255,0.0)');
-    
-    olCtx.strokeStyle=grad;
-    olCtx.lineWidth=3;
-    olCtx.lineCap='round';
-    olCtx.beginPath();
-    olCtx.moveTo(x1,y1);
-    olCtx.lineTo(x2,y2);
-    olCtx.stroke();
-    
-    // Arrow head
-    const arrowSize = 10;
-    const angle = Math.atan2(y2-y1, x2-x1);
-    olCtx.fillStyle='rgba(100,200,255,0.5)';
-    olCtx.beginPath();
-    olCtx.moveTo(x2, y2);
-    olCtx.lineTo(x2 - arrowSize * Math.cos(angle - 0.5), y2 - arrowSize * Math.sin(angle - 0.5));
-    olCtx.lineTo(x2 - arrowSize * Math.cos(angle + 0.5), y2 - arrowSize * Math.sin(angle + 0.5));
-    olCtx.closePath();
-    olCtx.fill();
-  }
-
-  // Enhanced crosshair with glow
-  const glowSize = 20;
-  const gradient = olCtx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, glowSize);
-  gradient.addColorStop(0, 'rgba(100,200,255,0.2)');
-  gradient.addColorStop(1, 'rgba(100,200,255,0)');
-  olCtx.fillStyle = gradient;
-  olCtx.beginPath();
-  olCtx.arc(mouseX, mouseY, glowSize, 0, Math.PI*2);
-  olCtx.fill();
-  
-  // Crosshair lines
-  olCtx.strokeStyle='rgba(150,220,255,0.6)';
-  olCtx.lineWidth=1.5;
-  olCtx.lineCap='round';
-  const s=12;
-  olCtx.beginPath();
-  olCtx.moveTo(mouseX-s,mouseY);olCtx.lineTo(mouseX+s,mouseY);
-  olCtx.moveTo(mouseX,mouseY-s);olCtx.lineTo(mouseX,mouseY+s);
-  olCtx.stroke();
-  
-  // Center dot
-  olCtx.fillStyle='rgba(150,220,255,0.8)';
-  olCtx.beginPath();
-  olCtx.arc(mouseX,mouseY,3,0,Math.PI*2);
-  olCtx.fill();
-  
-  // Outer ring
-  olCtx.strokeStyle='rgba(150,220,255,0.3)';
-  olCtx.lineWidth=1;
-  olCtx.beginPath();
-  olCtx.arc(mouseX,mouseY,8,0,Math.PI*2);
-  olCtx.stroke();
-}
-
-// ═══════════════════════════════════════════════════
-//  Main Loop
-// ═══════════════════════════════════════════════════
-let lastTime=0;
-function loop(time){
-  requestAnimationFrame(loop);
-  const rawDt=Math.min((time-lastTime)/1000,.05);
-  lastTime=time;
-  const dt=(gameRunning&&!gameOver)?rawDt*timeScale:0;
-
-  if(gameRunning&&!gameOver){
-    ejectCooldown=Math.max(0,ejectCooldown-rawDt);
-    
-    // Throttle AI updates for performance
-    aiUpdateAccumulator += rawDt;
-    const shouldUpdateAI = aiUpdateAccumulator >= AI_UPDATE_INTERVAL;
-    if (shouldUpdateAI) aiUpdateAccumulator -= AI_UPDATE_INTERVAL;
-    
-    for(const c of cells){ 
-      if(c.alive){ 
-        c.update(dt); 
-        if(shouldUpdateAI) c.aiUpdate(AI_UPDATE_INTERVAL, cells);
-      } 
-    }
-    
-    updateParticles(dt);
-    checkCollisions();
-    updateCamera(rawDt);
-    updateUI();
-    updateZoomLabel();
-    checkWinLose();
-    checkAndSpawnComebackResources(rawDt);
-    spawnSuperSmallParticles(rawDt);
-    updateRogueTimer(rawDt);
-    if(waveMsgTimer>0) waveMsgTimer-=rawDt;
-  }
-
-  // ── WebGL draw ──
-  gl.disable(gl.DEPTH_TEST);
-  gl.enable(gl.BLEND);
-  gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
-
-  // background
-  gl.useProgram(bgProg);
-  gl.uniform2f(bgU.res,W,H);
-  gl.uniform2f(bgU.cam,camera.x,camera.y);
-  gl.uniform1f(bgU.zoom,camera.zoom);
-  gl.uniform1f(bgU.worldR,WORLD_R);
-  gl.uniform1f(bgU.time,performance.now()/1000);
-  gl.bindVertexArray(bgVAO);
-  gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
-
-  // circles
-  const n=buildInstances();
-  if(n>0){
-    gl.useProgram(circProg);
-    gl.uniform2f(cU.res,W,H);
-    gl.uniform2f(cU.cam,camera.x,camera.y);
-    gl.uniform1f(cU.zoom,camera.zoom);
-    gl.bindVertexArray(cVAO);
-    gl.bindBuffer(gl.ARRAY_BUFFER,iB);
-    gl.bufferSubData(gl.ARRAY_BUFFER,0,instArr,0,n*FLOATS);
-    gl.drawArraysInstanced(gl.TRIANGLES,0,6,n);
-  }
-
-  drawCursor();
-
-  // Wave message overlay
-  if(waveMsgTimer>0){
-    const a=Math.min(1,waveMsgTimer);
-    olCtx.save();
-    olCtx.font='bold 28px Helvetica Neue';
-    olCtx.textAlign='center';
-    olCtx.fillStyle='rgba(255,200,80,'+a+')';
-    olCtx.fillText(waveMsg,W/2,H*0.18);
-    olCtx.restore();
-  }
-}
-
-// ═══════════════════════════════════════════════════
-//  Input (Mouse + Touch)
-// ═══════════════════════════════════════════════════
-const isTouchDevice = 'ontouchstart' in window;
-
-function onMove(e){ mouseX=e.clientX; mouseY=e.clientY; }
-canvas.addEventListener('mousemove',onMove);
-olCanvas.addEventListener('mousemove',onMove);
-
-function onDown(e){
-  if(!gameRunning||gameOver||!player||!player.alive||timeScale===0)return;
-  
-  // Calculate world position of click
-  const targetX = (e.clientX - W/2) / camera.zoom + camera.x;
-  const targetY = (e.clientY - H/2) / camera.zoom + camera.y;
-  
-  // Calculate distance from player to click
-  const dx = targetX - player.x;
-  const dy = targetY - player.y;
-  const distance = Math.sqrt(dx*dx + dy*dy);
-  
-  // Normalize distance: 0-100 = low, 100-400 = medium, 400+ = high
-  // This creates distanceFactor from 0 to 1
-  const referenceRadius = Math.max(50, player.radius * 2);
-  const distanceFactor = Math.min(1, Math.max(0, (distance - referenceRadius * 0.5) / (referenceRadius * 4)));
-  
-  player.ejectMass(targetX, targetY, distanceFactor);
-}
-canvas.addEventListener('mousedown',onDown);
-olCanvas.addEventListener('mousedown',onDown);
-
-let mouseDown=false;
-function md(){mouseDown=true}function mu(){mouseDown=false}
-canvas.addEventListener('mousedown',md); olCanvas.addEventListener('mousedown',md);
-canvas.addEventListener('mouseup',mu); olCanvas.addEventListener('mouseup',mu);
-canvas.addEventListener('mouseleave',mu); olCanvas.addEventListener('mouseleave',mu);
-
-// ─── Touch support ───
-let lastPinchDist=0;
-let touchCount=0;
-
-function getTouchXY(e){
-  const t=e.touches[0];
-  return {x:t.clientX, y:t.clientY};
-}
-
-function handleTouchStart(e){
+// Touch
+let lastPinchDist = 0, touchCount = 0;
+function handleTouchStart(e) {
   e.preventDefault();
-  touchCount=e.touches.length;
-  if(e.touches.length===2){
-    // Pinch start
-    const dx=e.touches[0].clientX-e.touches[1].clientX;
-    const dy=e.touches[0].clientY-e.touches[1].clientY;
-    lastPinchDist=Math.sqrt(dx*dx+dy*dy);
-    mouseDown=false;
-    return;
+  touchCount = e.touches.length;
+  if (e.touches.length === 2) {
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    lastPinchDist = Math.sqrt(dx*dx+dy*dy); mouseDown = false; return;
   }
-  const {x,y}=getTouchXY(e);
-  mouseX=x; mouseY=y;
-  mouseDown=true;
-  if(gameRunning&&!gameOver&&player&&player.alive&&timeScale>0){
-    const targetX = (x - W/2) / camera.zoom + camera.x;
-    const targetY = (y - H/2) / camera.zoom + camera.y;
-    
-    const dx = targetX - player.x;
-    const dy = targetY - player.y;
-    const distance = Math.sqrt(dx*dx + dy*dy);
-    const referenceRadius = Math.max(50, player.radius * 2);
-    const distanceFactor = Math.min(1, Math.max(0, (distance - referenceRadius * 0.5) / (referenceRadius * 4)));
-    
-    player.ejectMass(targetX, targetY, distanceFactor);
+  const t = e.touches[0];
+  mouseX = t.clientX; mouseY = t.clientY; mouseDown = true;
+  if (gameRunning && !gameOver && player && player.alive && timeScale > 0) {
+    const { tx, ty, df } = calcEjectParams(t.clientX, t.clientY);
+    player.ejectMass(tx, ty, df);
   }
 }
-
-function handleTouchMove(e){
+function handleTouchMove(e) {
   e.preventDefault();
-  if(e.touches.length===2){
-    // Pinch zoom
-    const dx=e.touches[0].clientX-e.touches[1].clientX;
-    const dy=e.touches[0].clientY-e.touches[1].clientY;
-    const dist=Math.sqrt(dx*dx+dy*dy);
-    if(lastPinchDist>0){
-      const scale=dist/lastPinchDist;
-      manualZoom=Math.max(.08,Math.min(5,manualZoom*scale));
-    }
-    lastPinchDist=dist;
-    return;
+  if (e.touches.length === 2) {
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    const dist = Math.sqrt(dx*dx+dy*dy);
+    if (lastPinchDist > 0) manualZoom = Math.max(0.08, Math.min(5, manualZoom * dist/lastPinchDist));
+    lastPinchDist = dist; return;
   }
-  const {x,y}=getTouchXY(e);
-  mouseX=x; mouseY=y;
+  mouseX = e.touches[0].clientX; mouseY = e.touches[0].clientY;
 }
-
-function handleTouchEnd(e){
+function handleTouchEnd(e) {
   e.preventDefault();
-  touchCount=e.touches.length;
-  if(e.touches.length<2) lastPinchDist=0;
-  if(e.touches.length===0) mouseDown=false;
+  touchCount = e.touches.length;
+  if (e.touches.length < 2) lastPinchDist = 0;
+  if (e.touches.length === 0) mouseDown = false;
 }
-
-canvas.addEventListener('touchstart',handleTouchStart,{passive:false});
-canvas.addEventListener('touchmove',handleTouchMove,{passive:false});
-canvas.addEventListener('touchend',handleTouchEnd,{passive:false});
-canvas.addEventListener('touchcancel',handleTouchEnd,{passive:false});
-olCanvas.addEventListener('touchstart',handleTouchStart,{passive:false});
-olCanvas.addEventListener('touchmove',handleTouchMove,{passive:false});
-olCanvas.addEventListener('touchend',handleTouchEnd,{passive:false});
-olCanvas.addEventListener('touchcancel',handleTouchEnd,{passive:false});
-
-setInterval(()=>{
-  if(mouseDown&&touchCount<=1&&gameRunning&&!gameOver&&player&&player.alive&&timeScale>0){
-    const targetX = (mouseX - W/2) / camera.zoom + camera.x;
-    const targetY = (mouseY - H/2) / camera.zoom + camera.y;
-    
-    const dx = targetX - player.x;
-    const dy = targetY - player.y;
-    const distance = Math.sqrt(dx*dx + dy*dy);
-    const referenceRadius = Math.max(50, player.radius * 2);
-    const distanceFactor = Math.min(1, Math.max(0, (distance - referenceRadius * 0.5) / (referenceRadius * 4)));
-    
-    player.ejectMass(targetX, targetY, distanceFactor);
-  }
-},80);
-
-document.addEventListener('wheel',e=>{
-  e.preventDefault();
-  manualZoom=Math.max(.08,Math.min(5,manualZoom*(e.deltaY>0?.85:1.18)));
-},{passive:false});
-
-document.addEventListener('keydown',e=>{
-  if(e.key==='r'||e.key==='R')startGame();
-  if(e.key===' '){ e.preventDefault(); timeScale===0?setSpeed(2):setSpeed(1); }
+[canvas, olCanvas].forEach(el => {
+  el.addEventListener('touchstart', handleTouchStart, {passive:false});
+  el.addEventListener('touchmove',  handleTouchMove,  {passive:false});
+  el.addEventListener('touchend',   handleTouchEnd,   {passive:false});
+  el.addEventListener('touchcancel',handleTouchEnd,   {passive:false});
 });
 
-function startGame(){
-  gameOver=false; gameRunning=true;
+setInterval(() => {
+  if (mouseDown && touchCount <= 1 && gameRunning && !gameOver && player && player.alive && timeScale > 0) {
+    const { tx, ty, df } = calcEjectParams(mouseX, mouseY);
+    player.ejectMass(tx, ty, df);
+  }
+}, 80);
+
+document.addEventListener('wheel', e => {
+  e.preventDefault();
+  manualZoom = Math.max(0.08, Math.min(5, manualZoom * (e.deltaY > 0 ? 0.85 : 1.18)));
+}, {passive:false});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'r' || e.key === 'R') startGame();
+  if (e.key === ' ') { e.preventDefault(); timeScale === 0 ? setSpeed(2) : setSpeed(1); }
+});
+
+function startGame() {
+  gameOver = false; gameRunning = true;
   overlay.classList.add('hidden');
-  setSpeed(2); manualZoom=1;
+  setSpeed(2); manualZoom = 1;
   spawnCells();
-  camera.x=player.x; camera.y=player.y;
-  camera.zoom=1; camera.targetZoom=1;
+  camera.x = player.x; camera.y = player.y;
+  camera.zoom = 1; camera.targetZoom = 1;
 }
+startBtn.addEventListener('click', startGame);
 
-startBtn.addEventListener('click',startGame);
+// ═══════════════════════════════════════════════════════════
+//  § 17. Initialization (async for WebGPU)
+// ═══════════════════════════════════════════════════════════
+async function init() {
+  initSpatialGrid();
+  initParticlePool();
 
-// Init
-spawnCells();
-camera.zoom=.3; camera.targetZoom=.3;
-requestAnimationFrame(loop);
+  // Try WebGPU first, fall back to WebGL2
+  renderer = await createWebGPURenderer();
+  if (!renderer) {
+    renderer = createWebGL2Renderer();
+    if (!renderer) { alert('Neither WebGPU nor WebGL2 is supported'); return; }
+  }
+
+  rendererBadge.textContent = renderer.type;
+  resize();
+  window.addEventListener('resize', resize);
+
+  spawnCells();
+  camera.zoom = 0.3; camera.targetZoom = 0.3;
+  mouseX = W / 2; mouseY = H / 2;
+  requestAnimationFrame(loop);
+}
+init();
 </script>
 </body>
 </html>
