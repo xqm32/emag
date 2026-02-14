@@ -373,7 +373,7 @@ out vec2 uv;
 flat out vec4 col;
 flat out float typ;
 void main(){
-  float sc = iT==1.?2.0 : iT==2.?1.25 : 1.;
+  float sc = iT==1.?1.35 : iT==2.?1.15 : 1.;
   float r = iR*sc;
   vec2 wp = iP + aQ*r;
   vec2 sp = (wp-cam)*zoom;
@@ -415,13 +415,13 @@ void main(){
     o = vec4(litColor, col.a * edge);
     
   } else if(typ == 1.0){
-    // Outer glow
+    // Outer glow - tighter and softer
     if(d >= 1.0) discard;
-    float nd = d / 2.0;
-    float g = exp(-nd * nd * 2.5) * 0.5;
+    float nd = d / 1.0;
+    float g = exp(-nd * nd * 3.5) * 0.6;
     // Color intensity falloff
-    vec3 glowCol = col.rgb * (1.0 + 0.5 * (1.0 - d));
-    o = vec4(glowCol, g * col.a);
+    vec3 glowCol = col.rgb * (1.0 + 0.3 * (1.0 - d));
+    o = vec4(glowCol, g * col.a * 0.7);
     
   } else if(typ == 2.0){
     // Status ring (eatable/dangerous indicator)
@@ -1588,8 +1588,8 @@ function buildInstances(){
       // Player gets bright cyan-blue glow
       rr=0.3; gg=0.7; bb=1.0;
       alpha=0.95;
-      // Extra strong outer glow for player
-      push(c.x,c.y,r*1.5, rr*0.5,gg*0.5,bb*0.5, 0.4, 1);
+      // Extra outer glow for player (subtle)
+      push(c.x,c.y,r*1.15, rr*0.4,gg*0.4,bb*0.4, 0.25, 1);
     }else if(player&&player.alive){
       // Enemy cells: color based on whether player can eat them (use effective mass)
       const playerMass = player.effectiveMass;
