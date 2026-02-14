@@ -820,8 +820,9 @@ function spawnWaveCells(cfg){
 const GRID_SIZE = 150; // Size of each grid cell
 
 function getGridKey(x, y) {
-  const gx = Math.floor(x / GRID_SIZE);
-  const gy = Math.floor(y / GRID_SIZE);
+  // Handle negative coordinates correctly
+  const gx = Math.floor((x + WORLD_R) / GRID_SIZE);
+  const gy = Math.floor((y + WORLD_R) / GRID_SIZE);
   return `${gx},${gy}`;
 }
 
@@ -831,10 +832,10 @@ function buildSpatialGrid() {
     const c = cells[i];
     if (!c.alive) continue;
     // Add to all grids that this cell could overlap with
-    const minGx = Math.floor((c.x - c.radius) / GRID_SIZE);
-    const maxGx = Math.floor((c.x + c.radius) / GRID_SIZE);
-    const minGy = Math.floor((c.y - c.radius) / GRID_SIZE);
-    const maxGy = Math.floor((c.y + c.radius) / GRID_SIZE);
+    const minGx = Math.floor((c.x - c.radius + WORLD_R) / GRID_SIZE);
+    const maxGx = Math.floor((c.x + c.radius + WORLD_R) / GRID_SIZE);
+    const minGy = Math.floor((c.y - c.radius + WORLD_R) / GRID_SIZE);
+    const maxGy = Math.floor((c.y + c.radius + WORLD_R) / GRID_SIZE);
     
     for (let gx = minGx; gx <= maxGx; gx++) {
       for (let gy = minGy; gy <= maxGy; gy++) {
@@ -900,10 +901,11 @@ function checkCollisions(){
           big.vx = big.vx * (1 - rat) + smol.vx * rat;
           big.vy = big.vy * (1 - rat) + smol.vy * rat;
           smol.alive = false;
-        } else if (overlap > 0.3) {
+        } else if (overlap > 0.2) {
           // Partial overlap - gradual drain (Osmos style)
-          const drainRate = 0.03; // 3% per frame
-          const transfer = smol.mass * drainRate;
+          // Transfer rate proportional to contact area
+          const drainRate = overlap * 0.5; // Up to 50% per second at full overlap
+          const transfer = smol.mass * drainRate * 0.016; // Assume ~60fps
           big.mass += transfer * 0.9;
           smol.mass -= transfer;
           if (smol.mass < 1) smol.alive = false;
