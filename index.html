@@ -78,6 +78,45 @@ canvas { display: block; }
 .rogue-card .rarity-common { border-color: rgba(150,150,150,0.4); }
 .rogue-card .rarity-rare { border-color: rgba(100,150,255,0.4); }
 .rogue-card .rarity-epic { border-color: rgba(180,100,255,0.4); }
+
+#endlessModal {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 150; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+#endlessModal.show { opacity: 1; pointer-events: auto; }
+#endlessModal h2 {
+  color: #fff; font-family: 'Helvetica Neue', sans-serif; font-size: 36px;
+  font-weight: 200; margin-bottom: 20px; letter-spacing: 4px;
+}
+#endlessModal p {
+  color: rgba(255,255,255,0.7); font-family: 'Helvetica Neue', sans-serif;
+  font-size: 16px; margin: 8px 0;
+}
+#endlessModal .final-mass {
+  color: rgba(100,200,255,0.9); font-size: 20px; margin: 20px 0;
+}
+#endlessModal .choice-buttons {
+  display: flex; gap: 20px; margin-top: 30px;
+}
+#endlessModal button {
+  padding: 14px 32px; font-size: 15px; border-radius: 30px;
+  cursor: pointer; transition: all 0.3s; font-family: 'Helvetica Neue', sans-serif;
+}
+#btnContinue {
+  background: rgba(100,180,100,0.2); border: 1px solid rgba(100,200,100,0.5);
+  color: rgba(150,255,150,0.9);
+}
+#btnContinue:hover {
+  background: rgba(100,180,100,0.35); border-color: rgba(100,255,100,0.7);
+}
+#btnEndGame {
+  background: rgba(255,100,100,0.15); border: 1px solid rgba(255,150,150,0.4);
+  color: rgba(255,200,200,0.8);
+}
+#btnEndGame:hover {
+  background: rgba(255,100,100,0.25); border-color: rgba(255,150,150,0.6);
+}
 #activeBuffs {
   position: fixed; top: 120px; right: 20px;
   display: flex; flex-direction: column; gap: 8px;
@@ -147,6 +186,16 @@ canvas { display: block; }
 <div id="rogueModal">
   <h2>选择强化</h2>
   <div class="cards" id="rogueCards"></div>
+</div>
+
+<div id="endlessModal">
+  <h2>🎉 恭喜通关！</h2>
+  <p>你已经完成了全部 7 个阶段</p>
+  <p class="final-mass">最终质量: <span id="endlessMass">0</span></p>
+  <div class="choice-buttons">
+    <button id="btnContinue">继续游戏（无尽模式）</button>
+    <button id="btnEndGame">结束游戏</button>
+  </div>
 </div>
 
 <div id="overlay">
@@ -420,6 +469,33 @@ const rogueTimerEl = document.getElementById('rogueTimer');
 const rogueModal = document.getElementById('rogueModal');
 const rogueCards = document.getElementById('rogueCards');
 const activeBuffsEl = document.getElementById('activeBuffs');
+const endlessModal = document.getElementById('endlessModal');
+const endlessMassEl = document.getElementById('endlessMass');
+const btnContinue = document.getElementById('btnContinue');
+const btnEndGame = document.getElementById('btnEndGame');
+
+function showEndlessChoice() {
+  endlessChoicePending = true;
+  endlessMassEl.textContent = Math.floor(player.mass);
+  endlessModal.classList.add('show');
+}
+
+function hideEndlessChoice() {
+  endlessModal.classList.remove('show');
+}
+
+btnContinue.addEventListener('click', () => {
+  hideEndlessChoice();
+  // Trigger the endless mode spawn
+  checkWinLose();
+});
+
+btnEndGame.addEventListener('click', () => {
+  hideEndlessChoice();
+  gameOver = true;
+  gameWon = true;
+  showOverlay('你赢了！', true);
+});
 
 function getRarityWeight(rarity) {
   if (rarity === 'epic') return 0.1;
@@ -780,6 +856,8 @@ function spawnCells(){
   cells=[]; 
   particles.length = 0; // Clear without reallocating
   particlePoolIndex = 0;
+  endlessChoicePending = false;
+  hideEndlessChoice();
   
   currentWave=1;
   rogueTimer = ROGUE_INTERVAL;
@@ -1058,6 +1136,8 @@ function updateUI(){
   rankDisplay.textContent='排名: '+(alive.indexOf(player)+1)+'/'+alive.length;
 }
 
+let endlessChoicePending = false;
+
 function checkWinLose(){
   if(!player.alive){ gameOver=true;gameWon=false;showOverlay('你被吞噬了！',false);return; }
   // Check wave clear: all remaining NPCs smaller than player
@@ -1065,11 +1145,16 @@ function checkWinLose(){
   const dominantCount=alive.filter(c=>c.mass>=player.effectiveMass*.5).length;
   if(alive.length>0 && dominantCount===0){
     // Wave cleared!
-    if(currentWave>=MAX_WAVE){
-      // Endless mode: continue with harder enemies
+    if(currentWave>=MAX_WAVE && !endlessChoicePending){
+      // Show choice modal instead of auto-continuing
+      showEndlessChoice();
+      return;
+    }
+    if (currentWave >= MAX_WAVE && endlessChoicePending) {
+      // User chose to continue - endless mode
+      endlessChoicePending = false;
       waveMsg='⚠ 无尽模式 — 更强的敌人出现！';
       waveMsgTimer=4;
-      // Scale up difficulty
       const endlessCfg = {
         count: 70,
         dist: [0.05, 0.15, 0.35, 0.6],
@@ -1077,7 +1162,7 @@ function checkWinLose(){
         mult: 2.3 + (currentWave - MAX_WAVE) * 0.3,
         aiCd: 0.4
       };
-      currentWave++; // Keep incrementing for difficulty scaling
+      currentWave++;
       spawnWaveCells(endlessCfg);
       return;
     }
