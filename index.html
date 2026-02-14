@@ -979,31 +979,17 @@ class Cell {
     this.x += this.vx * actualDt * speedMult;
     this.y += this.vy * actualDt * speedMult;
     
-    // Friction - Osmos-like smooth gliding
-    // Larger cells have less friction (maintain momentum better)
-    const sizeFactor = Math.min(1, 60 / Math.sqrt(this.mass));
-    let baseFriction = 0.985 * Math.pow(0.997, this.frictionMult - 1);
+    // No friction - pure momentum conservation
+    // Speed only changes by ejection or collision
     
-    // Lazy AI has more friction (slows down faster)
-    if (!this.isPlayer && this.aiType === 2) {
-      baseFriction = Math.pow(baseFriction, 1.5);
-    }
-    // Aggressive AI has less friction (maintains speed)
-    if (!this.isPlayer && this.aiType === 0) {
-      baseFriction = Math.pow(baseFriction, 0.8);
-    }
-    
-    const frictionPerFrame = Math.pow(baseFriction, actualDt * 60 * sizeFactor);
-    this.vx *= frictionPerFrame;
-    this.vy *= frictionPerFrame;
-    
-    // Hard speed cap for better control
-    const speedLimit = this.isPlayer ? 180 : 150;
+    // Soft speed cap (gentle limiting, not hard cap)
+    const speedLimit = this.isPlayer ? 400 : 300;
     const currentSpeed = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
     if (currentSpeed > speedLimit) {
-      const scale = speedLimit / currentSpeed;
-      this.vx *= scale;
-      this.vy *= scale;
+      // Gentle drag only when way over limit
+      const drag = 0.995;
+      this.vx *= drag;
+      this.vy *= drag;
     }
     
     // Mass growth
