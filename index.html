@@ -297,20 +297,66 @@ in vec2 v;
 out vec4 o;
 uniform vec2 res, cam;
 uniform float zoom, worldR;
+uniform float time;
+
+// Simplex noise function
+vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
+float snoise(vec2 v) {
+  const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
+  vec2 i  = floor(v + dot(v, C.yy));
+  vec2 x0 = v - i + dot(i, C.xx);
+  vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+  vec4 x12 = x0.xyxy + C.xxzz;
+  x12.xy -= i1;
+  i = mod289(i);
+  vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
+  vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+  m = m*m; m = m*m;
+  vec3 x = 2.0 * fract(p * C.www) - 1.0;
+  vec3 h = abs(x) - 0.5;
+  vec3 ox = floor(x + 0.5);
+  vec3 a0 = x - ox;
+  m *= 1.79284291400159 - 0.85373472095314 * (a0*a0 + h*h);
+  return 130.0 * dot(m, a0);
+}
+
 void main(){
   vec2 w = vec2(v.x-.5,.5-v.y)*res/zoom + cam;
-  vec3 c = vec3(.024,.024,.059);
-  // grid
-  float gs=200.;
-  vec2 g=abs(fract(w/gs+.5)-.5);
-  float lw=1.5/zoom;
-  float gx=smoothstep(lw,0.,g.x*gs), gy=smoothstep(lw,0.,g.y*gs);
-  c += vec3(.04,.05,.12)*max(gx,gy)*.35;
-  // boundary
-  float d=length(w), bw=3./zoom;
-  c += vec3(.15,.24,.47)*smoothstep(bw,0.,abs(d-worldR))*.5;
-  c *= 1.-smoothstep(worldR*.8,worldR*1.2,d)*.4;
-  o=vec4(c,1);
+  
+  // Deep space background with subtle noise
+  float noise = snoise(w * 0.002) * 0.5 + 0.5;
+  float noise2 = snoise(w * 0.005 + 100.0) * 0.5 + 0.5;
+  vec3 bgColor = mix(vec3(0.02, 0.02, 0.05), vec3(0.03, 0.035, 0.08), noise * 0.3 + noise2 * 0.1);
+  
+  // Vignette effect
+  vec2 screenPos = (v - 0.5) * 2.0;
+  float vignette = 1.0 - dot(screenPos, screenPos) * 0.15;
+  
+  // Grid with depth
+  float gs = 200.0;
+  vec2 gridPos = w / gs;
+  vec2 g = abs(fract(gridPos + 0.5) - 0.5);
+  float lw = 1.0 / zoom;
+  float gx = smoothstep(lw, 0.0, g.x * gs);
+  float gy = smoothstep(lw, 0.0, g.y * gs);
+  float gridIntensity = max(gx, gy) * 0.15;
+  vec3 gridColor = vec3(0.12, 0.15, 0.25) * gridIntensity;
+  
+  // World boundary with glow
+  float d = length(w);
+  float boundaryDist = abs(d - worldR);
+  float boundaryGlow = smoothstep(50.0 / zoom, 0.0, boundaryDist) * 0.8;
+  vec3 boundaryColor = vec3(0.2, 0.4, 0.8) * boundaryGlow;
+  
+  // Fade out near edge
+  float edgeFade = 1.0 - smoothstep(worldR * 0.85, worldR * 1.15, d) * 0.6;
+  
+  vec3 c = bgColor + gridColor + boundaryColor;
+  c *= vignette * edgeFade;
+  
+  o = vec4(c, 1.0);
 }`);
 
 // ─── Circle instanced program ───
@@ -327,7 +373,7 @@ out vec2 uv;
 flat out vec4 col;
 flat out float typ;
 void main(){
-  float sc = iT==1.?1.6 : iT==2.?1.18 : 1.;
+  float sc = iT==1.?2.0 : iT==2.?1.25 : 1.;
   float r = iR*sc;
   vec2 wp = iP + aQ*r;
   vec2 sp = (wp-cam)*zoom;
@@ -340,32 +386,61 @@ in vec2 uv;
 flat in vec4 col;
 flat in float typ;
 out vec4 o;
+
 void main(){
-  float d=length(uv);
-  if(typ==0.){
-    // body
-    if(d>1.) discard;
-    float edge=smoothstep(1.,.94,d);
-    float hl=smoothstep(.8,0.,length(uv-vec2(-.25,-.25)));
-    vec3 c=col.rgb*(1.+hl*.35);
-    float brd=smoothstep(.91,.96,d)*smoothstep(1.,.97,d);
-    c+=vec3(.2)*brd;
-    o=vec4(c, col.a*edge);
-  } else if(typ==1.){
-    // glow - discard fragments outside circular boundary to prevent square artifacts
-    if(d>=1.) discard;
-    float nd=d/1.6;
-    float g=exp(-nd*nd*3.)*.4;
-    o=vec4(col.rgb, g*col.a);
-  } else if(typ==2.){
-    // ring
-    float ring=smoothstep(.07,0.,abs(d-.85));
-    if(ring<.01) discard;
-    o=vec4(col.rgb, ring*col.a);
+  float d = length(uv);
+  
+  if(typ == 0.0){
+    // Cell body with 3D effect
+    if(d > 1.0) discard;
+    
+    // Soft edge anti-aliasing
+    float edge = smoothstep(1.0, 0.96, d);
+    
+    // Inner glow/gradient (simulates sphere lighting)
+    float innerLight = smoothstep(1.0, 0.0, d) * 0.3;
+    
+    // Specular highlight (top-left)
+    vec2 highlightPos = vec2(-0.35, -0.35);
+    float highlight = smoothstep(0.4, 0.0, length(uv - highlightPos)) * 0.5;
+    
+    // Rim lighting
+    float rim = smoothstep(0.85, 1.0, d) * 0.4;
+    
+    // Combine colors
+    vec3 baseColor = col.rgb;
+    vec3 litColor = baseColor * (1.0 + innerLight) + vec3(highlight);
+    litColor += rim * vec3(0.3, 0.4, 0.5);
+    
+    o = vec4(litColor, col.a * edge);
+    
+  } else if(typ == 1.0){
+    // Outer glow
+    if(d >= 1.0) discard;
+    float nd = d / 2.0;
+    float g = exp(-nd * nd * 2.5) * 0.5;
+    // Color intensity falloff
+    vec3 glowCol = col.rgb * (1.0 + 0.5 * (1.0 - d));
+    o = vec4(glowCol, g * col.a);
+    
+  } else if(typ == 2.0){
+    // Status ring (eatable/dangerous indicator)
+    float ringWidth = 0.08;
+    float ringDist = abs(d - 0.88);
+    float ring = smoothstep(ringWidth, 0.0, ringDist);
+    if(ring < 0.01) discard;
+    
+    // Pulsing effect
+    float pulse = sin(float(gl_FragCoord.x) * 0.1 + float(gl_FragCoord.y) * 0.1) * 0.1 + 0.9;
+    o = vec4(col.rgb * pulse, ring * col.a * 0.8);
+    
   } else {
-    // particle
-    if(d>1.) discard;
-    o=vec4(col.rgb, (1.-d*d)*col.a);
+    // Particle with soft glow
+    if(d > 1.0) discard;
+    float alpha = pow(1.0 - d, 1.5);
+    // Center brightening
+    vec3 particleCol = col.rgb * (1.0 + 0.5 * (1.0 - d));
+    o = vec4(particleCol, alpha * col.a);
   }
 }`);
 
@@ -384,6 +459,7 @@ const bgU = {
   cam: gl.getUniformLocation(bgProg,'cam'),
   zoom: gl.getUniformLocation(bgProg,'zoom'),
   worldR: gl.getUniformLocation(bgProg,'worldR'),
+  time: gl.getUniformLocation(bgProg,'time'),
 };
 
 // ─── Circle instanced VAO ───
@@ -1489,36 +1565,44 @@ function buildInstances(){
   const alive=cells.filter(c=>c.alive && c.mass > 0 && isFinite(c.x) && isFinite(c.y));
   alive.sort((a,b)=>b.mass-a.mass); // big first → small on top
 
-  // 1. Glows
+  // 1. Glows (outer glow layer)
   for(const c of alive){
     const r=c.radius*(1+Math.sin(c.pulse)*.02);
-    let rr,gg,bb;
+    let rr,gg,bb,alpha;
+    
     if(c.isPlayer){
-      // Player keeps its original color
-      rr=c.rgb[0]; gg=c.rgb[1]; bb=c.rgb[2];
+      // Player gets bright cyan-blue glow
+      rr=0.3; gg=0.7; bb=1.0;
+      alpha=0.95;
+      // Extra strong outer glow for player
+      push(c.x,c.y,r*1.5, rr*0.5,gg*0.5,bb*0.5, 0.4, 1);
     }else if(player&&player.alive){
       // Enemy cells: color based on whether player can eat them (use effective mass)
       const playerMass = player.effectiveMass;
       const massRatio = c.mass / playerMass;
       if(c.mass<playerMass*.95){
-        // Eatable - green with intensity based on size difference
-        const intensity = Math.max(0.15, Math.min(1, 1 - massRatio * 0.95));
-        rr=0; gg=intensity; bb=0;
+        // Eatable - green glow
+        const intensity = Math.max(0.2, Math.min(1, 1 - massRatio * 0.9));
+        rr=0.1; gg=intensity; bb=0.2;
+        alpha=0.7;
       }
       else if(c.mass>playerMass*1.05){
-        // Dangerous - red with intensity based on size difference
-        const intensity = Math.max(0.2, Math.min(1, (massRatio - 1) * 0.65));
-        rr=intensity; gg=0; bb=0;
+        // Dangerous - red glow
+        const intensity = Math.max(0.3, Math.min(1, (massRatio - 1) * 0.6));
+        rr=intensity; gg=0.1; bb=0.1;
+        alpha=0.75;
       }
       else{
-        // Similar size - yellow
-        rr=1; gg=1; bb=.4;
+        // Similar size - yellow glow
+        rr=0.9; gg=0.8; bb=0.2;
+        alpha=0.6;
       }
     }else{
-      // No player or player dead, use original color
-      rr=c.rgb[0]; gg=c.rgb[1]; bb=c.rgb[2];
+      // No player or player dead, use original color muted
+      rr=c.rgb[0]*0.7; gg=c.rgb[1]*0.7; bb=c.rgb[2]*0.7;
+      alpha=0.5;
     }
-    push(c.x,c.y,r, rr,gg,bb, c.isPlayer?.9:.7, 1);
+    push(c.x,c.y,r, rr,gg,bb, alpha, 1);
   }
 
   // 2. Ring indicators
@@ -1544,47 +1628,57 @@ function buildInstances(){
     }
   }
 
-  // 3. Particles
+  // 3. Particles with enhanced glow
   for(const p of particles){
     const life = p.life;
     if (life <= 0) continue;
     const r = p.radius * life;
     if (r < 0.5) continue;
-    // Soft glow + core in one go
-    push(p.x, p.y, r * 2, p.rgb[0], p.rgb[1], p.rgb[2], life * 0.15, 3);
-    push(p.x, p.y, r * 0.7, p.rgb[0], p.rgb[1], p.rgb[2], life * 0.6, 3);
+    
+    // Multi-layer glow for particles
+    push(p.x, p.y, r * 3.0, p.rgb[0], p.rgb[1], p.rgb[2], life * 0.1, 3);
+    push(p.x, p.y, r * 1.5, p.rgb[0], p.rgb[1], p.rgb[2], life * 0.3, 3);
+    push(p.x, p.y, r * 0.6, p.rgb[0] * 1.2, p.rgb[1] * 1.2, p.rgb[2] * 1.2, life * 0.8, 3);
   }
 
   // 4. Bodies (on top)
+  const time = performance.now() / 1000;
   for(const c of alive){
-    const r=c.radius*(1+Math.sin(c.pulse)*.02);
-    let rr,gg,bb;
+    const pulse = Math.sin(c.pulse + time * 2) * 0.02;
+    const r=c.radius*(1+pulse);
+    let rr,gg,bb,alpha;
+    
     if(c.isPlayer){
-      // Player keeps its original color
-      rr=c.rgb[0]; gg=c.rgb[1]; bb=c.rgb[2];
+      // Player - bright cyan with slight pulse
+      rr=0.4; gg=0.75; bb=1.0;
+      alpha=0.95;
     }else if(player&&player.alive){
       // Enemy cells: color based on whether player can eat them (use effective mass)
       const playerMass = player.effectiveMass;
       const massRatio = c.mass / playerMass;
       if(c.mass<playerMass*.95){
-        // Eatable - green with intensity based on size difference
-        const intensity = Math.max(0.15, Math.min(1, 1 - massRatio * 0.95));
-        rr=0; gg=intensity; bb=0;
+        // Eatable - vibrant green
+        const intensity = Math.max(0.25, Math.min(1, 1 - massRatio * 0.9));
+        rr=0.1; gg=intensity; bb=0.25;
+        alpha=0.9;
       }
       else if(c.mass>playerMass*1.05){
-        // Dangerous - red with intensity based on size difference
-        const intensity = Math.max(0.2, Math.min(1, (massRatio - 1) * 0.65));
-        rr=intensity; gg=0; bb=0;
+        // Dangerous - vibrant red
+        const intensity = Math.max(0.35, Math.min(1, (massRatio - 1) * 0.55));
+        rr=intensity; gg=0.15; bb=0.15;
+        alpha=0.9;
       }
       else{
-        // Similar size - yellow
-        rr=1; gg=1; bb=.4;
+        // Similar size - bright yellow
+        rr=1.0; gg=0.9; bb=0.2;
+        alpha=0.85;
       }
     }else{
       // No player or player dead, use original color
       rr=c.rgb[0]; gg=c.rgb[1]; bb=c.rgb[2];
+      alpha=0.82;
     }
-    push(c.x,c.y,r, rr,gg,bb, c.isPlayer?0.92:0.82, 0);
+    push(c.x,c.y,r, rr,gg,bb, alpha, 0);
   }
 
   return cnt;
@@ -1598,35 +1692,76 @@ function drawCursor(){
   const dx=(mouseX-W/2)/camera.zoom+camera.x-player.x;
   const dy=(mouseY-H/2)/camera.zoom+camera.y-player.y;
   const d=Math.sqrt(dx*dx+dy*dy);
-  if (d < 0.001) return; // Too close to center
+  if (d < 0.001) return;
   
   const nx=dx/d;
   const ny=dy/d;
   const pr=player.radius;
 
-  // trajectory hint
+  // Enhanced trajectory hint with gradient
   const x1=W/2+(player.x-nx*pr*1.2-camera.x)*camera.zoom;
   const y1=H/2+(player.y-ny*pr*1.2-camera.y)*camera.zoom;
-  const x2=W/2+(player.x-nx*pr*3-camera.x)*camera.zoom;
-  const y2=H/2+(player.y-ny*pr*3-camera.y)*camera.zoom;
+  const x2=W/2+(player.x-nx*pr*4-camera.x)*camera.zoom;
+  const y2=H/2+(player.y-ny*pr*4-camera.y)*camera.zoom;
   
   if (isFinite(x1) && isFinite(y1) && isFinite(x2) && isFinite(y2)) {
-    olCtx.strokeStyle='rgba(100,180,255,0.2)';
-    olCtx.lineWidth=2;
-    olCtx.setLineDash([5,5]);
-    olCtx.beginPath();olCtx.moveTo(x1,y1);olCtx.lineTo(x2,y2);olCtx.stroke();
-    olCtx.setLineDash([]);
+    // Create gradient for trajectory
+    const grad = olCtx.createLinearGradient(x1, y1, x2, y2);
+    grad.addColorStop(0, 'rgba(100,200,255,0.4)');
+    grad.addColorStop(1, 'rgba(100,200,255,0.0)');
+    
+    olCtx.strokeStyle=grad;
+    olCtx.lineWidth=3;
+    olCtx.lineCap='round';
+    olCtx.beginPath();
+    olCtx.moveTo(x1,y1);
+    olCtx.lineTo(x2,y2);
+    olCtx.stroke();
+    
+    // Arrow head
+    const arrowSize = 10;
+    const angle = Math.atan2(y2-y1, x2-x1);
+    olCtx.fillStyle='rgba(100,200,255,0.5)';
+    olCtx.beginPath();
+    olCtx.moveTo(x2, y2);
+    olCtx.lineTo(x2 - arrowSize * Math.cos(angle - 0.5), y2 - arrowSize * Math.sin(angle - 0.5));
+    olCtx.lineTo(x2 - arrowSize * Math.cos(angle + 0.5), y2 - arrowSize * Math.sin(angle + 0.5));
+    olCtx.closePath();
+    olCtx.fill();
   }
 
-  // crosshair
-  olCtx.strokeStyle='rgba(255,255,255,0.3)';
-  olCtx.lineWidth=1;
-  const s=10;
+  // Enhanced crosshair with glow
+  const glowSize = 20;
+  const gradient = olCtx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, glowSize);
+  gradient.addColorStop(0, 'rgba(100,200,255,0.2)');
+  gradient.addColorStop(1, 'rgba(100,200,255,0)');
+  olCtx.fillStyle = gradient;
+  olCtx.beginPath();
+  olCtx.arc(mouseX, mouseY, glowSize, 0, Math.PI*2);
+  olCtx.fill();
+  
+  // Crosshair lines
+  olCtx.strokeStyle='rgba(150,220,255,0.6)';
+  olCtx.lineWidth=1.5;
+  olCtx.lineCap='round';
+  const s=12;
   olCtx.beginPath();
   olCtx.moveTo(mouseX-s,mouseY);olCtx.lineTo(mouseX+s,mouseY);
   olCtx.moveTo(mouseX,mouseY-s);olCtx.lineTo(mouseX,mouseY+s);
   olCtx.stroke();
-  olCtx.beginPath();olCtx.arc(mouseX,mouseY,4,0,Math.PI*2);olCtx.stroke();
+  
+  // Center dot
+  olCtx.fillStyle='rgba(150,220,255,0.8)';
+  olCtx.beginPath();
+  olCtx.arc(mouseX,mouseY,3,0,Math.PI*2);
+  olCtx.fill();
+  
+  // Outer ring
+  olCtx.strokeStyle='rgba(150,220,255,0.3)';
+  olCtx.lineWidth=1;
+  olCtx.beginPath();
+  olCtx.arc(mouseX,mouseY,8,0,Math.PI*2);
+  olCtx.stroke();
 }
 
 // ═══════════════════════════════════════════════════
@@ -1677,6 +1812,7 @@ function loop(time){
   gl.uniform2f(bgU.cam,camera.x,camera.y);
   gl.uniform1f(bgU.zoom,camera.zoom);
   gl.uniform1f(bgU.worldR,WORLD_R);
+  gl.uniform1f(bgU.time,performance.now()/1000);
   gl.bindVertexArray(bgVAO);
   gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
 
