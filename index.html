@@ -947,6 +947,12 @@ class Cell {
     this.x += this.vx * adt * sm;
     this.y += this.vy * adt * sm;
 
+    // Player friction (from buff)
+    if (this.isPlayer && this.frictionMult > 1) {
+      const fric = Math.pow(0.98, (this.frictionMult - 1) * 3);
+      this.vx *= fric; this.vy *= fric;
+    }
+
     // Soft speed cap
     const lim = this.isPlayer ? 400 : 300;
     if (this.vx*this.vx + this.vy*this.vy > lim*lim) { this.vx *= 0.995; this.vy *= 0.995; }
@@ -1126,8 +1132,8 @@ const ROGUE_EFFECTS = [
     apply: p => { p.speedMult = (p.speedMult||1) * 1.15; } },
   { id:'mass_growth', name:'缓慢生长', icon:'mass_growth', rarity:'common', desc:'每秒自动+1质量',
     apply: p => { p.massGrowth = (p.massGrowth||0) + 1; } },
-  { id:'friction_reduce', name:'惯性滑行', icon:'friction_reduce', rarity:'common', desc:'自身摩擦力-20%',
-    apply: p => { p.frictionMult = (p.frictionMult||1) * 0.8; } },
+  { id:'friction_reduce', name:'阻力制动', icon:'friction_reduce', rarity:'common', desc:'增加自身摩擦力，更易操控',
+    apply: p => { p.frictionMult = (p.frictionMult||1) + 0.25; } },
   { id:'sticky_field', name:'黏滞领域', icon:'sticky_field', rarity:'common', desc:'周围敌人减速15%',
     apply: p => { p.stickyFieldRange = (p.stickyFieldRange||0) + 150; p.stickyFieldPower = (p.stickyFieldPower||0) + 0.15; } },
   // Rare
