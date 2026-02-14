@@ -1173,19 +1173,22 @@ class Cell {
     
     this.mass -= em;
     
-    // Impulse scales with ejected mass for consistent feel
-    // Larger ejection = more thrust
-    const baseImpulse = 100 * (this.ejectPowerMult || 1);
-    const massFactor = Math.min(1, 100 / this.mass);
-    const thrustFactor = Math.sqrt(em / baseEjectMass); // Thrust scales with sqrt of mass
+    // Physics: momentum conservation
+    // Impulse = ejected_mass * eject_velocity
+    // Larger ejection = proportionally more thrust (Newton's 3rd law)
+    const ejectVelocity = 120; // Constant ejection speed relative to player
+    const playerMassFactor = Math.min(1, 80 / this.mass); // Larger player gets less acceleration
     
     // Apply speed cap
     const maxSpeed = 180;
     const currentSpeed = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
     const speedFactor = currentSpeed > maxSpeed ? 0.5 : 1;
     
-    this.vx -= nx * baseImpulse * massFactor * thrustFactor * speedFactor;
-    this.vy -= ny * baseImpulse * massFactor * thrustFactor * speedFactor;
+    // Thrust proportional to ejected mass (momentum = m * v)
+    const impulse = em * ejectVelocity * (this.ejectPowerMult || 1) * playerMassFactor * speedFactor;
+    
+    this.vx -= nx * impulse / this.mass;
+    this.vy -= ny * impulse / this.mass;
     
     // Chance to spawn a small cell instead of just a particle
     const SPAWN_CELL_CHANCE = 0.2; // 20% chance
