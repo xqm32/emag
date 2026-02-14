@@ -35,6 +35,63 @@ canvas { display: block; }
   position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
   display: flex; gap: 8px; z-index: 10; pointer-events: auto;
 }
+#rogueTimer {
+  position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+  color: rgba(255,200,100,0.8); font-size: 14px; font-family: 'Helvetica Neue', sans-serif;
+  background: rgba(0,0,0,0.4); padding: 6px 14px; border-radius: 20px;
+  z-index: 10; pointer-events: none; transition: opacity 0.3s;
+}
+#rogueTimer.ready {
+  color: rgba(100,255,150,0.95); background: rgba(0,60,30,0.6);
+  animation: pulse 1s infinite;
+}
+@keyframes pulse {
+  0%, 100% { transform: translateX(-50%) scale(1); }
+  50% { transform: translateX(-50%) scale(1.05); }
+}
+#rogueModal {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+#rogueModal.show { opacity: 1; pointer-events: auto; }
+#rogueModal h2 {
+  color: #fff; font-family: 'Helvetica Neue', sans-serif; font-size: 28px;
+  font-weight: 200; margin-bottom: 30px; letter-spacing: 4px;
+}
+#rogueModal .cards {
+  display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;
+}
+.rogue-card {
+  width: 200px; padding: 24px 20px; background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.15); border-radius: 16px;
+  cursor: pointer; transition: all 0.25s; text-align: center;
+  font-family: 'Helvetica Neue', sans-serif;
+}
+.rogue-card:hover {
+  background: rgba(255,255,255,0.12); border-color: rgba(100,180,255,0.5);
+  transform: translateY(-6px);
+}
+.rogue-card .icon { font-size: 40px; margin-bottom: 12px; }
+.rogue-card .name { color: #fff; font-size: 16px; font-weight: 500; margin-bottom: 8px; }
+.rogue-card .desc { color: rgba(255,255,255,0.5); font-size: 12px; line-height: 1.5; }
+.rogue-card .rarity-common { border-color: rgba(150,150,150,0.4); }
+.rogue-card .rarity-rare { border-color: rgba(100,150,255,0.4); }
+.rogue-card .rarity-epic { border-color: rgba(180,100,255,0.4); }
+#activeBuffs {
+  position: fixed; top: 120px; right: 20px;
+  display: flex; flex-direction: column; gap: 8px;
+  z-index: 10; pointer-events: none;
+}
+.buff-item {
+  background: rgba(0,0,0,0.4); padding: 8px 14px; border-radius: 8px;
+  font-family: 'Helvetica Neue', sans-serif; font-size: 12px;
+  color: rgba(255,255,255,0.7); display: flex; align-items: center; gap: 8px;
+  border-left: 3px solid rgba(100,180,255,0.6);
+}
+.buff-item .buff-icon { font-size: 14px; }
+.buff-item .buff-name { color: #fff; }
+.buff-item .buff-stack { color: rgba(255,200,100,0.9); font-size: 11px; margin-left: auto; }
 #timeControl button {
   width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2);
   background: rgba(0,0,0,0.4); color: rgba(255,255,255,0.7); font-size: 14px;
@@ -84,11 +141,19 @@ canvas { display: block; }
   <button id="btnZoomOut" title="缩小">−</button>
 </div>
 
+<div id="rogueTimer">下波强化: 30s</div>
+<div id="activeBuffs"></div>
+
+<div id="rogueModal">
+  <h2>选择强化</h2>
+  <div class="cards" id="rogueCards"></div>
+</div>
+
 <div id="overlay">
   <h1>OSMOS</h1>
   <p>点击/触屏向反方向喷射质量来移动</p>
   <p>吞噬比你小的细胞，躲避比你大的</p>
-  <p>通过全部 5 个阶段即可获胜</p>
+  <p>通过全部 7 个阶段即可获胜</p>
   <p class="sub">滚轮/双指缩放 · 底部按钮调速 · R 重开</p>
   <button id="startBtn">开 始</button>
 </div>
@@ -299,14 +364,190 @@ let gameRunning = false, gameOver = false, gameWon = false;
 let manualZoom = 1, timeScale = 1, ejectCooldown = 0;
 let particles = [];
 let currentWave = 1;
-const MAX_WAVE = 5;
+const MAX_WAVE = 7;
+
+// ═══════════════════════════════════════════════════
+//  Roguelike System
+// ═══════════════════════════════════════════════════
+const ROGUE_INTERVAL = 30; // seconds
+let rogueTimer = ROGUE_INTERVAL;
+let roguePaused = false;
+let activeBuffs = []; // { id, name, icon, stacks, effect }
+
+const ROGUE_EFFECTS = [
+  // Common (60% chance)
+  { id: 'eject_efficiency', name: '节能喷射', icon: '💨', rarity: 'common', desc: '喷射消耗质量-20%', 
+    apply: (p) => { p.ejectCostMult = (p.ejectCostMult||1) * 0.8; } },
+  { id: 'absorb_boost', name: '贪婪吞噬', icon: '🌀', rarity: 'common', desc: '吞噬效率+15%',
+    apply: (p) => { p.absorbMult = (p.absorbMult||1) * 1.15; } },
+  { id: 'speed_boost', name: '轻盈移动', icon: '⚡', rarity: 'common', desc: '移动速度+15%',
+    apply: (p) => { p.speedMult = (p.speedMult||1) * 1.15; } },
+  { id: 'mass_growth', name: '缓慢生长', icon: '🌱', rarity: 'common', desc: '每秒自动+1质量',
+    apply: (p) => { p.massGrowth = (p.massGrowth||0) + 1; } },
+  { id: 'friction_reduce', name: '惯性滑行', icon: '🌊', rarity: 'common', desc: '摩擦力-20%',
+    apply: (p) => { p.frictionMult = (p.frictionMult||1) * 0.98; } },
+  
+  // Rare (30% chance)
+  { id: 'eject_power', name: '强力喷射', icon: '🚀', rarity: 'rare', desc: '喷射推力+30%',
+    apply: (p) => { p.ejectPowerMult = (p.ejectPowerMult||1) * 1.3; } },
+  { id: 'zoom_expand', name: '视野扩展', icon: '👁️', rarity: 'rare', desc: '视野范围+20%',
+    apply: (p) => { p.zoomMult = (p.zoomMult||1) * 1.2; } },
+  { id: 'shield_temp', name: '缓冲护盾', icon: '🛡️', rarity: 'rare', desc: '被吞噬阈值+15%',
+    apply: (p) => { p.shieldBonus = (p.shieldBonus||0) + 0.15; } },
+  { id: 'split_resist', name: '坚韧细胞', icon: '💪', rarity: 'rare', desc: '碰撞损失质量-25%',
+    apply: (p) => { p.damageReduce = (p.damageReduce||0) + 0.25; } },
+  { id: 'comeback_king', name: '绝地反击', icon: '🔥', rarity: 'rare', desc: '质量<100时移动+50%',
+    apply: (p) => { p.comebackBonus = true; } },
+  
+  // Epic (10% chance)
+  { id: 'vampire_touch', name: '吸血之触', icon: '🧛', rarity: 'epic', desc: '吞噬时恢复15%喷射质量',
+    apply: (p) => { p.vampireLevel = (p.vampireLevel||0) + 0.15; } },
+  { id: 'time_warp', name: '时间扭曲', icon: '⏱️', rarity: 'epic', desc: '游戏速度-15%(仅对你有利)',
+    apply: (p) => { p.timeWarp = (p.timeWarp||0) + 0.15; } },
+  { id: 'gravity_well', name: '引力井', icon: '🌌', rarity: 'epic', desc: '吸引周围小细胞',
+    apply: (p) => { p.gravityRange = (p.gravityRange||0) + 200; } },
+  { id: 'mass_converter', name: '质能转换', icon: '⚛️', rarity: 'epic', desc: '移动时缓慢获得质量',
+    apply: (p) => { p.motionMass = true; } },
+  { id: 'predator', name: '顶级掠食者', icon: '👑', rarity: 'epic', desc: '对大鱼威慑+30%，吞噬范围+20%',
+    apply: (p) => { p.predatorLevel = (p.predatorLevel||0) + 1; } },
+];
+
+const rogueTimerEl = document.getElementById('rogueTimer');
+const rogueModal = document.getElementById('rogueModal');
+const rogueCards = document.getElementById('rogueCards');
+const activeBuffsEl = document.getElementById('activeBuffs');
+
+function getRarityWeight(rarity) {
+  if (rarity === 'epic') return 0.1;
+  if (rarity === 'rare') return 0.3;
+  return 0.6;
+}
+
+function pickRandomEffects(count) {
+  const result = [];
+  const pool = [...ROGUE_EFFECTS];
+  
+  // Weighted random
+  for (let i = 0; i < count && pool.length > 0; i++) {
+    const totalWeight = pool.reduce((sum, e) => sum + getRarityWeight(e.rarity), 0);
+    let random = Math.random() * totalWeight;
+    
+    for (let j = 0; j < pool.length; j++) {
+      random -= getRarityWeight(pool[j].rarity);
+      if (random <= 0) {
+        result.push(pool[j]);
+        pool.splice(j, 1);
+        break;
+      }
+    }
+  }
+  return result;
+}
+
+function showRogueSelection() {
+  roguePaused = true;
+  const oldTimeScale = timeScale;
+  timeScale = 0;
+  
+  const effects = pickRandomEffects(3);
+  rogueCards.innerHTML = '';
+  
+  effects.forEach(effect => {
+    const card = document.createElement('div');
+    card.className = `rogue-card rarity-${effect.rarity}`;
+    card.innerHTML = `
+      <div class="icon">${effect.icon}</div>
+      <div class="name">${effect.name}</div>
+      <div class="desc">${effect.desc}</div>
+    `;
+    card.addEventListener('click', () => {
+      applyEffect(effect);
+      rogueModal.classList.remove('show');
+      roguePaused = false;
+      timeScale = oldTimeScale || 1;
+      rogueTimer = ROGUE_INTERVAL;
+      rogueTimerEl.classList.remove('ready');
+    });
+    rogueCards.appendChild(card);
+  });
+  
+  rogueModal.classList.add('show');
+}
+
+function applyEffect(effect) {
+  // Check if already have this buff
+  const existing = activeBuffs.find(b => b.id === effect.id);
+  if (existing) {
+    existing.stacks++;
+  } else {
+    activeBuffs.push({
+      id: effect.id,
+      name: effect.name,
+      icon: effect.icon,
+      stacks: 1,
+      effect: effect
+    });
+  }
+  
+  // Apply to player
+  if (player) {
+    effect.apply(player);
+  }
+  
+  updateBuffDisplay();
+  
+  // Visual feedback
+  waveMsg = `获得: ${effect.name}`;
+  waveMsgTimer = 2;
+}
+
+function updateBuffDisplay() {
+  activeBuffsEl.innerHTML = '';
+  activeBuffs.forEach(buff => {
+    const el = document.createElement('div');
+    el.className = 'buff-item';
+    el.innerHTML = `
+      <span class="buff-icon">${buff.icon}</span>
+      <span class="buff-name">${buff.name}</span>
+      ${buff.stacks > 1 ? `<span class="buff-stack">x${buff.stacks}</span>` : ''}
+    `;
+    activeBuffsEl.appendChild(el);
+  });
+}
+
+function updateRogueTimer(dt) {
+  if (!gameRunning || gameOver || roguePaused) return;
+  
+  rogueTimer -= dt;
+  if (rogueTimer <= 0) {
+    rogueTimer = 0;
+    rogueTimerEl.classList.add('ready');
+    rogueTimerEl.textContent = '强化就绪! (点击选择)';
+    rogueTimerEl.style.pointerEvents = 'auto';
+    rogueTimerEl.style.cursor = 'pointer';
+    rogueTimerEl.onclick = () => {
+      if (rogueTimer <= 0) {
+        showRogueSelection();
+        rogueTimerEl.onclick = null;
+        rogueTimerEl.style.pointerEvents = 'none';
+      }
+    };
+  } else {
+    rogueTimerEl.textContent = `下波强化: ${Math.ceil(rogueTimer)}s`;
+    rogueTimerEl.classList.remove('ready');
+    rogueTimerEl.style.pointerEvents = 'none';
+    rogueTimerEl.onclick = null;
+  }
+}
 // Wave configs: [cellCount, smallPct, medPct, largePct, hugePct, massMultiplier, aiAggression]
 const WAVE_CFG = [
-  { count:500, dist:[.50,.70,.85,.95], mRange:[20,60,200,400,800], mult:1, aiCd:1.5 },   // wave 1 - more small cells
-  { count:120, dist:[.15,.4,.7,.9],  mRange:[50,150,400,800,1500], mult:1.2, aiCd:1.2 }, // wave 2
-  { count:100, dist:[.1,.3,.6,.85],  mRange:[80,200,600,1200,2500], mult:1.5, aiCd:1.0 },// wave 3
-  { count:80,  dist:[.05,.2,.5,.8],  mRange:[120,300,800,2000,4000], mult:1.8, aiCd:.7 },// wave 4
-  { count:60,  dist:[.05,.15,.4,.7], mRange:[200,500,1500,3500,6000], mult:2.2, aiCd:.5 },// wave 5 - boss wave
+  { count:350, dist:[.55,.75,.88,.96], mRange:[15,50,150,350,700], mult:1, aiCd:1.6 },    // wave 1 - easier start, more small cells
+  { count:280, dist:[.40,.62,.80,.92], mRange:[30,80,250,550,1100], mult:1.1, aiCd:1.4 },  // wave 2 - gradual increase
+  { count:220, dist:[.30,.52,.72,.87], mRange:[50,130,380,750,1600], mult:1.25, aiCd:1.2 },// wave 3 - moderate
+  { count:170, dist:[.20,.42,.65,.82], mRange:[70,180,500,1000,2200], mult:1.45, aiCd:1.0 },// wave 4 - getting harder
+  { count:130, dist:[.12,.32,.55,.75], mRange:[100,250,700,1400,3000], mult:1.7, aiCd:0.8 },// wave 5 - challenging
+  { count:100, dist:[.08,.25,.48,.70], mRange:[150,350,1000,2200,4500], mult:2.0, aiCd:0.6 },// wave 6 - very hard
+  { count:80,  dist:[.05,.18,.40,.65], mRange:[200,500,1500,3500,6000], mult:2.3, aiCd:0.45 },// wave 7 - boss wave
 ];
 let waveMsg = '';
 let waveMsgTimer = 0;
@@ -352,12 +593,82 @@ class Cell {
     this.aiTimer=Math.random()*2;
     this.rgb=hsl2rgb(this.hue,this.sat,this.lit);
     this.rgbB=hsl2rgb(this.hue,this.sat,Math.min(100,this.lit+15));
+    // Rogue effect properties
+    this.ejectCostMult = 1;
+    this.absorbMult = 1;
+    this.speedMult = 1;
+    this.massGrowth = 0;
+    this.frictionMult = 1;
+    this.ejectPowerMult = 1;
+    this.zoomMult = 1;
+    this.shieldBonus = 0;
+    this.damageReduce = 0;
+    this.comebackBonus = false;
+    this.vampireLevel = 0;
+    this.timeWarp = 0;
+    this.gravityRange = 0;
+    this.motionMass = false;
+    this.predatorLevel = 0;
+    this.lastMotionMass = 0;
   }
   get radius(){ return massToRadius(this.mass); }
+  get effectiveMass() {
+    // Shield makes you appear larger to others
+    return this.mass * (1 + this.shieldBonus);
+  }
 
   update(dt){
-    this.x+=this.vx*dt; this.y+=this.vy*dt;
-    const f=0.998; this.vx*=Math.pow(f,dt*60); this.vy*=Math.pow(f,dt*60);
+    // Apply speed multiplier and friction
+    let actualDt = dt;
+    if (this.isPlayer && this.timeWarp > 0) {
+      // Player experiences slower time
+      actualDt = dt * (1 - this.timeWarp * 0.5);
+    }
+    
+    let speedMult = this.speedMult;
+    // Comeback bonus: faster when small
+    if (this.isPlayer && this.comebackBonus && this.mass < 100) {
+      speedMult *= 1.5;
+    }
+    
+    this.x += this.vx * actualDt * speedMult;
+    this.y += this.vy * actualDt * speedMult;
+    
+    // Friction (lower = less friction = more glide)
+    const baseFriction = 0.998;
+    const f = Math.pow(baseFriction, this.frictionMult);
+    this.vx *= Math.pow(f, actualDt * 60);
+    this.vy *= Math.pow(f, actualDt * 60);
+    
+    // Mass growth
+    if (this.isPlayer && this.massGrowth > 0) {
+      this.mass += this.massGrowth * dt;
+    }
+    
+    // Motion mass: gain mass when moving fast
+    if (this.isPlayer && this.motionMass) {
+      const speed = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
+      this.lastMotionMass += speed * dt * 0.01;
+      if (this.lastMotionMass >= 1) {
+        this.mass += Math.floor(this.lastMotionMass);
+        this.lastMotionMass %= 1;
+      }
+    }
+    
+    // Gravity well: attract smaller cells
+    if (this.isPlayer && this.gravityRange > 0) {
+      for (const c of cells) {
+        if (c === this || !c.alive || c.mass >= this.mass * 0.5) continue;
+        const dx = this.x - c.x, dy = this.y - c.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < this.gravityRange && dist > 10) {
+          const force = (1 - dist / this.gravityRange) * 50 * dt;
+          c.vx += (dx / dist) * force;
+          c.vy += (dy / dist) * force;
+        }
+      }
+    }
+    
     const r=this.radius, d=Math.sqrt(this.x*this.x+this.y*this.y);
     if(d+r>WORLD_R){
       const nx=this.x/d,ny=this.y/d,ol=d+r-WORLD_R;
@@ -374,11 +685,20 @@ class Cell {
     const cfg=WAVE_CFG[Math.min(currentWave-1,MAX_WAVE-1)];
     this.aiTimer=.3+Math.random()*cfg.aiCd;
     let ns=null,nl=null,ds=1/0,dl=1/0;
+    
+    // Predator effect: AI is more afraid of player
+    let fearMult = 1;
+    if (player && player.predatorLevel > 0) {
+      fearMult = 1 + player.predatorLevel * 0.3;
+    }
+    
     for(const c of all){
       if(c===this||!c.alive)continue;
       const dx=c.x-this.x,dy=c.y-this.y,d=Math.sqrt(dx*dx+dy*dy);
-      if(c.mass<this.mass*.8&&d<ds){ds=d;ns=c;}
-      if(c.mass>this.mass*1.3&&d<dl){dl=d;nl=c;}
+      // Use effective mass for AI decisions
+      const targetMass = c.isPlayer ? c.effectiveMass : c.mass;
+      if(targetMass<this.mass*.8&&d<ds){ds=d;ns=c;}
+      if(targetMass>this.mass*1.3*fearMult&&d<dl){dl=d;nl=c;}
     }
     if(nl&&dl<this.radius*8){
       const dx=this.x-nl.x,dy=this.y-nl.y,d=Math.sqrt(dx*dx+dy*dy)||1;
@@ -389,22 +709,45 @@ class Cell {
   }
 
   ejectMass(tx,ty){
-    if(this.mass<5)return;
-    const dx=tx-this.x,dy=ty-this.y,d=Math.sqrt(dx*dx+dy*dy)||1;
-    const nx=dx/d,ny=dy/d,em=this.mass*.012;
-    this.mass-=em;
-    const sp=250;
-    this.vx-=nx*sp*em/this.mass;
-    this.vy-=ny*sp*em/this.mass;
-    particles.push({ x:this.x+nx*this.radius, y:this.y+ny*this.radius,
-      vx:nx*sp+this.vx, vy:ny*sp+this.vy, mass:em, radius:massToRadius(em),
-      life:1, rgb:this.rgbB });
+    const minMass = this.isPlayer ? 5 : 8;
+    if(this.mass < minMass) return;
+    
+    const dx=tx-this.x, dy=ty-this.y, d=Math.sqrt(dx*dx+dy*dy)||1;
+    const nx=dx/d, ny=dy/d;
+    
+    // Apply eject cost multiplier
+    let em = this.mass * 0.012 * (this.ejectCostMult || 1);
+    em = Math.min(em, this.mass * 0.1); // Cap at 10% mass
+    
+    this.mass -= em;
+    
+    // Apply eject power multiplier
+    const baseSp = 250;
+    const sp = baseSp * (this.ejectPowerMult || 1);
+    
+    this.vx -= nx * sp * em / this.mass;
+    this.vy -= ny * sp * em / this.mass;
+    
+    particles.push({ 
+      x: this.x + nx * this.radius, 
+      y: this.y + ny * this.radius,
+      vx: nx * sp + this.vx, 
+      vy: ny * sp + this.vy, 
+      mass: em, 
+      radius: massToRadius(em),
+      life: 1, 
+      rgb: this.rgbB,
+      owner: this.isPlayer ? this : null
+    });
   }
 }
 
 function spawnCells(){
   cells=[]; particles=[];
   currentWave=1;
+  rogueTimer = ROGUE_INTERVAL;
+  activeBuffs = [];
+  updateBuffDisplay();
   player=new Cell(0,0,300,true); cells.push(player);
   spawnWaveCells(WAVE_CFG[0]);
 }
@@ -452,11 +795,25 @@ function checkCollisions(){
         dist=Math.sqrt(dx*dx+dy*dy),r1=cells[i].radius,r2=cells[j].radius;
       if(dist<r1+r2){
         let big,smol;
-        if(cells[i].mass>=cells[j].mass){big=cells[i];smol=cells[j];}
+        // Use effective mass for comparison (includes shield)
+        const m1 = cells[i].isPlayer ? cells[i].effectiveMass : cells[i].mass;
+        const m2 = cells[j].isPlayer ? cells[j].effectiveMass : cells[j].mass;
+        if(m1>=m2){big=cells[i];smol=cells[j];}
         else{big=cells[j];smol=cells[i];}
         if(dist<big.radius){
           const rat=smol.mass/big.mass;
-          big.mass+=smol.mass*.9;
+          // Apply absorb multiplier if big is player
+          let absorbRate = 0.9;
+          if (big.isPlayer && big.absorbMult) {
+            absorbRate = Math.min(0.99, 0.9 * big.absorbMult);
+          }
+          big.mass += smol.mass * absorbRate;
+          
+          // Vampire: restore eject mass on consume
+          if (big.isPlayer && big.vampireLevel > 0) {
+            big.mass += smol.mass * big.vampireLevel * 0.1;
+          }
+          
           big.vx=big.vx*(1-rat)+smol.vx*rat;
           big.vy=big.vy*(1-rat)+smol.vy*rat;
           smol.alive=false;
@@ -467,7 +824,12 @@ function checkCollisions(){
           }
         }else if(dist<r1+r2-Math.min(r1,r2)*.3){
           const t=smol.mass*.02;
-          big.mass+=t*.9; smol.mass-=t;
+          // Damage reduction
+          let actualT = t;
+          if (smol.isPlayer && smol.damageReduce > 0) {
+            actualT = t * (1 - Math.min(0.8, smol.damageReduce));
+          }
+          big.mass+=actualT*.9; smol.mass-=actualT;
           if(smol.mass<1)smol.alive=false;
         }
       }
@@ -479,7 +841,14 @@ function checkCollisions(){
       if(!c.alive)continue;
       const dx=c.x-p.x,dy=c.y-p.y;
       if(Math.sqrt(dx*dx+dy*dy)<c.radius*.8){
-        c.mass+=p.mass*.5; particles.splice(i,1); break;
+        let particleValue = p.mass * 0.5;
+        // Vampire: particle gives more if shot by player
+        if (p.owner && p.owner.vampireLevel > 0) {
+          particleValue *= (1 + p.owner.vampireLevel);
+        }
+        c.mass += particleValue;
+        particles.splice(i,1);
+        break;
       }
     }
   }
@@ -498,7 +867,11 @@ function updateCamera(dt){
   const s=1-Math.pow(.05,dt);
   camera.x+=(player.x-camera.x)*s;
   camera.y+=(player.y-camera.y)*s;
-  const az=Math.max(.15,Math.min(2,30/player.radius));
+  let az=Math.max(.15,Math.min(2,30/player.radius));
+  // Apply zoom multiplier
+  if (player.zoomMult) {
+    az *= player.zoomMult;
+  }
   camera.targetZoom=Math.max(.03,Math.min(5,az*manualZoom));
   camera.zoom+=(camera.targetZoom-camera.zoom)*s*.5;
 }
@@ -518,7 +891,7 @@ function checkWinLose(){
   if(!player.alive){ gameOver=true;gameWon=false;showOverlay('你被吞噬了！',false);return; }
   // Check wave clear: all remaining NPCs smaller than player
   const alive=cells.filter(c=>c.alive&&!c.isPlayer);
-  const dominantCount=alive.filter(c=>c.mass>=player.mass*.5).length;
+  const dominantCount=alive.filter(c=>c.mass>=player.effectiveMass*.5).length;
   if(alive.length>0 && dominantCount===0){
     // Wave cleared!
     if(currentWave>=MAX_WAVE){
@@ -540,11 +913,11 @@ function checkAndSpawnComebackResources(dt){
   
   // Check if player is struggling: low mass and many larger threats
   const alive=cells.filter(c=>c.alive&&!c.isPlayer);
-  const largerCells=alive.filter(c=>c.mass>player.mass*1.2);
-  const eatableCells=alive.filter(c=>c.mass<player.mass*0.8);
+  const largerCells=alive.filter(c=>c.mass>player.effectiveMass*1.2);
+  const eatableCells=alive.filter(c=>c.mass<player.effectiveMass*0.8);
   
   // Spawn comeback resources if: player is small AND few eatable cells nearby AND many threats
-  if(player.mass<200 && eatableCells.length<8 && largerCells.length>5){
+  if(player.effectiveMass<200 && eatableCells.length<8 && largerCells.length>5){
     comebackTimer=5; // Wait 5 seconds before next check if triggered
     // Spawn 8-13 small resources near player
     const spawnCount=8+Math.floor(Math.random()*6);
@@ -575,7 +948,7 @@ function spawnSuperSmallParticles(dt){
   for(let i=0;i<spawnCount;i++){
     const a=Math.random()*Math.PI*2;
     // Spawn within visible range around player but not too close
-    const minDist=player.radius*4+PARTICLE_MIN_SPAWN_OFFSET;
+    const minDist=massToRadius(player.effectiveMass)*4+PARTICLE_MIN_SPAWN_OFFSET;
     const maxDist=minDist+PARTICLE_MAX_SPAWN_RANGE;
     const d=minDist+Math.random()*(maxDist-minDist);
     const mass=PARTICLE_MIN_MASS+Math.random()*PARTICLE_MASS_RANGE;
@@ -620,14 +993,15 @@ function buildInstances(){
       // Player keeps its original color
       rr=c.rgb[0]; gg=c.rgb[1]; bb=c.rgb[2];
     }else if(player&&player.alive){
-      // Enemy cells: color based on whether player can eat them
-      const massRatio = c.mass / player.mass;
-      if(c.mass<player.mass*.95){
+      // Enemy cells: color based on whether player can eat them (use effective mass)
+      const playerMass = player.effectiveMass;
+      const massRatio = c.mass / playerMass;
+      if(c.mass<playerMass*.95){
         // Eatable - green with intensity based on size difference
         const intensity = Math.max(0.15, Math.min(1, 1 - massRatio * 0.95));
         rr=0; gg=intensity; bb=0;
       }
-      else if(c.mass>player.mass*1.05){
+      else if(c.mass>playerMass*1.05){
         // Dangerous - red with intensity based on size difference
         const intensity = Math.max(0.2, Math.min(1, (massRatio - 1) * 0.65));
         rr=intensity; gg=0; bb=0;
@@ -645,26 +1019,19 @@ function buildInstances(){
 
   // 2. Ring indicators
   if(player&&player.alive){
+    const playerMass = player.effectiveMass;
     for(const c of alive){
       if(c===player)continue;
       if(c.radius<3)continue;
       let rr,gg,bb;
-      const massRatio = c.mass / player.mass;
-      if(c.mass<player.mass*.95){
+      const massRatio = c.mass / playerMass;
+      if(c.mass<playerMass*.95){
         // Eatable - green color with intensity based on size difference
-        // Smaller the enemy = easier to eat = deeper green
-        // massRatio: 0.1 (very small) -> intensity: ~0.905 -> 0.905 (deep green)
-        // massRatio: 0.5 (medium) -> intensity: ~0.525 -> 0.525 (medium green)
-        // massRatio: 0.9 (almost same) -> intensity: ~0.145 -> 0.15 (light green, clamped)
         const intensity = Math.max(0.15, Math.min(1, 1 - massRatio * 0.95));
         rr=0; gg=intensity; bb=0;
       }
-      else if(c.mass>player.mass*1.05){
+      else if(c.mass>playerMass*1.05){
         // Dangerous - red color with intensity based on size difference
-        // Larger the enemy = more dangerous = deeper red
-        // massRatio: 1.2 (slightly larger) -> intensity: ~0.13 -> 0.2 (light red, clamped)
-        // massRatio: 2.0 (double size) -> intensity: 0.65 (medium red)
-        // massRatio: 2.54+ (2.5x+ size) -> intensity: 1.0 (deep red, clamped at max)
         const intensity = Math.max(0.2, Math.min(1, (massRatio - 1) * 0.65));
         rr=intensity; gg=0; bb=0;
       }
@@ -688,14 +1055,15 @@ function buildInstances(){
       // Player keeps its original color
       rr=c.rgb[0]; gg=c.rgb[1]; bb=c.rgb[2];
     }else if(player&&player.alive){
-      // Enemy cells: color based on whether player can eat them
-      const massRatio = c.mass / player.mass;
-      if(c.mass<player.mass*.95){
+      // Enemy cells: color based on whether player can eat them (use effective mass)
+      const playerMass = player.effectiveMass;
+      const massRatio = c.mass / playerMass;
+      if(c.mass<playerMass*.95){
         // Eatable - green with intensity based on size difference
         const intensity = Math.max(0.15, Math.min(1, 1 - massRatio * 0.95));
         rr=0; gg=intensity; bb=0;
       }
-      else if(c.mass>player.mass*1.05){
+      else if(c.mass>playerMass*1.05){
         // Dangerous - red with intensity based on size difference
         const intensity = Math.max(0.2, Math.min(1, (massRatio - 1) * 0.65));
         rr=intensity; gg=0; bb=0;
@@ -766,6 +1134,7 @@ function loop(time){
     checkWinLose();
     checkAndSpawnComebackResources(rawDt);
     spawnSuperSmallParticles(rawDt);
+    updateRogueTimer(rawDt);
     if(waveMsgTimer>0) waveMsgTimer-=rawDt;
   }
 
