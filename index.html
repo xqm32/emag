@@ -1047,7 +1047,12 @@ const levelDisplay = document.getElementById('levelDisplay');
 function updateUI(){
   if(!player)return;
   massDisplay.textContent='质量: '+Math.floor(player.mass);
-  levelDisplay.textContent='阶段 '+currentWave+'/'+MAX_WAVE;
+  // Show endless mode indicator after max wave
+  if (currentWave > MAX_WAVE) {
+    levelDisplay.textContent='阶段 ∞ (无尽)';
+  } else {
+    levelDisplay.textContent='阶段 '+currentWave+'/'+MAX_WAVE;
+  }
   const alive=cells.filter(c=>c.alive);
   alive.sort((a,b)=>b.mass-a.mass);
   rankDisplay.textContent='排名: '+(alive.indexOf(player)+1)+'/'+alive.length;
@@ -1061,7 +1066,20 @@ function checkWinLose(){
   if(alive.length>0 && dominantCount===0){
     // Wave cleared!
     if(currentWave>=MAX_WAVE){
-      gameOver=true;gameWon=true;showOverlay('你赢了！',true);return;
+      // Endless mode: continue with harder enemies
+      waveMsg='⚠ 无尽模式 — 更强的敌人出现！';
+      waveMsgTimer=4;
+      // Scale up difficulty
+      const endlessCfg = {
+        count: 70,
+        dist: [0.05, 0.15, 0.35, 0.6],
+        mRange: [200 + currentWave * 50, 500 + currentWave * 100, 1500 + currentWave * 300, 3500 + currentWave * 500, 6000 + currentWave * 1000],
+        mult: 2.3 + (currentWave - MAX_WAVE) * 0.3,
+        aiCd: 0.4
+      };
+      currentWave++; // Keep incrementing for difficulty scaling
+      spawnWaveCells(endlessCfg);
+      return;
     }
     // Next wave
     currentWave++;
