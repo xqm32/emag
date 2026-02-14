@@ -728,8 +728,8 @@ class Cell {
     this.vx -= nx * sp * em / this.mass;
     this.vy -= ny * sp * em / this.mass;
     
-    // Larger, more visible particles
-    const particleRadius = Math.max(3, massToRadius(em) * 1.5);
+    // Slightly larger, softer particles
+    const particleRadius = Math.max(2.5, massToRadius(em) * 1.3);
     
     particles.push({ 
       x: this.x + nx * this.radius, 
@@ -738,22 +738,9 @@ class Cell {
       vy: ny * sp + this.vy, 
       mass: em, 
       radius: particleRadius,
-      life: 1.2, // Slightly longer life
-      rgb: this.isPlayer ? [0.5, 0.8, 1] : this.rgbB, // Player particles are blue-ish white
+      life: 1.0,
+      rgb: this.isPlayer ? [0.4, 0.6, 0.9] : this.rgbB, // Softer blue for player
       owner: this.isPlayer ? this : null
-    });
-    
-    // Add a burst effect particle
-    particles.push({
-      x: this.x + nx * this.radius * 0.5,
-      y: this.y + ny * this.radius * 0.5,
-      vx: this.vx + (Math.random()-0.5)*30,
-      vy: this.vy + (Math.random()-0.5)*30,
-      mass: em * 0.3,
-      radius: particleRadius * 0.6,
-      life: 0.4,
-      rgb: [1, 1, 0.8],
-      owner: null
     });
   }
 }
@@ -873,19 +860,8 @@ function checkCollisions(){
 function updateParticles(dt){
   for(let i=particles.length-1;i>=0;i--){
     const p=particles[i];
-    // Store previous position for trail effect
-    if(!p.trail) p.trail=[];
-    p.trail.push({x:p.x, y:p.y, life:1});
-    if(p.trail.length>4) p.trail.shift();
-    
-    p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=.96;p.vy*=.96;
-    p.life-=dt*.25; if(p.life<=0)particles.splice(i,1);
-    
-    // Update trail
-    for(let j=p.trail.length-1;j>=0;j--){
-      p.trail[j].life -= dt*2;
-      if(p.trail[j].life<=0) p.trail.splice(j,1);
-    }
+    p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=.97;p.vy*=.97;
+    p.life-=dt*.35; if(p.life<=0)particles.splice(i,1);
   }
 }
 
@@ -1067,41 +1043,17 @@ function buildInstances(){
     }
   }
 
-  // 3. Particles - Trail
-  for(const p of particles){
-    if(!p.trail) continue;
-    for(let ti=0; ti<p.trail.length; ti++){
-      const t=p.trail[ti];
-      const trailLife=t.life*p.life;
-      const trailR=p.radius*0.4*(ti+1)/p.trail.length*trailLife;
-      if(trailR<0.3) continue;
-      push(t.x,t.y,trailR, p.rgb[0],p.rgb[1],p.rgb[2],trailLife*0.4, 3);
-    }
-  }
-  // Particles - Glow layer (larger, more transparent)
+  // 3. Particles
   for(const p of particles){
     const life=Math.max(0,p.life);
+    // Skip trail particles (they have no trail array)
+    if(p.trail) continue;
     const r=p.radius*life;
     if(r<.5)continue;
-    // Outer glow
-    push(p.x,p.y,r*3, p.rgb[0],p.rgb[1],p.rgb[2],life*0.2, 3);
-    // Middle glow
-    push(p.x,p.y,r*1.8, p.rgb[0],p.rgb[1],p.rgb[2],life*0.45, 3);
-  }
-  // Particles - Core (brighter)
-  for(const p of particles){
-    const life=Math.max(0,p.life);
-    const r=p.radius*life;
-    if(r<.5)continue;
-    // Bright core - white-ish center
-    const coreRgb = [
-      Math.min(1, p.rgb[0]*0.7 + 0.3),
-      Math.min(1, p.rgb[1]*0.7 + 0.3),
-      Math.min(1, p.rgb[2]*0.7 + 0.3)
-    ];
-    push(p.x,p.y,r, coreRgb[0],coreRgb[1],coreRgb[2],life*0.9, 3);
-    // White hot center
-    push(p.x,p.y,r*0.5, 1,1,1,life*0.8, 3);
+    // Soft glow
+    push(p.x,p.y,r*2, p.rgb[0],p.rgb[1],p.rgb[2],life*0.15, 3);
+    // Core
+    push(p.x,p.y,r*0.7, p.rgb[0],p.rgb[1],p.rgb[2],life*0.6, 3);
   }
 
   // 4. Bodies (on top)
